@@ -4,21 +4,20 @@ const CategoryModelMixin = {
 		return {
 			categories: [],
 			defaultCategories: {
-				account: ""
+				name: "",
+				account: "",
+				counterpart_account: "",
+				communications: []
 			},
 		}
 	},
 	methods: {
-		_formatCategory(category) {
-			_.forEach(this.defaultCategory, (value, key) => {
-				if (category[key] === undefined) {
-					this.$set(category, key, _.clone(value))
-				}
+		autoAssign(transaction) {
+			const found = _.find(this.categories, category => {
+				const checkAccount = !category.account;
+
 			});
-
-			return category;
 		},
-
 		bindCategory(id, varName) {
 			return this.bind(id, "categories", varName || 'category');
 		},
@@ -26,7 +25,6 @@ const CategoryModelMixin = {
 			return this.bindCollection("categories", filters, varName || "categories")
 		},
 		createCategory(data) {
-			data.userID = this.$root.userID;
 			return this.create(data, "categories");
 		},
 		updateCategory(id, data) {

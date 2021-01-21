@@ -3,29 +3,19 @@ const TransactionModelMixin = {
 	data() {
 		return {
 			transactions: [],
-			defaultTransaction: {
-				userID: false,
-				categoryID: false,
-				account: "",
-				counterpart_account: "",
-				counterpart_name: "",
-				date: "",
-				amount: "",
-				communications: ""
-			},
+			// defaultTransaction: {
+			// 	userID: false,
+			// 	categoryID: false,
+			// 	account: "",
+			// 	counterpart_account: "",
+			// 	counterpart_name: "",
+			// 	date: "",
+			// 	amount: "",
+			// 	communications: ""
+			// },
 		}
 	},
 	methods: {
-		_formatTransaction(transaction) {
-			_.forEach(this.defaultTransaction, (value, key) => {
-				if (transaction[key] === undefined) {
-					this.$set(transaction, key, _.clone(value))
-				}
-			});
-
-			return transaction;
-		},
-
 		bindTransaction(id, varName) {
 			return this.bind(id, "transactions", varName || 'transaction');
 		},
@@ -33,10 +23,10 @@ const TransactionModelMixin = {
 			return this.bindCollection("transactions", filters, varName || "transactions")
 		},
 		createTransaction(data) {
-			data.userID = this.$root.userID;
 			return this.create(data, "transactions");
 		},
 		updateTransaction(id, data) {
+			data.userID = this.$root.userID;
 			return this.update(id, data, "transactions");
 		},
 		deleteTransaction(id) {

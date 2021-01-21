@@ -1,5 +1,5 @@
 const ImportPage = Vue.component("ImportPage", {
-	mixins: [],
+	mixins: [TransactionModelMixin],
 	props: ["transactions"],
 	template: `
         <div>
@@ -79,7 +79,7 @@ const ImportPage = Vue.component("ImportPage", {
 				skipEmptyLines: true,
 				complete: (results) => {
 					const lines = results.data;
-					lines.shift();
+					lines.splice(0, this.bankData.headerLinesCount);
 					this.lines = this.formatLines(lines);
 				},
 				error: (error) => {
@@ -95,10 +95,23 @@ const ImportPage = Vue.component("ImportPage", {
 					result[field] = line[index];
 				});
 				return result;
-			})
+			});
 		},
-		startImport() {
+		transactionExists(line) {
+			return !!_.find(this.transactions, t => t.communications === line.communications)
+		},
+		formatBeforeImport(line) {
+			line.amount = parseFloat(line.amount);
+			line.date = moment.utc(line.date, this.bankData.dateFormat).local();
+			return line;
+		},
 
+		startImport() {
+			this.lines.forEach(line => {
+				if(! this.transactionExists(line)) {
+
+				}
+			})
 		},
 	}
 });

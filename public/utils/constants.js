@@ -14,15 +14,17 @@ const CONST = {
 	banks: [
 		{
 			name: "Belfius",
-			delimiter: ",",
+			delimiter: ";",
+			headerLinesCount: 13,
+			dateFormat: "DD/MM/YYYY",
 			match: {
 				"account": 0,
 				"counterpart_account": 4,
 				"counterpart_name": 5,
-				"date": 1,
+				"date": 9,
 				"amount": 10,
 				"communications": 14
-			}
+			},
 		}
 	]
 };
