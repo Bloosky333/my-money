@@ -5,6 +5,35 @@ const AccountModelMixin = {
 		}
 	},
 	methods: {
+		saveAccount(account) {
+			const id = account.id;
+			if(id) {
+				return this.updateAccount(id, account)
+			} else {
+				return this.createAccount(account)
+			}
+		},
+		getAccountByID(id) {
+			if(id) {
+				const found = _.find(this.accounts, account => {
+					return account.id === id;
+				});
+				return found || {};
+			} else {
+				return {};
+			}
+		},
+		findAccount(number) {
+			if(number) {
+				const found = _.find(this.accounts, account => {
+					return account.number === number;
+				});
+				return found || {};
+			} else {
+				return {};
+			}
+		},
+
 		bindAccount(id, varName) {
 			return this.bind(id, "accounts", varName || 'account');
 		},

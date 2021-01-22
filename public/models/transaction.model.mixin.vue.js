@@ -1,20 +1,39 @@
 const TransactionModelMixin = {
-	mixins: [ModelMixin],
+	mixins: [ModelMixin, FilterModelMixin, AccountModelMixin, CategoryModelMixin],
 	data() {
 		return {
-			// defaultTransaction: {
-			// 	userID: false,
-			// 	categoryID: false,
-			// 	account: "",
-			// 	counterpart_account: "",
-			// 	counterpart_name: "",
-			// 	date: "",
-			// 	amount: "",
-			// 	communications: ""
-			// },
 		}
 	},
 	methods: {
+		saveTransaction(transaction) {
+			const id = transaction.id;
+			if (id) {
+				return this.updateTransaction(id, transaction)
+			} else {
+				return this.createTransaction(transaction)
+			}
+		},
+		autoFillTransaction(transaction) {
+			let changed = false;
+			if(!transaction.accountID && transaction.account) {
+				const account = this.findAccount(transaction.account);
+				if(account) {
+					transaction.accountID = account.id;
+					changed = true;
+				}
+			}
+			if(!transaction.categoryID) {
+				const filter = this.findMatchFilter(transaction);
+				if(filter) {
+					transaction.categoryID = filter.categoryID;
+					changed = true;
+				}
+			}
+
+			return changed;
+		},
+
+
 		bindTransaction(id, varName) {
 			return this.bind(id, "transactions", varName || 'transaction');
 		},

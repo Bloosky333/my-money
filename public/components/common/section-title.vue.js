@@ -1,13 +1,20 @@
 const SectionTitle = Vue.component("SectionTitle", {
-    props: ["btnLabel", "btnIcon", "switchModel", "switchLabel"],
+    props: ["btnLabel", "btnIcon", "switchModel", "switchLabel", "expandable", "expanded"],
     template: `
-        <div class="section-title grey--text d-flex mt-5 mb-2 align-center">
+        <div class="section-title grey--text d-flex mt-5 mb-2 align-center" @click="toggle">
             <slot></slot>
             <v-spacer></v-spacer>
             <slot name="action">
                 <v-btn
+                    v-if="expandable"
+                    small
+                    icon
+                >
+                    <v-icon small>{{ toggleIcon }}</v-icon>
+                </v-btn>
+                <v-btn
                     v-if="btnLabel"
-                    @click="runAction"
+                    @click.stop="runAction"
                     x-small
                     outlined
                     rounded
@@ -21,7 +28,7 @@ const SectionTitle = Vue.component("SectionTitle", {
                     v-model="switchModel"
                     class="mt-n1"
                     color="orange"
-                    @change="updateSwitch"
+                    @change.stop="updateSwitch"
                     hide-details
                     dense
                     inset
@@ -29,12 +36,22 @@ const SectionTitle = Vue.component("SectionTitle", {
             </slot>
         </div>
     `,
+    computed: {
+        toggleIcon() {
+            return this.expanded ? 'mdi-chevron-up' : 'mdi-chevron-down';
+        },
+    },
     methods: {
         updateSwitch() {
             this.$emit("update:switch-model", this.switchModel)
         },
         runAction() {
             this.$emit("action");
+        },
+        toggle() {
+            if(this.expandable) {
+                this.$emit("update:expanded", !this.expanded)
+            }
         }
     }
 });

@@ -10,7 +10,6 @@ const ParamsPage = Vue.component("ParamsPage", {
         	>Accounts</section-title>
         	<section-block
         		v-for="account in accounts"
-        		class="pa-3"
         	>
         		<div class="d-flex align-center justify-space-between" @click="editAccount(account)">
         			<div>
@@ -28,7 +27,6 @@ const ParamsPage = Vue.component("ParamsPage", {
         	>Categories</section-title>
         	<section-block
         		v-for="category in categories"
-        		class="pa-3"
         	>
         		<div class="d-flex align-center justify-space-between" @click="editCategory(category)">
         			<div>
@@ -51,6 +49,7 @@ const ParamsPage = Vue.component("ParamsPage", {
         		@click.native="editFilter(filter)"
         	></filter-line>
         	
+			<!-- DIALOGS -->
         	<account-dialog
         		:show.sync="showDialog.account"
         		:account="selected.account"
@@ -81,8 +80,6 @@ const ParamsPage = Vue.component("ParamsPage", {
 			},
 
 		}
-	},
-	created() {
 	},
 	computed: {
 	},

@@ -2,56 +2,55 @@ const AccountDialog = Vue.component("AccountDialog", {
 	mixins: [AccountModelMixin],
 	props: ["show", "account"],
 	template: `
-		<v-dialog
-			v-model="show"
-			@input="close"
-			@keydown.esc="close"
-			fullscreen
-			hide-overlay
-			transition="dialog-bottom-transition"
-		>
-			<v-card>
-				<v-card-title class="d-flex justify-space-between">
-					<v-btn text @click="close">
-						<v-icon left>mdi-chevron-left</v-icon> Cancel
-					</v-btn>
-					<v-btn color="orange" @click="save">
-						<v-icon left>mdi-check</v-icon> Save
-					</v-btn>
-				</v-card-title>
-				<v-card-text class="pt-8 font-weight-light">
-					<v-text-field
-						label="Name"
-						v-model="account.name"
-					></v-text-field>
-					
-					<v-text-field
-						label="Number"
-						v-model="account.number"
-					></v-text-field>
-				</v-card-text>
-			</v-card>
-		</v-dialog>
+		<dialog-block :show.sync="show" @save="saveAndClose">
+			<v-text-field
+				label="Name"
+				v-model="account.name"
+			></v-text-field>
+			
+			<v-text-field
+				label="Number"
+				v-model="account.number"
+			></v-text-field>
+			
+			<v-btn 
+				color="error"
+				small
+				text
+				block
+				@click="showConfirm=true"
+				class="mt-8 mb-12"
+			>
+				<v-icon	small left>mdi-delete</v-icon> Delete
+			</v-btn> 
+			
+			<confirm-dialog 
+				:show.sync="showConfirm" 
+				@confirm="deleteAndClose"
+			></confirm-dialog>
+		</dialog-block>
     `,
 	data() {
 		return {
+			showConfirm: false,
+		}
+	},
+	watch: {
+		show(val) {
+			this.$emit('update:show', val);
 		}
 	},
 	computed: {
 
 	},
 	methods: {
-		save() {
-			const id = this.account.id;
-			if(id) {
-				this.updateAccount(id, this.account)
-			} else {
-				this.createAccount(this.account)
-			}
-			this.close();
+		saveAndClose() {
+			this.saveAccount(this.account);
+			this.show = false;
 		},
-		close() {
-			this.$emit("update:show", false);
+		deleteAndClose() {
+			this.deleteAccount(this.account.id);
+			this.show = false;
 		}
 	}
 });

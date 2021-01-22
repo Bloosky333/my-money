@@ -21,7 +21,7 @@ const FilterForm = Vue.component("FilterForm", {
 			
 			<v-text-field
 				label="Counterpart account"
-				v-model="filter.counterpart_account"
+				v-model="filter.counterpartAccount"
 			></v-text-field>
 			
 			<section-title
@@ -29,12 +29,12 @@ const FilterForm = Vue.component("FilterForm", {
 				btn-icon="mdi-plus"
 				@action="addContains"
 			>Communications contains</section-title>
-			<section-block v-for="text in filter.contains">
+			<section-block v-for="(text, i) in filter.contains" class="py-0">
 				<div class="d-flex align-center">
 					<span>and</span>
 					<v-text-field
 						placeholder="Something ..."
-						v-model="text"
+						v-model="filter.contains[i]"
 						solo
 						dense
 						single-line

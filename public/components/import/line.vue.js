@@ -5,8 +5,8 @@ const ImportLine = Vue.component("ImportLine", {
             <v-row>
                 <v-col cols="4" class="pb-0">{{ transaction.account }}</v-col>
                 <v-col cols="8" class="text-right pb-0">
-                    <span v-if="transaction.counterpart_name">{{ transaction.counterpart_name }} / </span>
-                    {{ transaction.counterpart_account }}
+                    <span v-if="transaction.counterpartName">{{ transaction.counterpartName }} / </span>
+                    {{ transaction.counterpartAccount }}
                 </v-col>
             </v-row>
             <v-row>

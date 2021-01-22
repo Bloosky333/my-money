@@ -1,5 +1,5 @@
 const MainPage = Vue.component("MainPage", {
-    mixins: [TransactionModelMixin, AccountModelMixin, CategoryModelMixin, FilterModelMixin],
+    mixins: [TransactionModelMixin],
     template: `
     <div>
 <!--        <character-status-bar -->
@@ -12,33 +12,32 @@ const MainPage = Vue.component("MainPage", {
         <v-container class="page-with-header">
             <stats-page
                 v-if="page==='stats'"
-                :accounts.sync="accounts"
-                :transactions.sync="transactions"
-                :categories.sync="categories"
-                :filters.sync="filters"
+                :accounts="accounts"
+                :transactions="transactions"
+                :categories="categories"
+                :filters="filters"
             ></stats-page>
             
             <transactions-page
                 v-if="page==='transactions'"
-                :accounts.sync="accounts"
-                :transactions.sync="transactions"
-                :categories.sync="categories"
-                :accounts.sync="categories"
-                :filters.sync="filters"
+                :accounts="accounts"
+                :transactions="transactions"
+                :categories="categories"
+                :filters="filters"
             ></transactions-page>
             
             <import-page
                 v-if="page==='import'"
-                :transactions.sync="transactions"
-                :categories.sync="categories"
-                :filters.sync="filters"
+                :transactions="transactions"
+                :categories="categories"
+                :filters="filters"
             ></import-page>
             
             <params-page
                 v-if="page==='params'"
-                :categories.sync="categories"
-                :accounts.sync="accounts"
-                :filters.sync="filters"
+                :categories="categoriesOrdered"
+                :accounts="accounts"
+                :filters="filters"
             ></params-page>
             
             <div class="my-12 text-caption font-weight-thin text--grey text-center">
@@ -71,6 +70,11 @@ const MainPage = Vue.component("MainPage", {
                     this.bindFilters("filters", filters);
                 }
             }
+        },
+    },
+    computed: {
+        categoriesOrdered() {
+            return _.sortBy(this.categories, c => c.name);
         },
     },
     methods: {

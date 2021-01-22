@@ -92,6 +92,7 @@ const ImportPage = Vue.component("ImportPage", {
 		onFileSelect(file) {
 			Papa.parse(file, {
 				delimiter: this.bankData.delimiter,
+				encoding: this.bankData.encoding,
 				header: false,
 				skipEmptyLines: true,
 				complete: (results) => {
@@ -137,6 +138,7 @@ const ImportPage = Vue.component("ImportPage", {
 				line.status.status = 'ignored';
 			} else {
 				try{
+					this.autoFillTransaction(line.data);
 					await this.createTransaction(line.data);
 					line.status.status = 'success';
 				} catch {

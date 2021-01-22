@@ -6,18 +6,32 @@ const CategoryModelMixin = {
 			defaultCategories: {
 				name: "",
 				account: "",
-				counterpart_account: "",
+				counterpartAccount: "",
 				communications: []
 			},
 		}
 	},
 	methods: {
-		autoAssign(transaction) {
-			const found = _.find(this.categories, category => {
-				const checkAccount = !category.account;
-
-			});
+		saveCategory(category) {
+			const id = category.id;
+			if(id) {
+				return this.updateCategory(id, category)
+			} else {
+				return this.createCategory(category)
+			}
 		},
+		getCategoryByID(id) {
+			if(id) {
+				const found = _.find(this.categories, category => {
+					return category.id === id;
+				});
+				return found || {};
+			} else {
+				return {};
+			}
+		},
+
+
 		bindCategory(id, varName) {
 			return this.bind(id, "categories", varName || 'category');
 		},

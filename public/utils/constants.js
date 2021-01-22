@@ -5,8 +5,8 @@ const CONST = {
 	timeFormat: "HH:mm",
 	transactionHeaders: {
 		"account": "Account",
-		"counterpart_account": "Counterpart Account",
-		"counterpart_name": "Counterpart Name",
+		"counterpartAccount": "Counterpart Account",
+		"counterpartName": "Counterpart Name",
 		"date": "Date",
 		"amount": "Amount",
 		"communications": "Communications"
@@ -17,10 +17,11 @@ const CONST = {
 			delimiter: ";",
 			headerLinesCount: 13,
 			dateFormat: "DD/MM/YYYY",
+			encoding: "iso-8859-2",
 			match: {
 				"account": 0,
-				"counterpart_account": 4,
-				"counterpart_name": 5,
+				"counterpartAccount": 4,
+				"counterpartName": 5,
 				"date": 9,
 				"amount": 10,
 				"communications": 14

@@ -2,61 +2,60 @@ const CategoryDialog = Vue.component("CategoryDialog", {
 	mixins: [CategoryModelMixin],
 	props: ["show", "category"],
 	template: `
-		<v-dialog
-			v-model="show"
-			@input="close"
-			@keydown.esc="close"
-			fullscreen
-			hide-overlay
-			transition="dialog-bottom-transition"
-		>
-			<v-card>
-				<v-card-title class="d-flex justify-space-between">
-					<v-btn text @click="close">
-						<v-icon left>mdi-chevron-left</v-icon> Cancel
-					</v-btn>
-					<v-btn color="orange" @click="save">
-						<v-icon left>mdi-check</v-icon> Save
-					</v-btn>
-				</v-card-title>
-				<v-card-text class="pt-8 font-weight-light">
-					<v-text-field
-						label="Name"
-						v-model="category.name"
-					></v-text-field>
-					
-					<v-text-field
-						label="Icon"
-						v-model="category.icon"
-					></v-text-field>
-					
-					<v-text-field
-						label="Color"
-						v-model="category.color"
-					></v-text-field>
-				</v-card-text>
-			</v-card>
-		</v-dialog>
+		<dialog-block :show.sync="show" @save="saveAndClose">
+			<v-text-field
+				label="Name"
+				v-model="category.name"
+			></v-text-field>
+			
+			<v-text-field
+				label="Icon"
+				v-model="category.icon"
+			></v-text-field>
+			
+			<v-text-field
+				label="Color"
+				v-model="category.color"
+			></v-text-field>
+			
+			<v-btn 
+				color="error"
+				small
+				text
+				block
+				@click="showConfirm=true"
+				class="mt-8 mb-12"
+			>
+				<v-icon	small left>mdi-delete</v-icon> Delete
+			</v-btn> 
+			
+			<confirm-dialog 
+				:show.sync="showConfirm" 
+				@confirm="deleteAndClose"
+			></confirm-dialog>
+		</dialog-block>
     `,
 	data() {
 		return {
+			showConfirm: false,
+		}
+	},
+	watch: {
+		show(val) {
+			this.$emit('update:show', val);
 		}
 	},
 	computed: {
 
 	},
 	methods: {
-		save() {
-			const id = this.category.id;
-			if(id) {
-				this.updateCategory(id, this.category)
-			} else {
-				this.createCategory(this.category)
-			}
-			this.close();
+		saveAndClose() {
+			this.saveCategory(this.category);
+			this.show = false;
 		},
-		close() {
-			this.$emit("update:show", false);
+		deleteAndClose() {
+			this.deleteFilter(this.category.id);
+			this.show = false;
 		}
 	}
 });

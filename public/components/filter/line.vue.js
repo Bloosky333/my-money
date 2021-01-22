@@ -1,8 +1,8 @@
 const FilterLine = Vue.component("FilterLine", {
     props: ["filter", "accounts", "categories"],
     template: `
-        <section-block class="px-4">
-            <v-row>
+        <section-block>
+            <v-row no-gutters dense>
                 <v-col cols="6" class="pb-0">
                     <v-icon left small class="mt-n1">mdi-bank</v-icon> {{ account.name }}
                 </v-col>
@@ -16,13 +16,14 @@ const FilterLine = Vue.component("FilterLine", {
             </v-row>
             <div>
                 <v-chip
+                    v-if="filter.counterpartAccount"
                     small
-                    class="mr-1"
-                >{{ filter.counterpart_account }}</v-chip>
+                    class="mr-05 mt-05 font-weight-light"
+                >{{ filter.counterpartAccount }}</v-chip>
                 <v-chip
                     v-for="text in filter.contains"
                     small
-                    class="mr-1"
+                    class="mr-05 mt-05 font-weight-light"
                 >{{ text }}</v-chip>
             </div>
             <div class="text-center">

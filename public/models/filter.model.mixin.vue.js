@@ -5,14 +5,38 @@ const FilterModelMixin = {
 		}
 	},
 	methods: {
-		saveFilter() {
-			const id = this.filter.id;
+		saveFilter(filter) {
+			const id = filter.id;
 			if(id) {
-				this.updateFilter(id, this.filter)
+				return this.updateFilter(id, filter)
 			} else {
-				this.createFilter(this.filter)
+				return this.createFilter(filter)
 			}
-			this.close();
+		},
+		findMatchFilter(transaction) {
+			return _.find(this.filters, filter => {
+				return this.filterMatch(filter, transaction);
+			})
+		},
+		filterMatch(filter, transaction) {
+			if(
+				(filter.accountID && filter.accountID !== transaction.accountID) ||
+				(filter.counterpartAccount && filter.counterpartAccount !== transaction.counterpartAccount)
+			) {
+				return false;
+			} else if(filter.contains.length) {
+				const communications = _.lowerCase(_.deburr(transaction.communications));
+				return filter.contains.every(text => {
+					if(text) {
+						const search = _.lowerCase(_.deburr(text));
+						return communications.includes(search);
+					} else {
+						return true;
+					}
+				});
+			} else {
+				return true;
+			}
 		},
 
 		bindFilter(id, varName) {

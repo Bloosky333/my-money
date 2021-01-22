@@ -1,17 +1,22 @@
 const TransactionLine = Vue.component("TransactionLine", {
-    props: ["transaction", "categories"],
+    mixins: [AccountModelMixin, CategoryModelMixin],
+    props: ["transaction", "categories", "accounts"],
     template: `
-        <section-block class="px-4">
-            <div v-if="transaction.categoryID" :class="category.color + '--text'">
-                <v-icon left>{{ category.icon }}</v-icon>
-                {{ category.name }}
+        <section-block>
+            <div class="d-flex align-center justify-space-between">
+                <div v-if="transaction.categoryID" :class="category.color + '--text'">
+                    <v-icon left>{{ category.icon }}</v-icon>
+                    {{ category.name }}
+                </div>
+                <div v-else class="red--text">
+                    No category
+                </div>
+                <div>{{ account.name }}</div>
             </div>
-            <div v-else class="red--text">
-                No category
-            </div>
+            
             <v-row>
-                <v-col cols="8"><small class="font-weight-light">{{ transaction.communications }}</small></v-col>
-                <v-col cols="4" class="text-right">
+                <v-col cols="8" class="pb-0"><small class="font-weight-light">{{ transaction.communications }}</small></v-col>
+                <v-col cols="4" class="text-right pb-0">
                     <h3 :class="transaction.amount > 0 ? 'green--text' : 'red--text'">{{ transaction.amount }}€</h3>
                     <div>{{ transaction.date | dateToStr(true) }}</div>
                 </v-col>
@@ -20,11 +25,10 @@ const TransactionLine = Vue.component("TransactionLine", {
     `,
     computed: {
         category() {
-            if(this.transaction.categoryID) {
-                return _.find(this.categories, c => c.id === this.transaction.categoryID);
-            } else {
-                return false;
-            }
+            return this.getCategoryByID(this.transaction.categoryID);
+        },
+        account() {
+            return this.getAccountByID(this.transaction.accountID);
         }
     }
 });

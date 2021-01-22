@@ -4,17 +4,6 @@
     text-overflow: ellipsis;
     max-width: 100%;
 }
-.full-width {
-    width: 100%;
-}
-
-.v-btn.text-left .v-btn__content {
-    justify-content: flex-start;
-}
-.v-btn.btn-square {
-    min-width: 40px !important;
-    padding: 0 2px !important;
-}
 
 .v-btn.fab-center,
 .fab-center {
@@ -22,6 +11,13 @@
     transform: translateX(-50%);
     z-index: 5;
     bottom: 28px;
+}
+
+.mr-05 {
+    margin-right: 2px;
+}
+.mt-05 {
+    margin-top: 2px;
 }
 
 

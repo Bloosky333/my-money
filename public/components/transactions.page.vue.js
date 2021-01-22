@@ -1,15 +1,21 @@
 const TransactionsPage = Vue.component("TransactionsPage", {
-	mixins: [],
+	mixins: [TransactionModelMixin],
 	props: ["transactions", "accounts", "categories", "filters"],
 	template: `
         <div>
+        	<v-btn text block @click="processTransactions">
+        		<v-icon left>mdi-auto-fix</v-icon>
+        		Process
+        		<span v-if="changed"> - Changed : {{ changed }}</span>
+			</v-btn>
+        	
         	<template v-for="section in sections" v-if="section.transactions.length">
         		<section-title
-        			:btn-icon="toggleIcon(section.name)"
-        			@action="toggle(section.name)"
-        		>{{ section.name }}</section-title>
+        			expandable="true"
+        			:expanded.sync="expanded[section.name]"
+        		>{{ section.name }} ({{ section.transactions.length }})</section-title>
         		<v-expand-transition>
-        			<div>
+        			<div v-if="expanded[section.name]">
 						<transaction-line
 							v-for="transaction in section.transactions"
 							:transaction="transaction"
@@ -33,7 +39,10 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 		return {
 			showEdit: false,
 			selected: {},
-			expanded: {}
+			expanded: {
+				Uncategorized: true
+			},
+			changed: 0,
 		}
 	},
 	created() {
@@ -45,7 +54,6 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 			const uncategorized = {
 				name: "Uncategorized",
 				transactions: [],
-				expanded: false,
 			};
 
 			let section = {
@@ -54,14 +62,13 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 			ordered.forEach(transaction => {
 				if(transaction.categoryID) {
 					const date = dateToMoment(transaction.date);
-					const name = date.format("YYYY MMMM")
+					const name = date.format("YYYY MMMM");
 
 					if(name !== section.name){
 						section = {
 							name: name,
 							transactions: [],
-							expanded: false,
-						}
+						};
 						sections.push(section);
 					}
 					section.transactions.push(transaction);
@@ -70,20 +77,29 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 				}
 			});
 
+			if(sections.length) {
+				this.expanded[sections[0].name] = true;
+			}
+
 			sections.unshift(uncategorized);
+
 			return sections;
 		},
 	},
 	methods: {
+		processTransactions() {
+			this.changed = 0;
+			this.transactions.forEach(transaction => {
+				const changed = this.autoFillTransaction(transaction);
+				if(changed) {
+					this.saveTransaction(transaction);
+					this.changed ++;
+				}
+			})
+		},
 		editTransaction(transaction) {
 			this.showEdit = true;
 			this.selected = transaction;
 		},
-		toggleIcon(name) {
-			return this.expanded[name] ? 'mdi-chevron-up' : 'mdi-chevron-down';
-		},
-		toggle(name) {
-			this.expanded[name] = !this.expanded[name];
-		}
 	}
 });

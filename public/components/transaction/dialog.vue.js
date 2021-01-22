@@ -1,121 +1,134 @@
 const TransactionDialog = Vue.component("TransactionDialog", {
-	mixins: [TransactionModelMixin, FilterModelMixin],
+	mixins: [TransactionModelMixin],
 	props: ["show", "transaction", "accounts", "categories"],
 	template: `
-		<div>
-			<v-dialog
-				v-model="show"
-				@input="close"
-				@keydown.esc="close"
-				fullscreen
-				hide-overlay
-				transition="dialog-bottom-transition"
+		<dialog-block :show.sync="show" @save="saveAndClose">
+			<section-block class="px-4">
+				<v-autocomplete
+					label="Category"
+					v-model="transaction.categoryID"
+					:items="categories"
+					item-text="name"
+					item-value="id"
+					prepend-icon="mdi-tag"
+				></v-autocomplete>
+				
+				<v-autocomplete
+					v-if="transaction.accountID || !transaction.account"
+					label="Account"
+					v-model="transaction.accountID"
+					:items="accounts"
+					item-text="name"
+					item-value="id"
+					:readonly="transaction.imported"
+					prepend-icon="mdi-bank"
+					:hint="transaction.account"
+					persistent-hint
+					class="mb-8"
+				></v-autocomplete>
+				<v-text-field
+					v-else
+					label="Account"
+					v-model="transaction.account"
+					:readonly="transaction.imported"
+					prepend-icon="mdi-bank"
+				></v-text-field>
+				
+				<v-text-field
+					label="Counterpart Account"
+					v-model="transaction.counterpartAccount"
+					:readonly="transaction.imported"
+					prepend-icon="mdi-bank-transfer-out"
+				></v-text-field>
+				<v-text-field
+					label="Counterpart Name"
+					v-model="transaction.counterpartName"
+					:readonly="transaction.imported"
+					prepend-icon="mdi-account-arrow-right"
+				></v-text-field>
+				<v-text-field
+					label="Date"
+					v-model="formattedDate"
+					:readonly="transaction.imported"
+					prepend-icon="mdi-calendar-outline"
+				></v-text-field>
+				<v-text-field
+					label="Amount"
+					v-model="transaction.amount"
+					:readonly="transaction.imported"
+					prepend-icon="mdi-currency-eur"
+				></v-text-field>
+				
+				<v-textarea
+					label="Communications"
+					v-model="transaction.communications"
+					:readonly="transaction.imported"
+					auto-grow
+					:rows="2"
+					prepend-icon="mdi-message-reply-text"
+				></v-textarea>
+			</section-block>
+			
+			<v-btn
+				v-if="!showEditFilter"
+				text
+				block
+				@click="newFilter"
+				class="mt-4"
 			>
-				<v-card>
-					<v-card-title class="d-flex justify-space-between">
-						<v-btn text @click="close">
-							<v-icon left>mdi-chevron-left</v-icon> Cancel
-						</v-btn>
-						<v-btn color="orange" @click="save">
-							<v-icon left>mdi-check</v-icon> Save
-						</v-btn>
-					</v-card-title>
-					<v-card-text class="pt-2 font-weight-light">
-						<section-block class="px-4">
-							<v-autocomplete
-								label="Category"
-								v-model="transaction.categoryID"
-								:items="categories"
-								item-text="name"
-								item-value="id"
-								prepend-icon="mdi-tag"
-							></v-autocomplete>
-							
-							<v-autocomplete
-								v-if="transaction.accountID || !transaction.account"
-								label="Account"
-								v-model="transaction.account"
-								:disabled="transaction.imported"
-								prepend-icon="mdi-bank"
-								hint="transaction.account"
-								persistent-hint
-							></v-autocomplete>
-							<v-text-field
-								v-else
-								label="Account"
-								v-model="transaction.account"
-								:disabled="transaction.imported"
-								prepend-icon="mdi-bank"
-							></v-text-field>
-							
-							<v-text-field
-								label="Counterpart Account"
-								v-model="transaction.counterpart_account"
-								:disabled="transaction.imported"
-								prepend-icon="mdi-bank-transfer-out"
-							></v-text-field>
-							<v-text-field
-								label="Counterpart Name"
-								v-model="transaction.counterpart_name"
-								:disabled="transaction.imported"
-								prepend-icon="mdi-account-arrow-right"
-							></v-text-field>
-							<v-text-field
-								label="Date"
-								v-model="formattedDate"
-								:disabled="transaction.imported"
-								prepend-icon="mdi-calendar-outline"
-							></v-text-field>
-							<v-text-field
-								label="Amount"
-								v-model="transaction.amount"
-								:disabled="transaction.imported"
-								prepend-icon="mdi-currency-eur"
-							></v-text-field>
-							
-							<v-textarea
-								label="Communications"
-								v-model="transaction.communications"
-								:disabled="transaction.imported"
-								auto-grow
-								:rows="5"
-								prepend-icon="mdi-message-reply-text"
-							></v-textarea>
-						</section-block>
-						
+				<v-icon left small>mdi-filter-plus</v-icon> Create a filter
+			</v-btn>
+			
+			<v-expand-transition>
+				<section-block v-if="showEditFilter" class="pa-4 mt-4">
+					<div class="d-flex justify-space-between align-center mb-4">
+						<h2 class="font-weight-light">New filter</h2>
 						<v-btn
-							text
-							block
-							@click="createFilter"
-							v-if="!showEditFilter"
-						>
-							<v-icon left small>mdi-filter-plus</v-icon> Create a filter
-						</v-btn>
-						
-						<section-block v-if="showEditFilter" class="pa-4 mb-10 mt-4">
-							<div class="d-flex justify-space-between align-center mb-4">
-								<h2 class="font-weight-light">New filter</h2>
-								<v-btn
-									icon small
-									@click="showEditFilter=false"
-								><v-icon >mdi-close</v-icon></v-btn>
-							</div>
-							<v-divider></v-divider>
-							<filter-form
-								:filter.sync="newFilter"
-								:accounts="accounts"
-								:categories="categories"
-							></filter-form>
-						</section-block>
-					</v-card-text>
-				</v-card>
-			</v-dialog>
-		</div>
+							icon small
+							@click="showEditFilter=false"
+						><v-icon >mdi-close</v-icon></v-btn>
+					</div>
+					<v-divider></v-divider>
+					<filter-form
+						:filter.sync="filter"
+						:accounts="accounts"
+						:categories="categories"
+					></filter-form>
+					
+					<div v-if="invalidFilter" class="error--text text-center mt-2">
+						<v-icon left small color="error">mdi-alert</v-icon> Filter will not apply to this transaction
+					</div>
+				</section-block>
+			</v-expand-transition>
+			
+			<v-btn 
+				color="error"
+				small
+				text
+				block
+				:disabled="transaction.imported"
+				@click="showConfirm=true"
+				class="mt-8 mb-12"
+			>
+				<v-icon	small left>mdi-delete</v-icon> Delete
+			</v-btn> 
+			
+			<confirm-dialog 
+				:show.sync="showConfirm" 
+				@confirm="deleteAndClose"
+			></confirm-dialog>
+		</dialog-block>
     `,
 	data() {
 		return {
+			showConfirm: false,
 			showEditFilter: false,
-			newFilter: {},
+			filter: {},
+		}
+	},
+	watch: {
+		show(val) {
+			this.$emit('update:show', val);
 		}
 	},
 	computed: {
@@ -130,28 +143,32 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 			set(value) {
 				this.transaction.date = value.toDate();
 			}
+		},
+		invalidFilter() {
+			return !this.filterMatch(this.filter, this.transaction);
 		}
 	},
 	methods: {
-		save() {
-			const id = this.account.id;
-			if (id) {
-				this.updateAccount(id, this.account)
-			} else {
-				this.createAccount(this.account)
-			}
-			this.close();
-		},
-		createFilter() {
+		newFilter() {
 			this.showEditFilter = true;
-			this.newFilter = {
+			this.filter = {
 				categoryID: this.transaction.categoryID,
 				accountID: this.transaction.accountID,
-				counterpart_account: this.transaction.counterpart_account,
+				counterpartAccount: this.transaction.counterpartAccount,
+				contains: [],
 			};
 		},
-		close() {
-			this.$emit("update:show", false);
+		saveAndClose() {
+			this.saveTransaction(this.transaction);
+			if(this.showEditFilter) {
+				this.createFilter(this.filter);
+			}
+			this.show = false;
+			this.showEditFilter = false;
+		},
+		deleteAndClose() {
+			this.deleteTransaction(this.transaction.id);
+			this.show = false;
 		}
 	}
 });
