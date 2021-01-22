@@ -25,6 +25,7 @@ const CategoryModelMixin = {
 			return this.bindCollection("categories", filters, varName || "categories")
 		},
 		createCategory(data) {
+			data.userID = this.$root.userID;
 			return this.create(data, "categories");
 		},
 		updateCategory(id, data) {

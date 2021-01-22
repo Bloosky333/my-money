@@ -35,17 +35,17 @@ const ModelMixin = {
         },
         async create(data, collectionName) {
             const res = await this.getCollection(collectionName).add(data);
-            this.$root.showToast(_.capitalize(collectionName) +" created", "success");
+            // this.$root.showToast(_.capitalize(collectionName) +" created", "success");
             return res;
         },
         async update(id, data, collectionName) {
             const res = await this.getRef(id, collectionName).set(data, {merge: true});
-            this.$root.showToast(_.capitalize(collectionName) + " updated", "success");
+            // this.$root.showToast(_.capitalize(collectionName) + " updated", "success");
             return res;
         },
         async remove(id, collectionName) {
             const res = await this.getRef(id, collectionName).delete();
-            this.$root.showToast(_.capitalize(collectionName) + " deleted", "success");
+            // this.$root.showToast(_.capitalize(collectionName) + " deleted", "success");
             return res;
         },
     }

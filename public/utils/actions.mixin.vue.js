@@ -1,5 +1,5 @@
-const TransactionMixin = {
-	mixins: [TransactionModelMixin],
+const ActionsMixin = {
+	mixins: [],
 	data() {
 		return {
 		}
@@ -7,5 +7,6 @@ const TransactionMixin = {
 	computed: {
 	},
 	methods: {
+
 	}
 };

@@ -2,7 +2,6 @@ const TransactionModelMixin = {
 	mixins: [ModelMixin],
 	data() {
 		return {
-			transactions: [],
 			// defaultTransaction: {
 			// 	userID: false,
 			// 	categoryID: false,
@@ -23,10 +22,10 @@ const TransactionModelMixin = {
 			return this.bindCollection("transactions", filters, varName || "transactions")
 		},
 		createTransaction(data) {
+			data.userID = this.$root.userID;
 			return this.create(data, "transactions");
 		},
 		updateTransaction(id, data) {
-			data.userID = this.$root.userID;
 			return this.update(id, data, "transactions");
 		},
 		deleteTransaction(id) {

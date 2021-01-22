@@ -1,5 +1,5 @@
 const MainPage = Vue.component("MainPage", {
-    mixins: [TransactionMixin],
+    mixins: [TransactionModelMixin, AccountModelMixin, CategoryModelMixin, FilterModelMixin],
     template: `
     <div>
 <!--        <character-status-bar -->
@@ -12,25 +12,35 @@ const MainPage = Vue.component("MainPage", {
         <v-container class="page-with-header">
             <stats-page
                 v-if="page==='stats'"
+                :accounts.sync="accounts"
                 :transactions.sync="transactions"
+                :categories.sync="categories"
+                :filters.sync="filters"
             ></stats-page>
             
             <transactions-page
                 v-if="page==='transactions'"
+                :accounts.sync="accounts"
                 :transactions.sync="transactions"
+                :categories.sync="categories"
+                :filters.sync="filters"
             ></transactions-page>
             
             <import-page
                 v-if="page==='import'"
                 :transactions.sync="transactions"
+                :categories.sync="categories"
+                :filters.sync="filters"
             ></import-page>
             
             <params-page
                 v-if="page==='params'"
                 :categories.sync="categories"
+                :accounts.sync="accounts"
+                :filters.sync="filters"
             ></params-page>
             
-            <div class="mt-12 text-caption font-weight-thin text--grey text-center">
+            <div class="my-12 text-caption font-weight-thin text--grey text-center">
                 Next IT © 2021
             </div>
         </v-container>
@@ -39,10 +49,12 @@ const MainPage = Vue.component("MainPage", {
     `,
     data() {
         return {
-            transactions: false,
-            categories: false,
+            transactions: [],
+            accounts: [],
+            categories: [],
+            filters: [],
             loaded: false,
-            page: "import",
+            page: "transactions",
         }
     },
     watch: {
@@ -53,6 +65,9 @@ const MainPage = Vue.component("MainPage", {
                     const filters = [];
                     filters.push(["userID", "==", this.$root.userID]);
                     this.bindTransactions("transactions", filters);
+                    this.bindAccounts("accounts", filters);
+                    this.bindCategories("categories", filters);
+                    this.bindFilters("filters", filters);
                 }
             }
         },

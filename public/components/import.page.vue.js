@@ -22,6 +22,7 @@ const ImportPage = Vue.component("ImportPage", {
 						hide-details
 						single-line
 						@change="onFileSelect"
+						color="orange"
 					></v-file-input>
 					<v-btn
 						color="orange"
@@ -33,22 +34,38 @@ const ImportPage = Vue.component("ImportPage", {
 				</div>
 			</section-block>
 			
+			<div>
+				<v-progress-linear
+					color="orange"
+					:buffer-value="buffer"
+					v-model="progressPercent"
+					stream
+					height="25"
+					dark
+				>
+					<strong>
+						{{ progressUnit }}/{{ lines.length }}
+						({{ Math.ceil(progressPercent) }}%)
+					</strong>
+				</v-progress-linear>
+			</div>
+			
 			<section-title>3. Check your data</section-title>
-			<section-block>
-				<v-data-table
-					:headers="headers"
-					:items="lines"
-					dense
-					fixed-header
-					:mobile-breakpoint="400"
-				></v-data-table>
-			</section-block>
+			<import-line
+				v-for="line in lines"
+				:transaction="line.data"
+				:status="line.status"
+			></import-line>
         </div>
     `,
 	data() {
 		return {
 			lines: [],
 			bank: CONST.banks[0].name,
+			buffer: 1,
+			progressPercent: 0,
+			progressUnit: 0,
+			percentPerLine: 0,
 		}
 	},
 	created() {
@@ -87,31 +104,57 @@ const ImportPage = Vue.component("ImportPage", {
 				}
 			});
 		},
+		formatLine(line) {
+			line.amount = parseFloat(line.amount.replace(',', '.'));
+			line.date = moment.utc(line.date, this.bankData.dateFormat).local().toDate();
+			line.imported = true;
+			return line;
+		},
 		formatLines(lines) {
+			// TODO: Regroup par account
 			const matches = this.bankData.match;
 			return lines.map(line => {
-				const result = {};
+				const data = {};
 				_.forEach(matches, (index, field) => {
-					result[field] = line[index];
+					data[field] = line[index];
 				});
-				return result;
+				return {
+					data: this.formatLine(data),
+					status: {
+						processing: false,
+						status: false
+					}
+				};
 			});
 		},
 		transactionExists(line) {
 			return !!_.find(this.transactions, t => t.communications === line.communications)
 		},
-		formatBeforeImport(line) {
-			line.amount = parseFloat(line.amount);
-			line.date = moment.utc(line.date, this.bankData.dateFormat).local();
-			return line;
-		},
 
-		startImport() {
-			this.lines.forEach(line => {
-				if(! this.transactionExists(line)) {
-
+		async importLine(line) {
+			line.status.processing = true;
+			if(this.transactionExists(line.data)) {
+				line.status.status = 'ignored';
+			} else {
+				try{
+					await this.createTransaction(line.data);
+					line.status.status = 'success';
+				} catch {
+					line.status.status = 'error';
 				}
-			})
+			}
+			line.status.processing = false;
+
+		},
+		async startImport() {
+			this.progressPercent = 0;
+			this.progressUnit = 0;
+			this.buffer = 100 / this.lines.length;
+			for(let i=0; i<this.lines.length; i++) {
+				await this.importLine(this.lines[i]);
+				this.progressPercent += this.buffer;
+				this.progressUnit ++;
+			}
 		},
 	}
 });

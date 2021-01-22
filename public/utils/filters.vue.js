@@ -10,22 +10,22 @@ Vue.filter('round', function (value, precision=2) {
     }
 });
 
-Vue.filter("strToDate", function (value) {
-    if (value) {
-        return moment.utc(value, CONST.serverDateFormat).local();
-    } else {
-        return value;
-    }
-});
-
 Vue.filter("dateToStr", function (value, dateOnly, timeOnly) {
     if (value) {
-        if (dateOnly) {
-            return value.format(CONST.userDateFormat);
-        } else if (timeOnly) {
-            return value.format(CONST.timeFormat);
+        let date;
+        if(value instanceof firebase.firestore.Timestamp) {
+            date = moment(value.toDate())
+        } else if (value instanceof Date) {
+            date = moment(value);
         } else {
-            return value.format(CONST.userDatetimeFormat);
+            date = value;
+        }
+        if (dateOnly) {
+            return date.format(CONST.userDateFormat);
+        } else if (timeOnly) {
+            return date.format(CONST.timeFormat);
+        } else {
+            return date.format(CONST.userDatetimeFormat);
         }
     } else {
         return "";
