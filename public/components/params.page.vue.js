@@ -51,20 +51,20 @@ const ParamsPage = Vue.component("ParamsPage", {
         		@click.native="editFilter(filter)"
         	></filter-line>
         	
-        	<edit-account-dialog
+        	<account-dialog
         		:show.sync="showDialog.account"
         		:account="selected.account"
-        	></edit-account-dialog>
-        	<edit-category-dialog
+        	></account-dialog>
+        	<category-dialog
         		:show.sync="showDialog.category"
         		:category="selected.category"
-        	></edit-category-dialog>
-        	<edit-filter-dialog
+        	></category-dialog>
+        	<filter-dialog
         		:show.sync="showDialog.filter"
         		:filter="selected.filter"
         		:accounts="accounts"
         		:categories="categories"
-        	></edit-filter-dialog>
+        	></filter-dialog>
         </div>
     `,
 	data() {

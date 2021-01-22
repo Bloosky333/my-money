@@ -1,6 +1,6 @@
-const EditAccountDialog = Vue.component("EditAccountDialog", {
-	mixins: [AccountModelMixin],
-	props: ["show", "account"],
+const FilterDialog = Vue.component("FilterDialog", {
+	mixins: [FilterModelMixin],
+	props: ["show", "filter", "accounts", "categories"],
 	template: `
 		<v-dialog
 			v-model="show"
@@ -15,41 +15,21 @@ const EditAccountDialog = Vue.component("EditAccountDialog", {
 					<v-btn text @click="close">
 						<v-icon left>mdi-chevron-left</v-icon> Cancel
 					</v-btn>
-					<v-btn color="orange" @click="save">
+					<v-btn color="orange" @click="saveFilter">
 						<v-icon left>mdi-check</v-icon> Save
 					</v-btn>
 				</v-card-title>
 				<v-card-text class="pt-8 font-weight-light">
-					<v-text-field
-						label="Name"
-						v-model="account.name"
-					></v-text-field>
-					
-					<v-text-field
-						label="Number"
-						v-model="account.number"
-					></v-text-field>
+					<filter-form
+						:filter.sync="filter"
+						:accounts="accounts"
+						:categories="categories"
+					></filter-form>
 				</v-card-text>
 			</v-card>
 		</v-dialog>
     `,
-	data() {
-		return {
-		}
-	},
-	computed: {
-
-	},
 	methods: {
-		save() {
-			const id = this.account.id;
-			if(id) {
-				this.updateAccount(id, this.account)
-			} else {
-				this.createAccount(this.account)
-			}
-			this.close();
-		},
 		close() {
 			this.$emit("update:show", false);
 		}

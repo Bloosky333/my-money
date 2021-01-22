@@ -10,16 +10,20 @@ Vue.filter('round', function (value, precision=2) {
     }
 });
 
+function dateToMoment(value) {
+    let date;
+    if(value instanceof firebase.firestore.Timestamp) {
+        date = moment(value.toDate())
+    } else if (value instanceof Date) {
+        date = moment(value);
+    } else {
+        date = value;
+    }
+    return date;
+}
 Vue.filter("dateToStr", function (value, dateOnly, timeOnly) {
     if (value) {
-        let date;
-        if(value instanceof firebase.firestore.Timestamp) {
-            date = moment(value.toDate())
-        } else if (value instanceof Date) {
-            date = moment(value);
-        } else {
-            date = value;
-        }
+        const date = dateToMoment(value);
         if (dateOnly) {
             return date.format(CONST.userDateFormat);
         } else if (timeOnly) {

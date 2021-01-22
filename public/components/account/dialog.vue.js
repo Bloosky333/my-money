@@ -1,6 +1,6 @@
-const EditCategoryDialog = Vue.component("EditCategoryDialog", {
-	mixins: [CategoryModelMixin],
-	props: ["show", "category"],
+const AccountDialog = Vue.component("AccountDialog", {
+	mixins: [AccountModelMixin],
+	props: ["show", "account"],
 	template: `
 		<v-dialog
 			v-model="show"
@@ -22,17 +22,12 @@ const EditCategoryDialog = Vue.component("EditCategoryDialog", {
 				<v-card-text class="pt-8 font-weight-light">
 					<v-text-field
 						label="Name"
-						v-model="category.name"
+						v-model="account.name"
 					></v-text-field>
 					
 					<v-text-field
-						label="Icon"
-						v-model="category.icon"
-					></v-text-field>
-					
-					<v-text-field
-						label="Color"
-						v-model="category.color"
+						label="Number"
+						v-model="account.number"
 					></v-text-field>
 				</v-card-text>
 			</v-card>
@@ -47,11 +42,11 @@ const EditCategoryDialog = Vue.component("EditCategoryDialog", {
 	},
 	methods: {
 		save() {
-			const id = this.category.id;
+			const id = this.account.id;
 			if(id) {
-				this.updateCategory(id, this.category)
+				this.updateAccount(id, this.account)
 			} else {
-				this.createCategory(this.category)
+				this.createAccount(this.account)
 			}
 			this.close();
 		},

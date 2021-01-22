@@ -23,6 +23,7 @@ const MainPage = Vue.component("MainPage", {
                 :accounts.sync="accounts"
                 :transactions.sync="transactions"
                 :categories.sync="categories"
+                :accounts.sync="categories"
                 :filters.sync="filters"
             ></transactions-page>
             
@@ -64,7 +65,7 @@ const MainPage = Vue.component("MainPage", {
                 if (user) {
                     const filters = [];
                     filters.push(["userID", "==", this.$root.userID]);
-                    this.bindTransactions("transactions", filters);
+                    this.bindTransactions("transactions", filters, "amount desc");
                     this.bindAccounts("accounts", filters);
                     this.bindCategories("categories", filters);
                     this.bindFilters("filters", filters);

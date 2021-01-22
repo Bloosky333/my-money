@@ -5,6 +5,16 @@ const FilterModelMixin = {
 		}
 	},
 	methods: {
+		saveFilter() {
+			const id = this.filter.id;
+			if(id) {
+				this.updateFilter(id, this.filter)
+			} else {
+				this.createFilter(this.filter)
+			}
+			this.close();
+		},
+
 		bindFilter(id, varName) {
 			return this.bind(id, "filters", varName || 'filter');
 		},
