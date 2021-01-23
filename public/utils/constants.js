@@ -28,27 +28,91 @@ const CONST = {
 			},
 		}
 	],
+	chartMatch: {
+		"pie": 	"PieChart",
+		"column": "ColumnChart",
+		"combo": "ComboChart",
+	},
 	chartOptions: {
+		common: {
+			height: 250,
+			backgroundColor: {fill: 'transparent'},
+		},
 		pie: {
 			is3D: true,
-			height: 300,
 			pieHole: 0.2,
-			backgroundColor: {fill: 'transparent'},
-			chartArea: {
-				left: 0,
-				top: 0,
-				width: '90%',
-				height: '100%'
-			},
 			pieSliceTextStyle: {
 				fontName: "Roboto",
 				fontSize: 16,
+			},
+			chartArea: {
+				left: 0,
+				top: 0,
+				width: '100%',
+				height: '100%'
 			},
 			legend: {
 				alignment: "center",
 				textStyle: {
 					fontName: "Roboto",
-					fontSize: 16,
+					color: "white"
+				}
+			},
+		},
+		column: {
+			isStacked: true,
+			chartArea: {
+				left: "15%",
+				top: 5,
+				width: '80%',
+				height: '75%'
+			},
+			hAxis: {
+				textStyle: {
+					color: "white"
+				}
+			},
+			vAxis: {
+				format: "short",
+				textStyle: {
+					color: "white"
+				}
+			},
+			legend: {
+				position: 'bottom',
+				alignment: "center",
+				textStyle: {
+					fontName: "Roboto",
+					color: "white"
+				}
+			},
+		},
+		combo: {
+			isStacked: true,
+			seriesType: 'bars',
+			series: {2: {type: 'line'}},
+			chartArea: {
+				left: "15%",
+				top: 5,
+				width: '80%',
+				height: '75%'
+			},
+			hAxis: {
+				textStyle: {
+					color: "white"
+				}
+			},
+			vAxis: {
+				format: "short",
+				textStyle: {
+					color: "white"
+				}
+			},
+			legend: {
+				position: 'bottom',
+				alignment: "center",
+				textStyle: {
+					fontName: "Roboto",
 					color: "white"
 				}
 			},

@@ -1,22 +1,20 @@
 const StatsChart = Vue.component("StatsChart", {
 	mixins: [],
-	props: ["data", "options", "type"],
+	props: ["data", "type"],
 	template: `
         <GChart
-            :type="charType"
             :data="data"
-            :options="options"
+            :type="charType"
+            :options="chartOptions"
         ></GChart>
     `,
 	computed: {
 		charType() {
-			switch (this.type) {
-				case "pie":
-					return "PieChart";
-				default:
-					return "";
-			}
-		}
+			return CONST.chartMatch[this.type]
+		},
+		chartOptions() {
+			return Object.assign({}, CONST.chartOptions.common, CONST.chartOptions[this.type]);
+		},
 	},
 	methods: {}
 });

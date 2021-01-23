@@ -48,9 +48,10 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 				></v-text-field>
 				<v-text-field
 					label="Date"
-					v-model="formattedDate"
+					:value="formattedDate"
 					:readonly="transaction.imported"
 					prepend-icon="mdi-calendar-outline"
+					@change="updateDate"
 				></v-text-field>
 				<v-text-field
 					label="Amount"
@@ -68,7 +69,6 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 					prepend-icon="mdi-message-reply-text"
 				></v-textarea>
 			</section-block>
-			
 			
 			
 			<div v-if="matchingFilter" class="mt-4">
@@ -145,17 +145,11 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 		}
 	},
 	computed: {
-		formattedDate: {
-			get() {
-				if (this.transaction.date) {
-					return dateToMoment(this.transaction.date).format(CONST.userDateFormat);
-				} else {
-					return "";
-				}
-			},
-			set(value) {
-				const date = moment(value, CONST.userDateFormat);
-				this.transaction.date = date.isValid() ? date.toDate() : "";
+		formattedDate() {
+			if (this.transaction.date) {
+				return dateToMoment(this.transaction.date).format(CONST.userDateFormat);
+			} else {
+				return "";
 			}
 		},
 		invalidFilter() {
@@ -166,6 +160,10 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 		},
 	},
 	methods: {
+		updateDate(value) {
+			const date = moment(value, CONST.userDateFormat);
+			this.transaction.date = date.isValid() ? date.toDate() : "";
+		},
 		newFilter() {
 			this.showEditFilter = true;
 			this.filter = {

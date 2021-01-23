@@ -26,7 +26,6 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 	},
 	computed: {
 		sections() {
-			const ordered = _.sortBy(this.transactions, t => t.date ? t.date.valueOf() : 0).reverse();
 			const sections = [];
 			const uncategorized = {
 				name: "Uncategorized",
@@ -40,7 +39,7 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 			let section = {
 				name: "",
 			};
-			ordered.forEach(transaction => {
+			this.transactions.forEach(transaction => {
 				if(transaction.categoryID) {
 					const date = dateToMoment(transaction.date);
 

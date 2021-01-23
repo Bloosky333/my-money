@@ -26,6 +26,12 @@ const StatsTable = Vue.component("StatsTable", {
 				<template v-slot:item.Amount="{ item }">
 					{{ item.Amount | round }} €
 				</template>
+				<template v-slot:item.Income="{ item }">
+					{{ item.Income | round }} €
+				</template>
+				<template v-slot:item.Expense="{ item }">
+					{{ item.Expense | round }} €
+				</template>
 			</v-data-table>
         </div>
     `,

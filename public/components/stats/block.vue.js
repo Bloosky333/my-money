@@ -1,16 +1,15 @@
 const StatsBlock = Vue.component("StatsBlock", {
-    props: ["title", "transactions", "accounts", "categories", "chartType", "grouping", "expense"],
+    props: ["title", "transactions", "accounts", "categories", "chartType", "grouping", "expense", "period"],
     template: `
         <section-block>
-            <div class="section-title grey--text mb-2">{{ title }}</div>
+            <div class="section-title grey--text mb-4">{{ title }}</div>
             <div v-if="transactions.length">
                 <stats-chart 
                     :type="chartType" 
                     :data="data"
-                    :options="chartOptions"
                 ></stats-chart>
                 
-                <div class="d-flex align-center justify-space-between text-overline mb-2 grey--text" @click="toggle">
+                <div class="d-flex align-center justify-space-between text-overline my-2 grey--text" @click="toggle">
                     <div v-if="expanded">Hide details</div>
                     <div v-else>Show details</div>
                     <v-icon small>{{ toggleIcon }}</v-icon>
@@ -35,15 +34,67 @@ const StatsBlock = Vue.component("StatsBlock", {
         toggleIcon() {
             return this.expanded ? 'mdi-chevron-up' : 'mdi-chevron-down';
         },
-        chartOptions() {
-            return CONST.chartOptions[this.chartType];
-        },
         data() {
             const functionName = _.camelCase("get data by " + this.grouping);
             return this[functionName]();
         },
+        reverseTransaction() {
+            return this.transactions.reverse();
+        }
     },
     methods: {
+        // PERIOD
+        getDataByPeriod() {
+            const data = [];
+            data.push(["Period", "Income", "Expense", "Total"]);
+
+            const periods = this.groupTransactionsByPeriod();
+            periods.forEach(period => {
+                data.push(this.sumPeriod(period));
+            });
+            console.log(data);
+            return data;
+        },
+        groupTransactionsByPeriod() {
+            const periods = [];
+            let period = {
+                name: ""
+            };
+            const dateFormat = this.period === "month" ? "MM/YY" : "YY";
+            this.reverseTransaction.forEach(transaction => {
+                const date = dateToMoment(transaction.date);
+
+                if(date) {
+                    const name = date.format(dateFormat);
+                    if(name !== period.name){
+                        period = {
+                            name: name,
+                            transactions: [],
+                        };
+                        periods.push(period);
+                    }
+                    period.transactions.push(transaction);
+                }
+            });
+            return periods;
+        },
+        sumPeriod(period) {
+            let income = 0;
+            let expense = 0;
+
+            period.transactions.forEach(t => {
+                if(t.amount > 0) {
+                    income += t.amount;
+                } else {
+                    expense += t.amount;
+                }
+            });
+
+            return [period.name, income, expense, income + expense];
+        },
+
+
+        // CATEGORY
         getDataByCategory() {
             const data = [];
             data.push(["Category", "Amount"]);

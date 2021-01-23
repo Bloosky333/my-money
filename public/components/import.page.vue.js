@@ -139,7 +139,7 @@ const ImportPage = Vue.component("ImportPage", {
 			} else {
 				try{
 					this.autoFillTransaction(line.data);
-					await this.createTransaction(line.data);
+					await this.saveTransaction(line.data);
 					line.status.status = 'success';
 				} catch {
 					line.status.status = 'error';

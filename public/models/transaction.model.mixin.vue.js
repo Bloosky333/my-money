@@ -7,11 +7,10 @@ const TransactionModelMixin = {
 	methods: {
 		saveTransaction(transaction) {
 			const id = transaction.id;
+			transaction.amount = transaction.amount ? parseFloat(transaction.amount) : 0;
 			if (id) {
-				console.log("UPDATE");
 				return this.updateTransaction(id, transaction)
 			} else {
-				console.log("CREATE", transaction);
 				return this.createTransaction(transaction)
 			}
 		},

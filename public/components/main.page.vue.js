@@ -15,7 +15,7 @@ const MainPage = Vue.component("MainPage", {
             <stats-page
                 v-if="page==='stats'"
                 :accounts="accounts"
-                :transactions="transactions"
+                :transactions="transactionsOrdered"
                 :categories="categoriesOrdered"
                 @edit="edit"
             ></stats-page>
@@ -23,7 +23,7 @@ const MainPage = Vue.component("MainPage", {
             <transactions-page
                 v-if="page==='transactions'"
                 :accounts="accounts"
-                :transactions="transactions"
+                :transactions="transactionsOrdered"
                 :categories="categories"
                 :filters="filters"
                 @edit="edit"
@@ -31,7 +31,7 @@ const MainPage = Vue.component("MainPage", {
             
             <import-page
                 v-if="page==='import'"
-                :transactions="transactions"
+                :transactions="transactionsOrdered"
                 :categories="categories"
                 :filters="filters"
                 @edit="edit"
@@ -129,6 +129,9 @@ const MainPage = Vue.component("MainPage", {
 	computed: {
 		categoriesOrdered() {
 			return _.sortBy(this.categories, c => c.name);
+		},
+		transactionsOrdered() {
+			return _.sortBy(this.transactions, t => t.date ? t.date.valueOf() : 0).reverse();
 		},
 	},
 	methods: {
