@@ -1,21 +1,21 @@
 const StatsPage = Vue.component("StatsPage", {
 	mixins: [TransactionModelMixin],
-	props: ["transactions", "categories", "accounts"],
+	props: ["transactions", "search"],
 	template: `
         <div>
         	<stats-block 
-        		title="Income/Expense by perid"
+        		title="Income/Expense by period"
         		:transactions="transactions"
-				:categories="categories"
+				:categories="search.categories"
 				chart-type="combo"
 				grouping="period"
-				period="month"
+				:period="search.period"
 			></stats-block>
 			
         	<stats-block 
         		title="Expense by category"
         		:transactions="transactions"
-				:categories="categories"
+				:categories="search.categories"
 				chart-type="pie"
 				grouping="category"
 				:expense="true"
@@ -24,7 +24,7 @@ const StatsPage = Vue.component("StatsPage", {
 			<stats-block 
         		title="Income by category"
         		:transactions="transactions"
-				:categories="categories"
+				:categories="search.categories"
 				chart-type="pie"
 				grouping="category"
 				:expense="false"
@@ -37,7 +37,6 @@ const StatsPage = Vue.component("StatsPage", {
 		}
 	},
 	computed: {
-
 	},
 	methods: {
 

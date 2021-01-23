@@ -2,21 +2,23 @@ const MainPage = Vue.component("MainPage", {
 	mixins: [TransactionModelMixin],
 	template: `
     <div>
-<!--        <character-status-bar -->
-<!--            :character="character"-->
-<!--            :page="page"-->
-<!--            :loaded="loaded"-->
-<!--            @action="runAction"-->
-<!--        ></character-status-bar>-->
-        
+    	<filters-bar
+    		:show="page === 'stats' || page === 'transactions'"
+    		:search.sync="search"
+    		:transactions="transactions"
+    		:categories="categories"
+    		:accounts="accounts"
+    	></filters-bar>
+    	
         <v-container class="page-with-header">
             
             <!-- PAGES ========================== -->
             <stats-page
                 v-if="page==='stats'"
                 :accounts="accounts"
-                :transactions="transactionsOrdered"
+                :transactions="filteredTransactions"
                 :categories="categoriesOrdered"
+                :search="search"
                 @edit="edit"
             ></stats-page>
             
@@ -26,6 +28,7 @@ const MainPage = Vue.component("MainPage", {
                 :transactions="transactionsOrdered"
                 :categories="categories"
                 :filters="filters"
+                :search="search"
                 @edit="edit"
             ></transactions-page>
             
@@ -81,7 +84,7 @@ const MainPage = Vue.component("MainPage", {
         <v-btn
             fab fixed 
             class="fab-center"
-            color="orange"
+            color="orange darken-2"
             @click="edit('transaction')"
         ><v-icon>mdi-plus</v-icon></v-btn>
         
@@ -109,19 +112,31 @@ const MainPage = Vue.component("MainPage", {
 				category: false,
 				filter: false,
 			},
+			search: {
+				period: "year",
+				years: [],
+				categories: [],
+				accounts: [{}]
+			},
 		}
 	},
 	watch: {
 		"$root.currentUser": {
 			immediate: true,
-			handler(user) {
+			async handler(user) {
 				if (user) {
-					const filters = [];
-					filters.push(["userID", "==", this.$root.userID]);
-					this.bindTransactions("transactions", filters, "amount desc");
-					this.bindAccounts("accounts", filters);
-					this.bindCategories("categories", filters);
-					this.bindFilters("filters", filters);
+					const filters = [["userID", "==", this.$root.userID]];
+					await Promise.all([
+						this.bindTransactions("transactions", filters, "amount desc"),
+						this.bindAccounts("accounts", filters),
+						this.bindCategories("categories", filters),
+						this.bindFilters("filters", filters),
+					]);
+					this.search.years = _.clone(this.years);
+					this.search.categories = _.clone(this.categories);
+					this.search.accounts = _.clone(this.accounts);
+
+					this.$root.loading = false;
 				}
 			}
 		},
@@ -131,7 +146,21 @@ const MainPage = Vue.component("MainPage", {
 			return _.sortBy(this.categories, c => c.name);
 		},
 		transactionsOrdered() {
-			return _.sortBy(this.transactions, t => t.date ? t.date.valueOf() : 0).reverse();
+			return _.sortBy(this.transactions, t => t.date ? t.date.seconds : 0).reverse();
+		},
+		filteredTransactions() {
+			const years = this.search.years;
+			const accountIds = this.search.accounts.map(a => a.id);
+			const categoryIds = this.search.categories.map(c => c.id);
+
+			const ts = this.transactionsOrdered.filter(t => {
+				return (
+					(!years.length || years.includes(t.year)) &&
+					(!accountIds.length || accountIds.includes(t.accountID)) &&
+					(!categoryIds.length || categoryIds.includes(t.categoryID))
+				)
+			});
+			return ts;
 		},
 	},
 	methods: {

@@ -7,7 +7,7 @@ const Navigation = Vue.component("Navigation", {
 				grow
 				dark
 				app
-				active-class="orange--text"
+				active-class="orange--text text--darken-2"
 				background-color="grey darken-4"
 			>
 				<v-btn v-for="p in pages" :value="p.name">

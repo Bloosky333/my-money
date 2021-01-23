@@ -18,7 +18,7 @@ const SectionTitle = Vue.component("SectionTitle", {
                     x-small
                     outlined
                     rounded
-                    color="orange"
+                    color="orange darken-2"
                 >
                     <v-icon small left>{{ btnIcon }}</v-icon> {{ btnLabel }}
                 </v-btn>
@@ -27,7 +27,7 @@ const SectionTitle = Vue.component("SectionTitle", {
                     :label="switchLabel"
                     v-model="switchModel"
                     class="mt-n1"
-                    color="orange"
+                    color="orange darken-2"
                     @change.stop="updateSwitch"
                     hide-details
                     dense

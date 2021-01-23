@@ -5,7 +5,7 @@ const ImportPage = Vue.component("ImportPage", {
         <div>
         	<section-title>1. Choose your bank</section-title>
 			<section-block>
-				<v-btn-toggle v-model="bank" mandatory color="orange">
+				<v-btn-toggle v-model="bank" mandatory borderless color="orange darken-2">
 					<v-btn
 						v-for="b in banks"
 						:value="b"
@@ -22,10 +22,10 @@ const ImportPage = Vue.component("ImportPage", {
 						hide-details
 						single-line
 						@change="onFileSelect"
-						color="orange"
+						color="orange darken-2"
 					></v-file-input>
 					<v-btn
-						color="orange"
+						color="orange darken-2"
 						@click="startImport"
 						large
 						outlined
@@ -36,7 +36,7 @@ const ImportPage = Vue.component("ImportPage", {
 			
 			<div>
 				<v-progress-linear
-					color="orange"
+					color="orange darken-2"
 					:buffer-value="buffer"
 					v-model="progressPercent"
 					stream

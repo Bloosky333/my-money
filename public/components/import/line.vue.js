@@ -20,11 +20,11 @@ const ImportLine = Vue.component("ImportLine", {
                 <v-progress-circular
                     v-if="status.processing"
                     indeterminate
-                    color="orange"
+                    color="orange darken-2"
                 ></v-progress-circular>
                 <v-icon v-else-if="status.status==='success'" color="green">mdi-check-circle</v-icon>
                 <v-icon v-else-if="status.status==='ignored'" color="blue">mdi-debug-step-over</v-icon>
-                <v-icon v-else-if="status.status==='error'" color="orange">mdi-alert</v-icon>
+                <v-icon v-else-if="status.status==='error'" color="orange darken-2">mdi-alert</v-icon>
             </div>
         </section-block>
     `,

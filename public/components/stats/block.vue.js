@@ -9,19 +9,19 @@ const StatsBlock = Vue.component("StatsBlock", {
                     :data="data"
                 ></stats-chart>
                 
-                <div class="d-flex align-center justify-space-between text-overline my-2 grey--text" @click="toggle">
+                <div class="d-flex align-center justify-space-between text-overline mt-2 grey--text" @click="toggle">
                     <div v-if="expanded">Hide details</div>
                     <div v-else>Show details</div>
                     <v-icon small>{{ toggleIcon }}</v-icon>
                 </div>
-                <div v-if="expanded">
+                <div v-if="expanded" class="mt-2">
                     <v-expand-transition>
                         <stats-table :data="data"></stats-table>
                     </v-expand-transition>
                 </div>
             </div>
             <div v-else class="text-center py-4">
-                <v-progress-linear indeterminate color="orange"></v-progress-linear>
+                <v-progress-linear indeterminate color="orange darken-2"></v-progress-linear>
             </div>
         </section-block>
     `,
@@ -39,7 +39,7 @@ const StatsBlock = Vue.component("StatsBlock", {
             return this[functionName]();
         },
         reverseTransaction() {
-            return this.transactions.reverse();
+            return this.transactions.slice().reverse();
         }
     },
     methods: {
@@ -52,7 +52,6 @@ const StatsBlock = Vue.component("StatsBlock", {
             periods.forEach(period => {
                 data.push(this.sumPeriod(period));
             });
-            console.log(data);
             return data;
         },
         groupTransactionsByPeriod() {
@@ -60,7 +59,7 @@ const StatsBlock = Vue.component("StatsBlock", {
             let period = {
                 name: ""
             };
-            const dateFormat = this.period === "month" ? "MM/YY" : "YY";
+            const dateFormat = this.period === "month" ? "MM/YY" : "YYYY";
             this.reverseTransaction.forEach(transaction => {
                 const date = dateToMoment(transaction.date);
 

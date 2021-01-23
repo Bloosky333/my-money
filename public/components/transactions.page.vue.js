@@ -64,7 +64,6 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 
 			sections.unshift(undated);
 			sections.unshift(uncategorized);
-
 			return sections.filter(section => section.transactions.length > 0);
 		},
 	},

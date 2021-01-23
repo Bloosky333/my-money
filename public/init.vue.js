@@ -27,7 +27,6 @@ firebase.auth().onAuthStateChanged(user => {
             data() {
                 return {
                     firebaseUser: user,
-                    loading: true,
                 }
             },
             watch: {
@@ -37,8 +36,9 @@ firebase.auth().onAuthStateChanged(user => {
                         if(uid) {
                             this.loading = true;
                             await this.getCurrentUser();
+                        } else {
+                            this.loading = false;
                         }
-                        this.loading = false;
                     }
                 }
             },

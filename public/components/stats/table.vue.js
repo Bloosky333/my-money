@@ -24,13 +24,16 @@ const StatsTable = Vue.component("StatsTable", {
 				:footer-props="{itemsPerPageText: ''}"
 			>
 				<template v-slot:item.Amount="{ item }">
-					{{ item.Amount | round }} €
+					{{ item.Amount | round }}€
 				</template>
 				<template v-slot:item.Income="{ item }">
-					{{ item.Income | round }} €
+					{{ item.Income | round }}€
 				</template>
 				<template v-slot:item.Expense="{ item }">
-					{{ item.Expense | round }} €
+					{{ item.Expense | round }}€
+				</template>
+				<template v-slot:item.Total="{ item }">
+					{{ item.Total | round }}€
 				</template>
 			</v-data-table>
         </div>

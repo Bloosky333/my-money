@@ -4,10 +4,27 @@ const TransactionModelMixin = {
 		return {
 		}
 	},
+	computed: {
+		years() {
+			const years = [];
+			this.transactions.forEach(t => {
+				if(t.year && !years.includes(t.year)) {
+					years.push(t.year);
+				}
+			});
+			return years;
+		},
+	},
 	methods: {
 		saveTransaction(transaction) {
 			const id = transaction.id;
 			transaction.amount = transaction.amount ? parseFloat(transaction.amount) : 0;
+			const date = dateToMoment(transaction.date);
+			if(date instanceof moment) {
+				transaction.year = date.year();
+				transaction.month = date.month();
+			}
+
 			if (id) {
 				return this.updateTransaction(id, transaction)
 			} else {

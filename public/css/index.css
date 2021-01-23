@@ -13,6 +13,14 @@
     bottom: 28px;
 }
 
+.v-btn.fab-filter,
+.fab-filter {
+    position: absolute;
+    height: 30px;
+    width: 30px;
+    bottom: -15px;
+}
+
 .mr-05 {
     margin-right: 2px;
 }

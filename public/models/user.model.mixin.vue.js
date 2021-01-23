@@ -14,8 +14,6 @@ const UserModelMixin = {
             return {
                 name: user.email,
                 email: user.email,
-                validated: false,
-                admin: false,
             };
         },
         async getCurrentUser() {
