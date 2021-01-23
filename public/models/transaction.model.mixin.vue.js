@@ -8,8 +8,10 @@ const TransactionModelMixin = {
 		saveTransaction(transaction) {
 			const id = transaction.id;
 			if (id) {
+				console.log("UPDATE");
 				return this.updateTransaction(id, transaction)
 			} else {
+				console.log("CREATE", transaction);
 				return this.createTransaction(transaction)
 			}
 		},

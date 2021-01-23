@@ -6,12 +6,12 @@ const ParamsPage = Vue.component("ParamsPage", {
         	<section-title
         		btn-label="Add"
         		btn-icon="mdi-plus"
-        		@action="editAccount"
+        		@action="edit('account')"
         	>Accounts</section-title>
         	<section-block
         		v-for="account in accounts"
         	>
-        		<div class="d-flex align-center justify-space-between" @click="editAccount(account)">
+        		<div class="d-flex align-center justify-space-between" @click="edit('account', account)">
         			<div>
         				<v-icon left class="mt-n1">mdi-bank</v-icon>
         				{{ account.name }}
@@ -23,12 +23,12 @@ const ParamsPage = Vue.component("ParamsPage", {
         	<section-title
         		btn-label="Add"
         		btn-icon="mdi-plus"
-        		@action="editCategory"
+        		@action="edit('category')"
         	>Categories</section-title>
         	<section-block
         		v-for="category in categories"
         	>
-        		<div class="d-flex align-center justify-space-between" @click="editCategory(category)">
+        		<div class="d-flex align-center justify-space-between" @click="edit('category', category)">
         			<div>
         				<v-icon left :color="category.color" class="mt-n1">{{ category.icon }}</v-icon>
         				{{ category.name }}
@@ -39,51 +39,21 @@ const ParamsPage = Vue.component("ParamsPage", {
         	<section-title
         		btn-label="Add"
         		btn-icon="mdi-plus"
-        		@action="editFilter"
+        		@action="edit('filter')"
         	>Filter</section-title>
         	<filter-line
         		v-for="filter in filters"
         		:filter="filter"
         		:accounts="accounts"
         		:categories="categories"
-        		@click.native="editFilter(filter)"
+        		@click.native="edit('filter', filter)"
         	></filter-line>
-        	
-			<!-- DIALOGS -->
-        	<account-dialog
-        		:show.sync="showDialog.account"
-        		:account="selected.account"
-        	></account-dialog>
-        	<category-dialog
-        		:show.sync="showDialog.category"
-        		:category="selected.category"
-        	></category-dialog>
-        	<filter-dialog
-        		:show.sync="showDialog.filter"
-        		:filter="selected.filter"
-        		:accounts="accounts"
-        		:categories="categories"
-        	></filter-dialog>
         </div>
     `,
-	data() {
-		return {
-			showDialog: {
-				account: false,
-				category: false,
-				filter: false,
-			},
-			selected: {
-				account: false,
-				category: false,
-				filter: false,
-			},
-
-		}
-	},
-	computed: {
-	},
 	methods: {
+		edit(type, item) {
+			this.$emit("edit", type, item);
+		},
 		editAccount(account = {}) {
 			this.showDialog.account = true;
 			this.selected.account = account;

@@ -3,26 +3,28 @@ const FilterForm = Vue.component("FilterForm", {
 	props: ["filter", "accounts", "categories"],
 	template: `
 		<div>
-			<v-autocomplete
-				label="Category to assign"
-				v-model="filter.categoryID"
-				:items="categories"
-				item-text="name"
-				item-value="id"
-			></v-autocomplete>
-			
-			<v-autocomplete
-				label="Account"
-				v-model="filter.accountID"
-				:items="accounts"
-				item-text="name"
-				item-value="id"
-			></v-autocomplete>
-			
-			<v-text-field
-				label="Counterpart account"
-				v-model="filter.counterpartAccount"
-			></v-text-field>
+			<section-block class="px-4">
+				<v-autocomplete
+					label="Category to assign"
+					v-model="filter.categoryID"
+					:items="categories"
+					item-text="name"
+					item-value="id"
+				></v-autocomplete>
+				
+				<v-autocomplete
+					label="Account"
+					v-model="filter.accountID"
+					:items="accounts"
+					item-text="name"
+					item-value="id"
+				></v-autocomplete>
+				
+				<v-text-field
+					label="Counterpart account"
+					v-model="filter.counterpartAccount"
+				></v-text-field>
+			</section-block>
 			
 			<section-title
 				btn-label="Add"
@@ -42,6 +44,12 @@ const FilterForm = Vue.component("FilterForm", {
 						class="ml-2"
 						flat
 					></v-text-field>
+					<v-icon 
+						small
+						color="grey"
+						@click="removeContains(i)"
+						class="ml-3"
+					>mdi-delete</v-icon>
 				</div>
 			</section-block>
 		</div>

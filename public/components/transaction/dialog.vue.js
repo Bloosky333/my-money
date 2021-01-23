@@ -1,6 +1,6 @@
 const TransactionDialog = Vue.component("TransactionDialog", {
 	mixins: [TransactionModelMixin],
-	props: ["show", "transaction", "accounts", "categories"],
+	props: ["show", "transaction", "accounts", "categories", "filters"],
 	template: `
 		<dialog-block :show.sync="show" @save="saveAndClose">
 			<section-block class="px-4">
@@ -69,37 +69,50 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 				></v-textarea>
 			</section-block>
 			
-			<v-btn
-				v-if="!showEditFilter"
-				text
-				block
-				@click="newFilter"
-				class="mt-4"
-			>
-				<v-icon left small>mdi-filter-plus</v-icon> Create a filter
-			</v-btn>
 			
-			<v-expand-transition>
-				<section-block v-if="showEditFilter" class="pa-4 mt-4">
-					<div class="d-flex justify-space-between align-center mb-4">
-						<h2 class="font-weight-light">New filter</h2>
-						<v-btn
-							icon small
-							@click="showEditFilter=false"
-						><v-icon >mdi-close</v-icon></v-btn>
-					</div>
-					<v-divider></v-divider>
-					<filter-form
-						:filter.sync="filter"
-						:accounts="accounts"
-						:categories="categories"
-					></filter-form>
-					
-					<div v-if="invalidFilter" class="error--text text-center mt-2">
-						<v-icon left small color="error">mdi-alert</v-icon> Filter will not apply to this transaction
-					</div>
-				</section-block>
-			</v-expand-transition>
+			
+			<div v-if="matchingFilter" class="mt-4">
+				<h2 class="font-weight-light mb-2">Matching filter</h2>
+				<filter-line
+					:filter="matchingFilter"
+					:accounts="accounts"
+					:categories="categories"
+				></filter-line>
+			</div>
+			<div v-else>
+				<v-btn
+					v-if="!showEditFilter"
+					text
+					block
+					@click="newFilter"
+					class="mt-4"
+				>
+					<v-icon left small>mdi-filter-plus</v-icon> Create a filter
+				</v-btn>
+				
+				<v-expand-transition>
+					<section-block v-if="showEditFilter" class="pa-4 mt-4">
+						<div class="d-flex justify-space-between align-center mb-2">
+							<h2 class="font-weight-light">New filter</h2>
+							<v-btn
+								icon small
+								@click="showEditFilter=false"
+							><v-icon >mdi-close</v-icon></v-btn>
+						</div>
+						<v-divider></v-divider>
+						<filter-form
+							:filter.sync="filter"
+							:accounts="accounts"
+							:categories="categories"
+							class="mt-2"
+						></filter-form>
+						
+						<div v-if="invalidFilter" class="error--text text-center mt-2">
+							<v-icon left small color="error">mdi-alert</v-icon> Filter will not apply to this transaction
+						</div>
+					</section-block>
+				</v-expand-transition>
+			</div>
 			
 			<v-btn 
 				color="error"
@@ -141,12 +154,16 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 				}
 			},
 			set(value) {
-				this.transaction.date = value.toDate();
+				const date = moment(value, CONST.userDateFormat);
+				this.transaction.date = date.isValid() ? date.toDate() : "";
 			}
 		},
 		invalidFilter() {
 			return !this.filterMatch(this.filter, this.transaction);
-		}
+		},
+		matchingFilter() {
+			return this.findMatchFilter(this.transaction);
+		},
 	},
 	methods: {
 		newFilter() {
@@ -158,8 +175,10 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 				contains: [],
 			};
 		},
-		saveAndClose() {
-			this.saveTransaction(this.transaction);
+		async saveAndClose() {
+			console.log("SAVE TRANS");
+			const rest = await this.saveTransaction(this.transaction);
+			console.log(rest);
 			if(this.showEditFilter) {
 				this.createFilter(this.filter);
 			}

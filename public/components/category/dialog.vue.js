@@ -3,20 +3,22 @@ const CategoryDialog = Vue.component("CategoryDialog", {
 	props: ["show", "category"],
 	template: `
 		<dialog-block :show.sync="show" @save="saveAndClose">
-			<v-text-field
-				label="Name"
-				v-model="category.name"
-			></v-text-field>
-			
-			<v-text-field
-				label="Icon"
-				v-model="category.icon"
-			></v-text-field>
-			
-			<v-text-field
-				label="Color"
-				v-model="category.color"
-			></v-text-field>
+			<section-block class="px-4">
+				<v-text-field
+					label="Name"
+					v-model="category.name"
+				></v-text-field>
+				
+				<v-text-field
+					label="Icon"
+					v-model="category.icon"
+				></v-text-field>
+				
+				<v-text-field
+					label="Color"
+					v-model="category.color"
+				></v-text-field>
+			</section-block>
 			
 			<v-btn 
 				color="error"

@@ -3,15 +3,17 @@ const AccountDialog = Vue.component("AccountDialog", {
 	props: ["show", "account"],
 	template: `
 		<dialog-block :show.sync="show" @save="saveAndClose">
-			<v-text-field
-				label="Name"
-				v-model="account.name"
-			></v-text-field>
-			
-			<v-text-field
-				label="Number"
-				v-model="account.number"
-			></v-text-field>
+			<section-block class="px-4">
+				<v-text-field
+					label="Name"
+					v-model="account.name"
+				></v-text-field>
+				
+				<v-text-field
+					label="Number"
+					v-model="account.number"
+				></v-text-field>
+			</section-block>
 			
 			<v-btn 
 				color="error"
@@ -23,6 +25,7 @@ const AccountDialog = Vue.component("AccountDialog", {
 			>
 				<v-icon	small left>mdi-delete</v-icon> Delete
 			</v-btn> 
+			
 			
 			<confirm-dialog 
 				:show.sync="showConfirm" 

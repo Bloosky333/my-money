@@ -3,8 +3,6 @@ const StatsPage = Vue.component("StatsPage", {
 	props: ["transactions", "categories", "accounts"],
 	template: `
         <div>
-        	<section-title>Stats</section-title>
-        	
         	<stats-block 
         		title="Expense by category"
         		:transactions="transactions"

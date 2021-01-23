@@ -2,6 +2,7 @@ const StatsBlock = Vue.component("StatsBlock", {
     props: ["title", "transactions", "accounts", "categories", "chartType", "grouping", "expense"],
     template: `
         <section-block>
+            <div class="section-title grey--text mb-2">{{ title }}</div>
             <div v-if="transactions.length">
                 <stats-chart 
                     :type="chartType" 

@@ -9,50 +9,31 @@ const TransactionsPage = Vue.component("TransactionsPage", {
         		<span v-if="changed"> - Changed : {{ changed }}</span>
 			</v-btn>
         	
-        	<template v-for="section in sections" v-if="section.transactions.length">
-        		<section-title
-        			expandable="true"
-        			:expanded.sync="expanded[section.name]"
-        		>{{ section.name }} ({{ section.transactions.length }})</section-title>
-        		<v-expand-transition>
-        			<div v-if="expanded[section.name]">
-						<transaction-line
-							v-for="transaction in section.transactions"
-							:transaction="transaction"
-							@click.native="editTransaction(transaction)"
-							:accounts="accounts"
-							:categories="categories"
-						></transaction-line>
-					</div>
-				</v-expand-transition>
-        	</template>
-        	
-        	<transaction-dialog
-        		:show.sync="showEdit"
-        		:transaction="selected"
+        	<transaction-block 
+        		v-for="(section, i) in sections" 
+        		:section="section"
         		:accounts="accounts"
-        		:categories="categories"
-        	></transaction-dialog>
+				:categories="categories"
+				@edit="edit"
+				:expanded="i === 0"
+			></transaction-block>
         </div>
     `,
 	data() {
 		return {
-			showEdit: false,
-			selected: {},
-			expanded: {
-				Uncategorized: true
-			},
 			changed: 0,
 		}
 	},
-	created() {
-	},
 	computed: {
 		sections() {
-			const ordered = _.sortBy(this.transactions, t => t.date.valueOf()).reverse();
+			const ordered = _.sortBy(this.transactions, t => t.date ? t.date.valueOf() : 0).reverse();
 			const sections = [];
 			const uncategorized = {
 				name: "Uncategorized",
+				transactions: [],
+			};
+			const undated = {
+				name: "Undated",
 				transactions: [],
 			};
 
@@ -62,28 +43,30 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 			ordered.forEach(transaction => {
 				if(transaction.categoryID) {
 					const date = dateToMoment(transaction.date);
-					const name = date.format("YYYY MMMM");
 
-					if(name !== section.name){
-						section = {
-							name: name,
-							transactions: [],
-						};
-						sections.push(section);
+					if(date) {
+						const name = date.format("YYYY MMMM");
+
+						if(name !== section.name){
+							section = {
+								name: name,
+								transactions: [],
+							};
+							sections.push(section);
+						}
+						section.transactions.push(transaction);
+					} else {
+						undated.transactions.push(transaction);
 					}
-					section.transactions.push(transaction);
 				} else {
 					uncategorized.transactions.push(transaction);
 				}
 			});
 
-			if(sections.length) {
-				this.expanded[sections[0].name] = true;
-			}
-
+			sections.unshift(undated);
 			sections.unshift(uncategorized);
 
-			return sections;
+			return sections.filter(section => section.transactions.length > 0);
 		},
 	},
 	methods: {
@@ -97,9 +80,8 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 				}
 			})
 		},
-		editTransaction(transaction) {
-			this.showEdit = true;
-			this.selected = transaction;
+		edit(transaction) {
+			this.$emit("edit", "transaction", transaction);
 		},
 	}
 });

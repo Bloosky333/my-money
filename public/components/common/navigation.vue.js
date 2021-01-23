@@ -2,13 +2,6 @@ const Navigation = Vue.component("Navigation", {
 	props: ["page"],
 	template: `
 		<div>
-			<v-btn
-				fab fixed 
-				class="fab-center"
-				color="orange"
-				@click=""
-			><v-icon>mdi-plus</v-icon></v-btn>
-
 			<v-bottom-navigation
 				v-model="page"
 				grow
