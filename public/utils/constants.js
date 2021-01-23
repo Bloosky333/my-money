@@ -27,5 +27,31 @@ const CONST = {
 				"communications": 14
 			},
 		}
-	]
+	],
+	chartOptions: {
+		pie: {
+			is3D: true,
+			height: 300,
+			pieHole: 0.2,
+			backgroundColor: {fill: 'transparent'},
+			chartArea: {
+				left: 0,
+				top: 0,
+				width: '90%',
+				height: '100%'
+			},
+			pieSliceTextStyle: {
+				fontName: "Roboto",
+				fontSize: 16,
+			},
+			legend: {
+				alignment: "center",
+				textStyle: {
+					fontName: "Roboto",
+					fontSize: 16,
+					color: "white"
+				}
+			},
+		}
+	}
 };

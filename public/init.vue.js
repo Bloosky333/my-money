@@ -28,7 +28,6 @@ firebase.auth().onAuthStateChanged(user => {
                 return {
                     firebaseUser: user,
                     loading: true,
-                    autoSaveDelay: 500
                 }
             },
             watch: {
@@ -44,18 +43,11 @@ firebase.auth().onAuthStateChanged(user => {
                 }
             },
             computed: {
-                isAdmin() {
-                    return this.currentUser && this.currentUser.admin;
-                },
                 userID() {
                     return this.currentUser.id;
                 },
             },
             methods: {
-                selectCharacter(id) {
-                    this.$set(this.currentUser, "character", id);
-                    return this.updateUser(this.userID, this.currentUser);
-                },
                 showToast(message, type, timeout) {
                     this.$refs.toast.show(message, type, timeout);
                 },

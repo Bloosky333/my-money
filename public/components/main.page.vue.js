@@ -14,8 +14,7 @@ const MainPage = Vue.component("MainPage", {
                 v-if="page==='stats'"
                 :accounts="accounts"
                 :transactions="transactions"
-                :categories="categories"
-                :filters="filters"
+                :categories="categoriesOrdered"
             ></stats-page>
             
             <transactions-page
@@ -54,7 +53,7 @@ const MainPage = Vue.component("MainPage", {
             categories: [],
             filters: [],
             loaded: false,
-            page: "transactions",
+            page: "stats",
         }
     },
     watch: {

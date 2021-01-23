@@ -5,10 +5,15 @@ const StatsPage = Vue.component("StatsPage", {
         <div>
         	<section-title>Stats</section-title>
         	
-        	<category-chart
+        	<stats-block 
+        		title="Expense by category"
         		:transactions="transactions"
-        		:categories="categories"
-        	></category-chart>
+				:categories="categories"
+				chart-type="pie"
+				grouping="category"
+				expense="true"
+			></stats-block>
+        	
         </div>
     `,
 	data() {
