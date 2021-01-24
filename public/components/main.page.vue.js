@@ -1,5 +1,5 @@
 const MainPage = Vue.component("MainPage", {
-	mixins: [TransactionModelMixin],
+	mixins: [TransactionModelMixin, DigestModelMixin],
 	template: `
     <div>
     	<filters-bar
@@ -15,7 +15,8 @@ const MainPage = Vue.component("MainPage", {
             <!-- PAGES ========================== -->
             <stats-page
                 v-if="page==='stats'"
-                :transactions="filteredTransactions"
+<!--                :transactions="filteredTransactions"-->
+				:digest="digest
                 :search="search"
                 @edit="edit"
             ></stats-page>
@@ -28,6 +29,7 @@ const MainPage = Vue.component("MainPage", {
                 :filters="filters"
                 :search="search"
                 @edit="edit"
+                @updated="transactionUpdated"
             ></transactions-page>
             
             <import-page
@@ -37,6 +39,7 @@ const MainPage = Vue.component("MainPage", {
                 :accounts="accountsOrdered"
                 :filters="filters"
                 @edit="edit"
+                @updated="transactionUpdated"
             ></import-page>
             
             <params-page
@@ -55,6 +58,7 @@ const MainPage = Vue.component("MainPage", {
         		:accounts="accountsOrdered"
         		:categories="categoriesOrdered"
         		:filters="filters"
+        		@updated="transactionUpdated"
         	></transaction-dialog>
             
         	<account-dialog
@@ -93,12 +97,13 @@ const MainPage = Vue.component("MainPage", {
     `,
 	data() {
 		return {
+			loaded: false,
+			page: "stats",
 			transactions: [],
 			accounts: [],
 			categories: [],
 			filters: [],
-			loaded: false,
-			page: "stats",
+			digest: {},
 			showDialog: {
 				transaction: false,
 				account: false,
@@ -126,11 +131,16 @@ const MainPage = Vue.component("MainPage", {
 				if (userID) {
 					const filters = [["userID", "==", userID]];
 					await Promise.all([
-						this.bindTransactions("transactions", filters, "amount desc"),
+						// this.bindTransactions("transactions", filters),
 						this.bindAccounts("accounts", filters),
 						this.bindCategories("categories", filters),
 						this.bindFilters("filters", filters),
+						this.bindDigest(userID),
 					]);
+					if(!this.digest) {
+						await this.updateDigest(userID, {accounts: {}})
+					}
+
 					this.search.years = _.clone(this.years);
 					this.search.categories = _.clone(this.categories);
 					this.search.accounts = _.clone(this.accounts);
@@ -139,6 +149,12 @@ const MainPage = Vue.component("MainPage", {
 				}
 			}
 		},
+		page(val) {
+			if((val === "import" || val === "transactions") && !this.transactions.length) {
+				const filters = [["userID", "==", userID]];
+				// this.bindTransactions("transactions", filters);
+			}
+		}
 	},
 	computed: {
 		accountsOrdered() {
@@ -155,11 +171,15 @@ const MainPage = Vue.component("MainPage", {
 			const accountIds = this.search.accounts.map(a => a.id);
 			const categoryIds = this.search.categories.map(c => c.id);
 
+			const allYears = this.search.years.length === this.years.length;
+			const allAccounts = this.search.accounts.length === this.accounts.length;
+			const allCategories = this.search.categories.length === this.categories.length;
+
 			return this.transactionsOrdered.filter(t => {
 				return (
-					(!years.length || years.includes(t.year)) &&
-					(!accountIds.length || accountIds.includes(t.accountID)) &&
-					(!categoryIds.length || categoryIds.includes(t.categoryID))
+					(!years.length || allYears || years.includes(t.year)) &&
+					(!accountIds.length || allAccounts || accountIds.includes(t.accountID)) &&
+					(!categoryIds.length || allCategories || categoryIds.includes(t.categoryID))
 				)
 			});
 		},
@@ -168,6 +188,9 @@ const MainPage = Vue.component("MainPage", {
 		edit(type, item = {}) {
 			this.showDialog[type] = true;
 			this.selected[type] = item;
+		},
+		transactionUpdated() {
+			this.saveDigest(this.digest, this.transactions);
 		},
 	}
 });

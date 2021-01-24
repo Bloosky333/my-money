@@ -221,6 +221,7 @@ const ImportPage = Vue.component("ImportPage", {
 				this.progressPercent += this.buffer;
 				this.progressUnit++;
 			}
+			this.$emit('updated');
 		},
 	}
 });

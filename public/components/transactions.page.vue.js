@@ -40,13 +40,13 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 				name: "",
 			};
 			this.transactions.forEach(transaction => {
-				if(transaction.categoryID) {
+				if (transaction.categoryID) {
 					const date = dateToMoment(transaction.date);
 
-					if(date) {
+					if (date) {
 						const name = date.format("YYYY MMMM");
 
-						if(name !== section.name){
+						if (name !== section.name) {
 							section = {
 								name: name,
 								transactions: [],
@@ -74,7 +74,7 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 			section.income = 0;
 			section.expense = 0;
 			section.transactions.forEach(t => {
-				if(t.amount > 0) {
+				if (t.amount > 0) {
 					section.income += t.amount;
 				} else {
 					section.expense += t.amount;
@@ -86,11 +86,14 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 			this.changed = 0;
 			this.transactions.forEach(transaction => {
 				const changed = this.autoFillTransaction(transaction);
-				if(changed) {
+				if (changed) {
 					this.saveTransaction(transaction);
-					this.changed ++;
+					this.changed++;
 				}
-			})
+			});
+			if (this.changed > 0) {
+				this.$emit('updated');
+			}
 		},
 		edit(transaction) {
 			this.$emit("edit", "transaction", transaction);

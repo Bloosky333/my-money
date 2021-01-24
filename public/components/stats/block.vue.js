@@ -1,5 +1,5 @@
 const StatsBlock = Vue.component("StatsBlock", {
-    props: ["title", "transactions", "accounts", "categories", "chartTypes", "grouping", "expense", "period"],
+    props: ["title", "digest", "accounts", "categories", "chartTypes", "grouping", "expense", "period"],
     template: `
         <section-block>
             <div class="section-title grey--text mb-4 d-flex justify-space-between align-center">
@@ -17,7 +17,7 @@ const StatsBlock = Vue.component("StatsBlock", {
                     ><v-icon>{{ CONST.chartIcon[type] }}</v-icon></v-btn> 
                 </v-btn-toggle>
             </div>
-            <div v-if="transactions.length">
+            <div v-if="digest.accounts">
                 <stats-chart 
                     v-if="chartType"
                     :type="chartType" 
