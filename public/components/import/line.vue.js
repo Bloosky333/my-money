@@ -1,5 +1,5 @@
 const ImportLine = Vue.component("ImportLine", {
-    props: ["transaction", "status"],
+    props: ["transaction", "error"],
     template: `
         <section-block class="px-4">
             <v-row>
@@ -17,14 +17,7 @@ const ImportLine = Vue.component("ImportLine", {
                 </v-col>
             </v-row>
             <div class="text-center">
-                <v-progress-circular
-                    v-if="status.processing"
-                    indeterminate
-                    color="orange darken-2"
-                ></v-progress-circular>
-                <v-icon v-else-if="status.status==='success'" color="green">mdi-check-circle</v-icon>
-                <v-icon v-else-if="status.status==='ignored'" color="blue">mdi-debug-step-over</v-icon>
-                <v-icon v-else-if="status.status==='error'" color="orange darken-2">mdi-alert</v-icon>
+                <small class="error--text">{{ error }}</small>
             </div>
         </section-block>
     `,

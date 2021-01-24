@@ -4,10 +4,10 @@ const StatsPage = Vue.component("StatsPage", {
 	template: `
         <div>
         	<stats-block 
-        		title="Income/Expense by period"
+        		title="Income/Expense"
         		:transactions="transactions"
 				:categories="search.categories"
-				chart-type="combo"
+				chart-types="combo"
 				grouping="period"
 				:period="search.period"
 			></stats-block>
@@ -16,18 +16,20 @@ const StatsPage = Vue.component("StatsPage", {
         		title="Expense by category"
         		:transactions="transactions"
 				:categories="search.categories"
-				chart-type="pie"
+				chart-types="pie,line,column"
 				grouping="category"
 				:expense="true"
+				:period="search.period"
 			></stats-block>
 			
 			<stats-block 
         		title="Income by category"
         		:transactions="transactions"
 				:categories="search.categories"
-				chart-type="pie"
+				chart-types="pie,line,column"
 				grouping="category"
 				:expense="false"
+				:period="search.period"
 			></stats-block>
         </div>
     `,

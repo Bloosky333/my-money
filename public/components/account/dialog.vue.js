@@ -13,6 +13,12 @@ const AccountDialog = Vue.component("AccountDialog", {
 					label="Number"
 					v-model="account.number"
 				></v-text-field>
+				
+				<v-text-field
+					label="Initial balance"
+					v-model="account.initialBalance"
+					suffix="€"
+				></v-text-field>
 			</section-block>
 			
 			<v-btn 

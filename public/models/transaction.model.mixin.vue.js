@@ -20,6 +20,7 @@ const TransactionModelMixin = {
 			const id = transaction.id;
 			transaction.amount = transaction.amount ? parseFloat(transaction.amount) : 0;
 			const date = dateToMoment(transaction.date);
+
 			if(date instanceof moment) {
 				transaction.year = date.year();
 				transaction.month = date.month();

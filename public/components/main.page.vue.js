@@ -6,8 +6,8 @@ const MainPage = Vue.component("MainPage", {
     		:show="page === 'stats' || page === 'transactions'"
     		:search.sync="search"
     		:transactions="transactions"
-    		:categories="categories"
-    		:accounts="accounts"
+    		:categories="categoriesOrdered"
+    		:accounts="accountsOrdered"
     	></filters-bar>
     	
         <v-container class="page-with-header">
@@ -15,18 +15,16 @@ const MainPage = Vue.component("MainPage", {
             <!-- PAGES ========================== -->
             <stats-page
                 v-if="page==='stats'"
-                :accounts="accounts"
                 :transactions="filteredTransactions"
-                :categories="categoriesOrdered"
                 :search="search"
                 @edit="edit"
             ></stats-page>
             
             <transactions-page
                 v-if="page==='transactions'"
-                :accounts="accounts"
-                :transactions="transactionsOrdered"
-                :categories="categories"
+                :accounts="accountsOrdered"
+                :transactions="filteredTransactions"
+                :categories="categoriesOrdered"
                 :filters="filters"
                 :search="search"
                 @edit="edit"
@@ -35,7 +33,8 @@ const MainPage = Vue.component("MainPage", {
             <import-page
                 v-if="page==='import'"
                 :transactions="transactionsOrdered"
-                :categories="categories"
+                :categories="categoriesOrdered"
+                :accounts="accountsOrdered"
                 :filters="filters"
                 @edit="edit"
             ></import-page>
@@ -43,7 +42,7 @@ const MainPage = Vue.component("MainPage", {
             <params-page
                 v-if="page==='params'"
                 :categories="categoriesOrdered"
-                :accounts="accounts"
+                :accounts="accountsOrdered"
                 :filters="filters"
                 @edit="edit"
             ></params-page>
@@ -53,8 +52,8 @@ const MainPage = Vue.component("MainPage", {
             <transaction-dialog
         		:show.sync="showDialog.transaction"
         		:transaction="selected.transaction"
-        		:accounts="accounts"
-        		:categories="categories"
+        		:accounts="accountsOrdered"
+        		:categories="categoriesOrdered"
         		:filters="filters"
         	></transaction-dialog>
             
@@ -69,8 +68,8 @@ const MainPage = Vue.component("MainPage", {
         	<filter-dialog
         		:show.sync="showDialog.filter"
         		:filter="selected.filter"
-        		:accounts="accounts"
-        		:categories="categories"
+        		:accounts="accountsOrdered"
+        		:categories="categoriesOrdered"
         	></filter-dialog>
         	
         	<!-- COPYRIGHT ========================== -->
@@ -121,11 +120,11 @@ const MainPage = Vue.component("MainPage", {
 		}
 	},
 	watch: {
-		"$root.currentUser": {
+		"$root.userID": {
 			immediate: true,
-			async handler(user) {
-				if (user) {
-					const filters = [["userID", "==", this.$root.userID]];
+			async handler(userID) {
+				if (userID) {
+					const filters = [["userID", "==", userID]];
 					await Promise.all([
 						this.bindTransactions("transactions", filters, "amount desc"),
 						this.bindAccounts("accounts", filters),
@@ -142,6 +141,9 @@ const MainPage = Vue.component("MainPage", {
 		},
 	},
 	computed: {
+		accountsOrdered() {
+			return _.sortBy(this.accounts, c => c.name);
+		},
 		categoriesOrdered() {
 			return _.sortBy(this.categories, c => c.name);
 		},
@@ -153,14 +155,13 @@ const MainPage = Vue.component("MainPage", {
 			const accountIds = this.search.accounts.map(a => a.id);
 			const categoryIds = this.search.categories.map(c => c.id);
 
-			const ts = this.transactionsOrdered.filter(t => {
+			return this.transactionsOrdered.filter(t => {
 				return (
 					(!years.length || years.includes(t.year)) &&
 					(!accountIds.length || accountIds.includes(t.accountID)) &&
 					(!categoryIds.length || categoryIds.includes(t.categoryID))
 				)
 			});
-			return ts;
 		},
 	},
 	methods: {

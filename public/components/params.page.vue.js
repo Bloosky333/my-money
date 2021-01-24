@@ -1,5 +1,5 @@
 const ParamsPage = Vue.component("ParamsPage", {
-	mixins: [],
+	mixins: [UserModelMixin],
 	props: ["categories", "accounts", "filters"],
 	template: `
         <div>
@@ -48,6 +48,14 @@ const ParamsPage = Vue.component("ParamsPage", {
         		:categories="categories"
         		@click.native="edit('filter', filter)"
         	></filter-line>
+        	
+			<v-btn 
+				text small 
+				color="grey"
+				@click="logout"
+				block
+				class="mt-8"
+			><v-icon left>mdi-logout</v-icon> Logout</v-btn>
         </div>
     `,
 	methods: {

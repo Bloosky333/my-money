@@ -48,11 +48,11 @@ const StatsTable = Vue.component("StatsTable", {
 			let headers = [], items = [];
 			this.data.forEach((line, i) => {
 				if(i === 0) {
-					line.forEach((value) => {
+					line.forEach((value, j) => {
 						headers.push({
 							text: value,
 							value: value,
-							align: value === 'Amount' ? 'right' : "left"
+							align: j > 0 ? 'right' : "left"
 						})
 					});
 				} else {

@@ -5,7 +5,7 @@ const TransactionsPage = Vue.component("TransactionsPage", {
         <div>
         	<v-btn text block @click="processTransactions">
         		<v-icon left>mdi-auto-fix</v-icon>
-        		Process
+        		Find Match
         		<span v-if="changed"> - Changed : {{ changed }}</span>
 			</v-btn>
         	
@@ -64,10 +64,24 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 
 			sections.unshift(undated);
 			sections.unshift(uncategorized);
+
+			sections.forEach(this.sumSection);
 			return sections.filter(section => section.transactions.length > 0);
 		},
 	},
 	methods: {
+		sumSection(section) {
+			section.income = 0;
+			section.expense = 0;
+			section.transactions.forEach(t => {
+				if(t.amount > 0) {
+					section.income += t.amount;
+				} else {
+					section.expense += t.amount;
+				}
+			});
+			section.total = section.income + section.expense;
+		},
 		processTransactions() {
 			this.changed = 0;
 			this.transactions.forEach(transaction => {

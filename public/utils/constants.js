@@ -32,11 +32,43 @@ const CONST = {
 		"pie": 	"PieChart",
 		"column": "ColumnChart",
 		"combo": "ComboChart",
+		"line": "LineChart",
+	},
+	chartIcon: {
+		"pie": 	"mdi-chart-pie",
+		"column": "mdi-chart-bar",
+		"combo": "mdi-chart-areaspline",
+		"line": "mdi-chart-line",
 	},
 	chartOptions: {
 		common: {
 			height: 250,
 			backgroundColor: {fill: 'transparent'},
+			chartArea: {
+				left: "15%",
+				top: 5,
+				width: '80%',
+				height: '75%'
+			},
+			hAxis: {
+				textStyle: {
+					color: "white"
+				}
+			},
+			vAxis: {
+				format: "short",
+				textStyle: {
+					color: "white"
+				}
+			},
+			legend: {
+				position: 'bottom',
+				alignment: "center",
+				textStyle: {
+					fontName: "Roboto",
+					color: "white"
+				}
+			},
 		},
 		pie: {
 			is3D: true,
@@ -60,62 +92,16 @@ const CONST = {
 			},
 		},
 		column: {
-			isStacked: true,
-			chartArea: {
-				left: "15%",
-				top: 5,
-				width: '80%',
-				height: '75%'
-			},
-			hAxis: {
-				textStyle: {
-					color: "white"
-				}
-			},
-			vAxis: {
-				format: "short",
-				textStyle: {
-					color: "white"
-				}
-			},
-			legend: {
-				position: 'bottom',
-				alignment: "center",
-				textStyle: {
-					fontName: "Roboto",
-					color: "white"
-				}
-			},
+
 		},
 		combo: {
 			isStacked: true,
 			seriesType: 'bars',
 			series: {2: {type: 'line'}},
-			chartArea: {
-				left: "15%",
-				top: 5,
-				width: '80%',
-				height: '75%'
-			},
-			hAxis: {
-				textStyle: {
-					color: "white"
-				}
-			},
-			vAxis: {
-				format: "short",
-				textStyle: {
-					color: "white"
-				}
-			},
-			legend: {
-				position: 'bottom',
-				alignment: "center",
-				textStyle: {
-					fontName: "Roboto",
-					color: "white"
-				}
-			},
-		}
+		},
+		line: {
+
+		},
+
 	}
 };

@@ -44,7 +44,7 @@ firebase.auth().onAuthStateChanged(user => {
             },
             computed: {
                 userID() {
-                    return this.currentUser.id;
+                    return this.currentUser ? this.currentUser.id : false;
                 },
             },
             methods: {

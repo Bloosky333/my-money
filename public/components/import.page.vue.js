@@ -1,9 +1,9 @@
 const ImportPage = Vue.component("ImportPage", {
 	mixins: [TransactionModelMixin],
-	props: ["transactions"],
+	props: ["transactions", "categories", "accounts", "filters"],
 	template: `
         <div>
-        	<section-title>1. Choose your bank</section-title>
+        	<section-title>Choose your bank</section-title>
 			<section-block>
 				<v-btn-toggle v-model="bank" mandatory borderless color="orange darken-2">
 					<v-btn
@@ -14,7 +14,7 @@ const ImportPage = Vue.component("ImportPage", {
 				</v-btn-toggle>
 			</section-block>
 			
-			<section-title>2. Select your file</section-title>
+			<section-title>Select your file</section-title>
 			<section-block>
 				<div class="d-flex align-center">
 					<v-file-input
@@ -23,6 +23,7 @@ const ImportPage = Vue.component("ImportPage", {
 						single-line
 						@change="onFileSelect"
 						color="orange darken-2"
+						flat
 					></v-file-input>
 					<v-btn
 						color="orange darken-2"
@@ -30,42 +31,84 @@ const ImportPage = Vue.component("ImportPage", {
 						large
 						outlined
 						:disabled="!lines.length"
+						:loading="parsing"
 					><v-icon left>mdi-check-bold</v-icon> Import</v-btn>
 				</div>
 			</section-block>
 			
-			<div>
-				<v-progress-linear
-					color="orange darken-2"
-					:buffer-value="buffer"
-					v-model="progressPercent"
-					stream
-					height="25"
+			<template v-if="lines.length">
+				<div>
+					<v-progress-linear
+						color="orange darken-2"
+						:buffer-value="buffer"
+						:value="progressPercent"
+						stream
+						height="25"
+						dark
+					>
+						<strong>
+							{{ progressUnit }}/{{ lines.length }}
+							({{ Math.floor(progressPercent) }}%)
+						</strong>
+					</v-progress-linear>
+				</div>
+				
+				<section-title>Your data</section-title>
+				<v-tabs
+					v-model="tab"
+					icons-and-text
+					show-arrows
 					dark
 				>
-					<strong>
-						{{ progressUnit }}/{{ lines.length }}
-						({{ Math.ceil(progressPercent) }}%)
-					</strong>
-				</v-progress-linear>
-			</div>
-			
-			<section-title>3. Check your data</section-title>
-			<import-line
-				v-for="line in lines"
-				:transaction="line.data"
-				:status="line.status"
-			></import-line>
+					<v-tabs-slider></v-tabs-slider>
+					<v-tab v-for="t in tabs" :class="t.color + '--text'">
+						{{ t.name | capitalize }} ({{ linesPerStatus[t.name].length }})
+						<v-icon :color="t.color">{{ t.icon }}</v-icon>
+					</v-tab>
+					
+					<v-tab-item v-for="t in tabs">
+						<import-line
+							v-for="line in linesPerStatus[t.name]"
+							:transaction="line.data"
+							:error="line.error"
+						></import-line>
+					</v-tab-item>
+				</v-tabs>
+			</template>
         </div>
     `,
 	data() {
 		return {
 			lines: [],
+			parsing: false,
 			bank: CONST.banks[0].name,
 			buffer: 1,
 			progressPercent: 0,
 			progressUnit: 0,
-			percentPerLine: 0,
+			tabs: [
+				{
+					name: "pending",
+					icon: "mdi-pause-circle",
+					color: "white",
+				},
+				{
+					name: "success",
+					icon: "mdi-check-circle",
+					color: "success",
+				},
+				{
+					name: "error",
+					icon: "mdi-alert-circle",
+					color: "error",
+				},
+				{
+					name: "ignored",
+					icon: "mdi-skip-next-circle",
+					color: "grey",
+				},
+
+			],
+			tab: "pending"
 		}
 	},
 	created() {
@@ -87,23 +130,47 @@ const ImportPage = Vue.component("ImportPage", {
 			});
 			return headers;
 		},
+		linesPerStatus() {
+			const perStatus = {
+				pending: [],
+				success: [],
+				error: [],
+				ignored: []
+			};
+
+			this.lines.forEach(line => {
+				if (!line.status) {
+					perStatus.pending.push(line);
+				} else {
+					perStatus[line.status].push(line);
+				}
+			});
+
+			return perStatus;
+		},
 	},
 	methods: {
 		onFileSelect(file) {
-			Papa.parse(file, {
-				delimiter: this.bankData.delimiter,
-				encoding: this.bankData.encoding,
-				header: false,
-				skipEmptyLines: true,
-				complete: (results) => {
-					const lines = results.data;
-					lines.splice(0, this.bankData.headerLinesCount);
-					this.lines = this.formatLines(lines);
-				},
-				error: (error) => {
-
-				}
-			});
+			if (file) {
+				this.parsing = true;
+				Papa.parse(file, {
+					delimiter: this.bankData.delimiter,
+					encoding: this.bankData.encoding,
+					header: false,
+					skipEmptyLines: true,
+					complete: (results) => {
+						const lines = results.data;
+						lines.splice(0, this.bankData.headerLinesCount);
+						this.lines = this.formatLines(lines);
+						this.parsing = false;
+					},
+					error: (error) => {
+						console.error("CSV File parsing error : ", error);
+					}
+				});
+			} else {
+				this.lines = [];
+			}
 		},
 		formatLine(line) {
 			line.amount = parseFloat(line.amount.replace(',', '.'));
@@ -121,41 +188,38 @@ const ImportPage = Vue.component("ImportPage", {
 				});
 				return {
 					data: this.formatLine(data),
-					status: {
-						processing: false,
-						status: false
-					}
+					status: false,
+					error: "",
 				};
 			});
 		},
 		transactionExists(line) {
 			return !!_.find(this.transactions, t => t.communications === line.communications)
 		},
-
+		delay: ms => new Promise(res => setTimeout(res, ms)),
 		async importLine(line) {
-			line.status.processing = true;
-			if(this.transactionExists(line.data)) {
-				line.status.status = 'ignored';
+			if (this.transactionExists(line.data)) {
+				await this.delay(100);
+				line.status = 'ignored';
 			} else {
-				try{
+				try {
 					this.autoFillTransaction(line.data);
 					await this.saveTransaction(line.data);
-					line.status.status = 'success';
-				} catch {
-					line.status.status = 'error';
+					line.status = 'success';
+				} catch (error) {
+					line.status = 'error';
+					line.error = error;
 				}
 			}
-			line.status.processing = false;
-
 		},
 		async startImport() {
 			this.progressPercent = 0;
 			this.progressUnit = 0;
 			this.buffer = 100 / this.lines.length;
-			for(let i=0; i<this.lines.length; i++) {
+			for (let i = 0; i < this.lines.length; i++) {
 				await this.importLine(this.lines[i]);
 				this.progressPercent += this.buffer;
-				this.progressUnit ++;
+				this.progressUnit++;
 			}
 		},
 	}

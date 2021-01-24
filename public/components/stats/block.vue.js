@@ -1,10 +1,25 @@
 const StatsBlock = Vue.component("StatsBlock", {
-    props: ["title", "transactions", "accounts", "categories", "chartType", "grouping", "expense", "period"],
+    props: ["title", "transactions", "accounts", "categories", "chartTypes", "grouping", "expense", "period"],
     template: `
         <section-block>
-            <div class="section-title grey--text mb-4">{{ title }}</div>
+            <div class="section-title grey--text mb-4 d-flex justify-space-between align-center">
+                <div>{{ title }}</div>
+                <v-btn-toggle 
+                    v-model="chartType" 
+                    borderless 
+                    mandatory
+                    color="orange darken-2"
+                >
+                    <v-btn 
+                        v-for="type in chartTypesArray"
+                        small
+                        :value="type"
+                    ><v-icon>{{ CONST.chartIcon[type] }}</v-icon></v-btn> 
+                </v-btn-toggle>
+            </div>
             <div v-if="transactions.length">
                 <stats-chart 
+                    v-if="chartType"
                     :type="chartType" 
                     :data="data"
                 ></stats-chart>
@@ -28,9 +43,16 @@ const StatsBlock = Vue.component("StatsBlock", {
     data() {
         return {
             expanded: false,
+            chartType: false,
         }
     },
+    created() {
+        this.chartType = this.chartTypesArray[0];
+    },
     computed: {
+        chartTypesArray() {
+            return  this.chartTypes.split(',');
+        },
         toggleIcon() {
             return this.expanded ? 'mdi-chevron-up' : 'mdi-chevron-down';
         },
@@ -96,25 +118,56 @@ const StatsBlock = Vue.component("StatsBlock", {
         // CATEGORY
         getDataByCategory() {
             const data = [];
-            data.push(["Category", "Amount"]);
-            data.push(["Uncategorized", this.sumByCategory()]);
-            this.categories.forEach(c => {
-                data.push([c.name, this.sumByCategory(c.id)]);
-            });
+            let periods;
+            switch(this.chartType) {
+                case "pie":
+                    data.push(["Category", "Amount"]);
+                    data.push(["Uncategorized", this.sumByCategory(false, this.transactions)]);
+                    this.categories.forEach(c => {
+                        data.push([c.name, this.sumByCategory(c.id, this.transactions)]);
+                    });
+                    break;
+                case "line":
+                    const categoryNames = this.categories.map(c => c.name);
+                    data.push(["Period", ...categoryNames]);
+
+                    periods = this.groupTransactionsByPeriod();
+                    periods.forEach(period => {
+                        const sumsByCategory = this.categories.map(c => {
+                            return this.sumByCategory(c.id, period.transactions);
+                        });
+                        data.push([period.name, ...sumsByCategory])
+                    });
+                    break;
+                case "column":
+                    periods = this.groupTransactionsByPeriod();
+                    const periodNames = periods.map(p => p.name);
+                    data.push(["Category", ...periodNames]);
+
+                    this.categories.forEach(c => {
+                        const sumsByPeriod = periods.map(period => {
+                            return this.sumByCategory(c.id, period.transactions);
+                        });
+                        data.push([c.name, ...sumsByPeriod]);
+                    });
+
+                    break;
+            }
+
             return data;
         },
-        sumByCategory(id){
+        sumByCategory(categoryID, transactions){
             let total = 0;
-            this.transactions.forEach(t => {
+            transactions.forEach(t => {
                 if(
                     (this.expense && t.amount < 0) ||
                     (!this.expense && t.amount > 0)
                 ) {
                     let amount = 0;
-                    if(!id) {
+                    if(!categoryID) {
                         amount = t.categoryID ? 0 : t.amount;
                     } else {
-                        amount = t.categoryID === id ? t.amount : 0;
+                        amount = t.categoryID === categoryID ? t.amount : 0;
                     }
 
                     total += amount;

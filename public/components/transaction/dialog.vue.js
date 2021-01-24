@@ -174,9 +174,7 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 			};
 		},
 		async saveAndClose() {
-			console.log("SAVE TRANS");
-			const rest = await this.saveTransaction(this.transaction);
-			console.log(rest);
+			await this.saveTransaction(this.transaction);
 			if(this.showEditFilter) {
 				this.createFilter(this.filter);
 			}

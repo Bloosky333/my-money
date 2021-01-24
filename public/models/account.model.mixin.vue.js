@@ -28,9 +28,9 @@ const AccountModelMixin = {
 				const found = _.find(this.accounts, account => {
 					return account.number === number;
 				});
-				return found || {};
+				return found || false;
 			} else {
-				return {};
+				return false;
 			}
 		},
 
