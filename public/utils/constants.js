@@ -97,7 +97,6 @@ const CONST = {
 		combo: {
 			isStacked: true,
 			seriesType: 'bars',
-			series: {2: {type: 'line'}},
 		},
 		line: {
 

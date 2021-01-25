@@ -8,6 +8,7 @@ const MainPage = Vue.component("MainPage", {
     		:transactions="transactions"
     		:categories="categoriesOrdered"
     		:accounts="accountsOrdered"
+    		:years="digest.years"
     	></filters-bar>
     	
         <v-container class="page-with-header">
@@ -15,10 +16,11 @@ const MainPage = Vue.component("MainPage", {
             <!-- PAGES ========================== -->
             <stats-page
                 v-if="page==='stats'"
-<!--                :transactions="filteredTransactions"-->
-				:digest="digest
+				:digest="digest"
                 :search="search"
-                @edit="edit"
+                :accounts="accountsOrdered"
+                :categories="categoriesOrdered"
+                @refresh="refreshDigest"
             ></stats-page>
             
             <transactions-page
@@ -29,7 +31,7 @@ const MainPage = Vue.component("MainPage", {
                 :filters="filters"
                 :search="search"
                 @edit="edit"
-                @updated="transactionUpdated"
+                @refresh="refreshDigest"
             ></transactions-page>
             
             <import-page
@@ -39,7 +41,7 @@ const MainPage = Vue.component("MainPage", {
                 :accounts="accountsOrdered"
                 :filters="filters"
                 @edit="edit"
-                @updated="transactionUpdated"
+                @refresh="refreshDigest"
             ></import-page>
             
             <params-page
@@ -58,7 +60,7 @@ const MainPage = Vue.component("MainPage", {
         		:accounts="accountsOrdered"
         		:categories="categoriesOrdered"
         		:filters="filters"
-        		@updated="transactionUpdated"
+        		@refresh="refreshDigest"
         	></transaction-dialog>
             
         	<account-dialog
@@ -99,6 +101,7 @@ const MainPage = Vue.component("MainPage", {
 		return {
 			loaded: false,
 			page: "stats",
+			transactionBound: false,
 			transactions: [],
 			accounts: [],
 			categories: [],
@@ -120,7 +123,10 @@ const MainPage = Vue.component("MainPage", {
 				period: "year",
 				years: [],
 				categories: [],
-				accounts: [{}]
+				accounts: [],
+				allYears: true,
+				allAccounts: true,
+				allCategories: true,
 			},
 		}
 	},
@@ -138,21 +144,22 @@ const MainPage = Vue.component("MainPage", {
 						this.bindDigest(userID),
 					]);
 					if(!this.digest) {
-						await this.updateDigest(userID, {accounts: {}})
+						await this.updateDigest(userID, {years: []})
 					}
 
-					this.search.years = _.clone(this.years);
-					this.search.categories = _.clone(this.categories);
-					this.search.accounts = _.clone(this.accounts);
+					this.search.years = _.clone(this.digest.years || []);
+					this.search.categories = this.categories.map(c => c.id);
+					this.search.accounts = this.accounts.map(a => a.id);
 
 					this.$root.loading = false;
 				}
 			}
 		},
 		page(val) {
-			if((val === "import" || val === "transactions") && !this.transactions.length) {
-				const filters = [["userID", "==", userID]];
-				// this.bindTransactions("transactions", filters);
+			if((val === "import" || val === "transactions") && !this.transactionBound) {
+				const filters = [["userID", "==", this.$root.userID]];
+				this.bindTransactions("transactions", filters);
+				this.transactionBound = true;
 			}
 		}
 	},
@@ -167,19 +174,11 @@ const MainPage = Vue.component("MainPage", {
 			return _.sortBy(this.transactions, t => t.date ? t.date.seconds : 0).reverse();
 		},
 		filteredTransactions() {
-			const years = this.search.years;
-			const accountIds = this.search.accounts.map(a => a.id);
-			const categoryIds = this.search.categories.map(c => c.id);
-
-			const allYears = this.search.years.length === this.years.length;
-			const allAccounts = this.search.accounts.length === this.accounts.length;
-			const allCategories = this.search.categories.length === this.categories.length;
-
 			return this.transactionsOrdered.filter(t => {
 				return (
-					(!years.length || allYears || years.includes(t.year)) &&
-					(!accountIds.length || allAccounts || accountIds.includes(t.accountID)) &&
-					(!categoryIds.length || allCategories || categoryIds.includes(t.categoryID))
+					(this.search.allYears || this.search.years.includes(t.year)) &&
+					(this.search.allAccounts || this.search.accounts.includes(t.accountID)) &&
+					(this.search.allCategories || this.search.categories.includes(t.categoryID))
 				)
 			});
 		},
@@ -189,7 +188,7 @@ const MainPage = Vue.component("MainPage", {
 			this.showDialog[type] = true;
 			this.selected[type] = item;
 		},
-		transactionUpdated() {
+		refreshDigest() {
 			this.saveDigest(this.digest, this.transactions);
 		},
 	}

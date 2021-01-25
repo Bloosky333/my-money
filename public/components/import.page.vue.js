@@ -196,7 +196,6 @@ const ImportPage = Vue.component("ImportPage", {
 		transactionExists(line) {
 			return !!_.find(this.transactions, t => t.communications === line.communications)
 		},
-		delay: ms => new Promise(res => setTimeout(res, ms)),
 		async importLine(line) {
 			if (this.transactionExists(line.data)) {
 				await this.delay(100);
@@ -221,7 +220,7 @@ const ImportPage = Vue.component("ImportPage", {
 				this.progressPercent += this.buffer;
 				this.progressUnit++;
 			}
-			this.$emit('updated');
+			this.$emit('refresh');
 		},
 	}
 });

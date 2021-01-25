@@ -13,7 +13,14 @@ const StatsChart = Vue.component("StatsChart", {
 			return CONST.chartMatch[this.type]
 		},
 		chartOptions() {
-			return Object.assign({}, CONST.chartOptions.common, CONST.chartOptions[this.type]);
+			const options = {};
+			Object.assign(options, CONST.chartOptions.common, CONST.chartOptions[this.type]);
+			if (this.type === "combo") {
+				options.series = {};
+				const lastColumnIndex = this.data[0].length - 2;
+				options.series[lastColumnIndex] = {type: 'line'};
+			}
+			return options;
 		},
 	},
 	methods: {}

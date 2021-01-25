@@ -51,7 +51,7 @@ const TransactionModelMixin = {
 
 			return changed;
 		},
-
+		delay: ms => new Promise(res => setTimeout(res, ms)),
 
 		bindTransaction(id, varName) {
 			return this.bind(id, "transactions", varName || 'transaction');

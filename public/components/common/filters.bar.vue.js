@@ -1,6 +1,6 @@
 const FiltersBar = Vue.component("FiltersBar", {
-	mixins: [TransactionModelMixin],
-	props: ["search", "categories", "accounts", "transactions", "show"],
+	mixins: [],
+	props: ["show", "search", "categories", "accounts", "transactions", "years"],
 	template: `
         <section-block class="mb-0">
         	<v-expand-transition>
@@ -70,9 +70,20 @@ const FiltersBar = Vue.component("FiltersBar", {
 			expanded: true
 		}
 	},
+	watch: {
+		search: {
+			deep: true,
+			handler(search) {
+				search.allYears = search.years.length === this.years.length;
+				search.allAccounts = search.accounts.length === this.accounts.length;
+				search.allCategories = search.categories.length === this.categories.length;
+				console.log("WWATCH", search)
+			}
+		},
+	},
 	computed: {
 		toggleIcon() {
-			if(!this.show) {
+			if (!this.show) {
 				return "mdi-lock";
 			}
 			return this.expanded ? 'mdi-chevron-up' : 'mdi-chevron-down';
@@ -84,9 +95,10 @@ const FiltersBar = Vue.component("FiltersBar", {
 			this.selectedType = type;
 		},
 		getCounter(type) {
-			if (this.search[type].length === this[type].length) {
+			const name = _.camelCase("all " + type);
+			if (this.search[type][name]) {
 				return "All";
-			} else {
+			} else if(this[type] && this.search[type]) {
 				return this.search[type].length + '/' + this[type].length;
 			}
 		},

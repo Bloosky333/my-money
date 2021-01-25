@@ -3,12 +3,14 @@ const FilterSelectDialog = Vue.component("FilterSelectDialog", {
 	template: `
 		<dialog-block :show.sync="show" back-only="true">
 			<template v-slot:action>
-				<v-btn text color="orange darken-2" @click="clear">
-					<v-icon left>mdi-eraser</v-icon> Clear
-				</v-btn>
-				<v-btn text color="orange darken-2" @click="reset">
-					<v-icon left>mdi-backup-restore</v-icon> Reset
-				</v-btn>
+				<div>
+					<v-btn text color="orange darken-2" @click="clear">
+						<v-icon left>mdi-eraser</v-icon> Clear
+					</v-btn>
+					<v-btn text color="orange darken-2" @click="reset">
+						<v-icon left>mdi-backup-restore</v-icon> Reset
+					</v-btn>
+				</div>
 			</template>
 			
 			<v-row>
@@ -16,7 +18,7 @@ const FilterSelectDialog = Vue.component("FilterSelectDialog", {
 					<v-checkbox
 						v-model="search[type]"
 						:label="item.name || item"
-						:value="item"
+						:value="item.id || item"
 						color="orange darken-2"
 						hide-details
 					></v-checkbox>

@@ -180,7 +180,7 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 			}
 			this.show = false;
 			this.showEditFilter = false;
-			this.$emit('updated');
+			this.$emit('refresh');
 		},
 		deleteAndClose() {
 			this.deleteTransaction(this.transaction.id);

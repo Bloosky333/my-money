@@ -23,9 +23,6 @@ const StatsTable = Vue.component("StatsTable", {
 				:mobile-breakpoint="100"
 				:footer-props="{itemsPerPageText: ''}"
 			>
-				<template v-slot:item.Amount="{ item }">
-					{{ item.Amount | round }}€
-				</template>
 				<template v-slot:item.Income="{ item }">
 					{{ item.Income | round }}€
 				</template>

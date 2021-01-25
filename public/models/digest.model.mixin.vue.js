@@ -6,15 +6,32 @@ const DigestModelMixin = {
 	},
 	methods: {
 		saveDigest(digest, transactions) {
-			digest.accounts = this.computeDigest(transactions);
-			const id = digest.id;
-			if(id) {
-				return this.updateDigest(id, digest)
-			} else {
-				return this.createDigest(digest)
+			if(transactions) {
+				const data = this.computeDigest(transactions);
+				return this.updateDigest(digest.id, data);
+			} else{
+				return this.updateDigest(digest.id, digest)
 			}
 		},
 
+		computeYears(transactions) {
+			const years = [];
+			transactions.forEach(t => {
+				if(t.year && !years.includes(t.year)) {
+					years.push(t.year);
+				}
+			});
+			return years;
+		},
+		computeAccounts(transactions) {
+			const accounts = [];
+			transactions.forEach(t => {
+				if(t.accountID && !accounts.includes(t.accountID)) {
+					accounts.push(t.accountID);
+				}
+			});
+			return accounts;
+		},
 		_getList(id, parent, defaultObj) {
 			id = id || "?";
 			if(!parent[id]) {
@@ -33,9 +50,9 @@ const DigestModelMixin = {
 
 			transactions.forEach(t => {
 				if(t.amount > 0) {
-					income += t.amount;
+					income += parseFloat(t.amount);
 				} else {
-					expense += t.amount;
+					expense += parseFloat(t.amount);
 				}
 			});
 			return {
@@ -45,60 +62,88 @@ const DigestModelMixin = {
 			};
 		},
 		computeDigest(transactions) {
-			const digest = {};
-			transactions.forEach(t => {
-				const account = this._getList(t.accountID, digest, {
-					years: {},
-					categories: {},
-				});
+			const digest = {
+				years: this.computeYears(transactions),
+				accounts: this.computeAccounts(transactions),
+			};
 
-				let year = this._getList(t.year, account.years, {months: {}});
-				let month = this._getList(t.month, year.months, {categories: {}});
-				let category = this._getList(t.categoryID, month.categories, {transactions: []});
-				category.transactions.push(t);
+			const subDigest = [
+				{field: "byYear", order: "years,months,categories,accounts"},
+				{field: "byCategory", order: "categories,years,months,accounts"},
+				{field: "byAccountYear", order: "accounts,years,months,categories"},
+				{field: "byAccountCategory", order: "accounts,categories,years,months"},
+			]
 
-				category = this._getList(t.categoryID, account.categories, {years: {}});
-				year = this._getList(t.year, category.years, {months: {}});
-				month = this._getList(t.month, year.months, {transactions: []});
-				month.transactions.push(t);
-			});
-
-			_.forEach(digest, account => {
-				_.forEach(account.years, year => {
-					_.forEach(year.months, month => {
-						_.forEach(month.categories, category => {
-							_.assign(category, this._getTotal(category.transactions));
-							month.income += category.income;
-							month.expense += category.expense;
-							month.total += category.total;
-							delete category.transactions;
-						});
-						year.income += month.income;
-						year.expense += month.expense;
-						year.total += month.total;
-					});
-					account.income += year.income;
-					account.expense += year.expense;
-					account.total += year.total;
-				});
-
-				_.forEach(account.categories, category => {
-					_.forEach(category.years, year => {
-						_.forEach(year.months, month => {
-							_.assign(month, this._getTotal(month.transactions));
-							year.income += month.income;
-							year.expense += month.expense;
-							year.total += month.total;
-							delete month.transactions;
-						});
-						category.income += year.income;
-						category.expense += year.expense;
-						category.total += year.total;
-					});
-				});
+			subDigest.forEach(s => {
+				digest[s.field] = {};
+				this.computeSubDigest(digest[s.field], transactions, s.order.split(','));
 			});
 			return digest;
 		},
+
+		computeSubDigest(obj, transactions, order) {
+			transactions.forEach(t => {
+				this._injectInTree(obj, order, 0, t);
+			});
+			this._computeTotals(obj, order);
+		},
+		_getIdField(field) {
+			const matches = {
+				"accounts": "accountID",
+				"categories": "categoryID",
+				"years": "year",
+				"months": "month",
+			}
+			return matches[field];
+		},
+		_injectInTree(obj, order, index, t) {
+			const idField = this._getIdField(order[index]);
+			const childField = order[index+1];
+			const isLast = order.length === index + 1;
+
+			const defaultChild = {};
+			if(isLast) {
+				defaultChild.transactions = [];
+			} else{
+				defaultChild[childField] = {};
+			}
+
+			const item = this._getList(t[idField], obj, defaultChild);
+			if(isLast) {
+				item.transactions.push(t);
+			} else {
+				this._injectInTree(item[childField], order, index + 1, t);
+			}
+		},
+
+		_computeTotals(data, order) {
+			order.shift();
+			_.forEach(data, item => {
+				this._computeLevelTotals(item, order, 0);
+			})
+		},
+		_computeLevelTotals(obj, order, index) {
+			const childField = order[index];
+			const child = obj[childField];
+			const isLast = order.length === index + 1;
+
+			_.forEach(child, item => {
+				if(isLast) {
+					_.assign(item, this._getTotal(item.transactions));
+					obj.income += item.income;
+					obj.expense += item.expense;
+					obj.total += item.total;
+					delete item.transactions;
+				} else {
+					this._computeLevelTotals(item, order, index + 1);
+					obj.income += item.income;
+					obj.expense += item.expense;
+					obj.total += item.total;
+				}
+			});
+		},
+
+
 
 		bindDigest(id, varName) {
 			return this.bind(id, "digests", varName || 'digest');
