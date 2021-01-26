@@ -22,7 +22,7 @@ const ImportLine = Vue.component("ImportLine", {
                 <span v-if="transaction.counterpartName">({{ transaction.counterpartName }})</span>
             </div>
             <div class="mt-2 transaction-details grey--text">
-                {{ transaction.details }}
+                {{ transaction.details || transaction.communications}}
             </div>
             <div v-if="error" class="mt-2 transaction-details error--text">
                 {{ error }}

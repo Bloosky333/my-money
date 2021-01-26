@@ -19,11 +19,9 @@ const CONST = {
 			dateFormat: "DD/MM/YYYY",
 			encoding: "iso-8859-2",
 			idFormatter: (line) => {
-				console.log("ID FORMAT", line);
-				const re = /(REF ?. ?: ?\w+)/i;
+				const re = /REF ?. ?: ?(\w+)/i;
 				const found = line.details.match(re);
-				console.log("found", found)
-				return found[0] || line.details;
+				return found ? "BELFIUS-" + found[1] : line.details;
 			},
 			match: {
 				"account": 0,
@@ -38,10 +36,12 @@ const CONST = {
 		{
 			name: "BNP",
 			delimiter: ";",
-			headerLinesCount: 13,
+			headerLinesCount: 1,
 			dateFormat: "DD-MM-YY",
 			encoding: "iso-8859-2",
-			idFormatter: "reference",
+			idFormatter(line) {
+				return "BNP-" + line.reference;
+			},
 			match: {
 				"reference": 0,
 				"account": 7,
@@ -52,8 +52,28 @@ const CONST = {
 				"details": 6,
 				"communications": 8
 			},
+		},
+		{
+			name: "Sodexo",
+			delimiter: ";",
+			headerLinesCount: 1,
+			dateFormat: "DD-MM-YYYY",
+			encoding: "iso-8859-2",
+			idFormatter(line) {
+				const re = /\(Transaction (\d+)\)/i;
+				const found = line.communications.match(re);
+				return found ? 'SODEXO-' + found[1] : 'SODEXO-' + _.deburr((line.date + line.amount));
+			},
+			formatter(line) {
+				line.account = "SODEXO";
+				line.amount = line.amount.replace(" €", "").replaceAll(" ", "");
+			},
+			match: {
+				"date": 0,
+				"amount": 2,
+				"communications": 1
+			},
 		}
-
 	],
 	chartMatch: {
 		"pie": 	"PieChart",

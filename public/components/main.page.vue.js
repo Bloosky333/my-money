@@ -3,6 +3,7 @@ const MainPage = Vue.component("MainPage", {
 	template: `
     <div>
     	<filters-bar
+    		v-if="digest"
     		:show="page === 'stats' || page === 'transactions'"
     		:search.sync="search"
     		:transactions="transactions"
@@ -192,7 +193,7 @@ const MainPage = Vue.component("MainPage", {
 			this.saveDigest(this.digest, this.transactions);
 		},
 		processLogout() {
-			this.logout();
+			this.$root.processLogout();
 			this.$unbind("accounts");
 			this.$unbind("categories");
 			this.$unbind("filters");

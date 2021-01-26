@@ -19,7 +19,7 @@ const StatsPage = Vue.component("StatsPage", {
 				:search="search"
 				:accounts="accounts"
                 :categories="categories"
-				chart-types="pie,line,column"
+				chart-types="column,line,pie"
 				grouping="category"
 				:expense="true"
 			></stats-block>
@@ -30,7 +30,7 @@ const StatsPage = Vue.component("StatsPage", {
 				:search="search"
 				:accounts="accounts"
                 :categories="categories"
-				chart-types="pie,line,column"
+				chart-types="column,line,pie"
 				grouping="category"
 				:expense="false"
 			></stats-block>

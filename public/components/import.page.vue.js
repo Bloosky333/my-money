@@ -5,37 +5,39 @@ const ImportPage = Vue.component("ImportPage", {
         <div>
         	<section-title>Choose your bank</section-title>
 			<section-block>
-				<v-btn-toggle v-model="bank" mandatory borderless color="orange darken-2">
+				<v-btn-toggle v-model="bank" borderless color="orange darken-2">
 					<v-btn
 						v-for="b in banks"
 						:value="b"
-						block
 					>{{ b }}</v-btn>
 				</v-btn-toggle>
 			</section-block>
 			
-			<section-title>Select your file</section-title>
-			<section-block>
-				<div class="d-flex align-center">
-					<v-file-input
-						solo
-						hide-details
-						single-line
-						@change="onFileSelect"
-						color="orange darken-2"
-						flat
-					></v-file-input>
-					<v-btn
-						color="orange darken-2"
-						@click="startImport"
-						large
-						outlined
-						:disabled="!lines.length"
-						:loading="parsing"
-						class="ml-2"
-					><v-icon left>mdi-check-bold</v-icon> Import</v-btn>
-				</div>
-			</section-block>
+			<template v-if="bank">
+				<section-title>Select your file</section-title>
+				<section-block>
+					<div class="d-flex align-center">
+						<v-file-input
+							solo
+							hide-details
+							single-line
+							@change="onFileSelect"
+							color="orange darken-2"
+							flat
+						></v-file-input>
+						<v-btn
+							color="orange darken-2"
+							@click="startImport"
+							large
+							outlined
+							:disabled="!lines.length"
+							:loading="parsing"
+							class="ml-2"
+						><v-icon left>mdi-check-bold</v-icon> Import</v-btn>
+					</div>
+				</section-block>
+			</template>
+			<div v-else class="error--text mt-2">Select a bank/source.</div>
 			
 			<template v-if="lines.length">
 				<div>
@@ -82,7 +84,7 @@ const ImportPage = Vue.component("ImportPage", {
 		return {
 			lines: [],
 			parsing: false,
-			bank: CONST.banks[0].name,
+			bank: false,
 			buffer: 1,
 			progressPercent: 0,
 			progressUnit: 0,
@@ -183,6 +185,10 @@ const ImportPage = Vue.component("ImportPage", {
 		},
 		formatLine(line) {
 			line.transactionID = this.getTransactionID(line);
+			if(this.bankData.formatter) {
+				this.bankData.formatter(line);
+			}
+
 			line.amount = parseFloat(line.amount.replace(',', '.'));
 			line.date = moment.utc(line.date, this.bankData.dateFormat).local().toDate();
 			line.imported = true;

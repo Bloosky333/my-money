@@ -52,6 +52,12 @@ firebase.auth().onAuthStateChanged(user => {
                 showToast(message, type, timeout) {
                     this.$refs.toast.show(message, type, timeout);
                 },
+                processLogout() {
+                    this.loading = true;
+                    this.$unbind("currentUser");
+                    this.logout();
+                    this.loading = false;
+                }
             }
         });
     } else {
