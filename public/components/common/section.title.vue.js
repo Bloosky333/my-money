@@ -1,7 +1,11 @@
 const SectionTitle = Vue.component("SectionTitle", {
-    props: ["btnLabel", "btnIcon", "switchModel", "switchLabel", "expandable", "expanded"],
+    props: ["btnLabel", "btnIcon", "switchModel", "switchLabel", "expandable", "expanded", "noMarginBottom"],
     template: `
-        <div class="section-title grey--text d-flex mt-5 mb-2 align-center" @click="toggle">
+        <div 
+            class="section-title grey--text d-flex mt-5 align-center" 
+            @click="toggle"
+            :class="noMarginBottom ? '' : 'mb-2'"
+        >
             <slot></slot>
             <v-spacer></v-spacer>
             <slot name="action">

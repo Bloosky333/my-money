@@ -3,18 +3,55 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 	props: ["transactions", "accounts", "categories", "filters"],
 	template: `
         <div>
-        	<div v-if="transactions.length">
-				<div class="d-flex justify-space-around">
-					<v-btn text @click="processTransactions" :loading="processing">
-						<v-icon left small>mdi-auto-fix</v-icon>
-						Find Match
-						<span v-if="changed"> - Changed : {{ changed }}</span>
-					</v-btn>
-					<v-btn text @click="refreshDigest" :loading="refreshing">
-						<v-icon left small>mdi-refresh</v-icon> Refresh Digest
-					</v-btn>
-				</div>
+			<div class="d-flex align-center">
+				<v-text-field
+					v-model="search"
+					placeholder="Search communications ..."
+					solo
+					hide-details
+					single-line
+					prepend-icon="mdi-magnify"
+				></v-text-field>
+				<v-menu
+					:rounded="8"
+					offset-y
+				>
+					<template v-slot:activator="{ attrs, on }">
+						<v-btn
+							class="transparent ml-2"
+							dark
+							v-bind="attrs"
+							v-on="on"
+							:loading="processing"
+							large
+							icon
+						><v-icon>mdi-dots-vertical</v-icon></v-btn>
+					</template>
 				
+					<v-list dense>
+						<v-list-item link @click="processTransactions">
+							<v-list-item-icon>
+								<v-icon>mdi-auto-fix</v-icon>
+							</v-list-item-icon>
+							<v-list-item-title>Apply filters</v-list-item-title>
+						</v-list-item>
+						<v-list-item link @click="refreshDigest">
+							<v-list-item-icon>
+								<v-icon>mdi-refresh</v-icon>
+							</v-list-item-icon>
+							<v-list-item-title>Refresh Digest</v-list-item-title>
+						</v-list-item>
+						<v-list-item link @click="showConfirm=true">
+							<v-list-item-icon>
+								<v-icon>mdi-delete-empty</v-icon>
+							</v-list-item-icon>
+							<v-list-item-title>Clear all transactions</v-list-item-title>
+						</v-list-item>
+					</v-list>
+				</v-menu>
+			</div>
+			
+			<template v-if="transactions.length && !search">
 				<transaction-block 
 					v-for="(section, i) in sections" 
 					:section="section"
@@ -23,13 +60,25 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 					@edit="edit"
 					:expanded="i === 0"
 				></transaction-block>
-				
-				<v-btn text block small @click="showConfirm=true" :loading="refreshing" class="mt-8">
-					<v-icon left small>mdi-delete-empty</v-icon> Clear all transactions
-				</v-btn>
-			</div>
+			</template>
 			
-			<div v-else class="text-center py-4">
+			<template v-if="search">
+				<section-title>{{ searchResults.length }} Results</section-title>
+				<section-block v-for="line in searchResults" class="py-1" @click.native="edit(line)">
+					<v-row dense>
+						<v-col cols="8">
+							<small class="font-weight-light" v-html="$options.filters.highlight(line.communications, search)"></small>
+						</v-col>
+						<v-col cols="4" class="text-right">
+							<div :class="line.amount > 0 ? 'success--text' : 'error--text'">{{ line.amount }} €</div>
+							<div>{{ line.date | dateToStr(true) }}</div>
+						</v-col>
+					</v-row>
+				</section-block>
+			</template>
+			
+			
+			<div v-if="!transactions.length" class="text-center py-4">
                 <v-progress-linear indeterminate color="orange darken-2"></v-progress-linear>
             </div>
             
@@ -42,9 +91,9 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 	data() {
 		return {
 			changed: 0,
-			refreshing: false,
 			processing: false,
 			showConfirm: false,
+			search: "",
 		}
 	},
 	computed: {
@@ -91,6 +140,10 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 			sections.forEach(this.sumSection);
 			return sections.filter(section => section.transactions.length > 0);
 		},
+		searchResults() {
+			const query = this.search.toLowerCase();
+			return this.transactions.filter(t => t.communications && t.communications.toLowerCase().includes(query));
+		},
 	},
 	methods: {
 		sumSection(section) {
@@ -124,7 +177,7 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 			this.processing = false;
 		},
 		async clearTransactions() {
-			this.refreshing = true;
+			this.processing = true;
 			let transaction;
 			for(let i = 0; i<this.transactions.length; i++) {
 				transaction = this.transactions[i];
@@ -132,14 +185,14 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 			}
 
 			this.$emit("refresh");
-			this.refreshing = false;
+			this.processing = false;
 		},
 
 		async refreshDigest() {
-			this.refreshing = true;
+			this.processing = true;
 			this.$emit("refresh");
 			await this.delay(1000);
-			this.refreshing = false;
+			this.processing = false;
 		},
 		edit(transaction) {
 			this.$emit("edit", "transaction", transaction);

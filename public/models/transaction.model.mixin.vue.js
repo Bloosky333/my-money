@@ -5,15 +5,15 @@ const TransactionModelMixin = {
 		}
 	},
 	computed: {
-		years() {
-			const years = [];
-			this.transactions.forEach(t => {
-				if(t.year && !years.includes(t.year)) {
-					years.push(t.year);
-				}
-			});
-			return years;
-		},
+		// years() {
+		// 	const years = [];
+		// 	this.transactions.forEach(t => {
+		// 		if(t.year && !years.includes(t.year)) {
+		// 			years.push(t.year);
+		// 		}
+		// 	});
+		// 	return years;
+		// },
 	},
 	methods: {
 		saveTransaction(transaction) {

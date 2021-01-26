@@ -1,44 +1,50 @@
 const StatsBlock = Vue.component("StatsBlock", {
 	props: ["title", "digest", "search", "categories", "accounts", "chartTypes", "grouping", "expense"],
 	template: `
-        <section-block>
-            <div class="section-title grey--text mb-4 d-flex justify-space-between align-center">
-                <div>{{ title }}</div>
-                <v-btn-toggle 
-                    v-model="chartType" 
-                    borderless 
-                    mandatory
-                    color="orange darken-2"
-                >
-                    <v-btn 
-                        v-for="type in chartTypesArray"
-                        small
-                        :value="type"
-                    ><v-icon>{{ CONST.chartIcon[type] }}</v-icon></v-btn> 
-                </v-btn-toggle>
-            </div>
-            <div v-if="digest.accounts">
-                <stats-chart 
-                    v-if="chartType"
-                    :type="chartType" 
-                    :data="data"
-                ></stats-chart>
-                
-                <div class="d-flex align-center justify-space-between text-overline mt-2 grey--text" @click="toggle">
-                    <div v-if="expanded">Hide details</div>
-                    <div v-else>Show details</div>
-                    <v-icon small>{{ toggleIcon }}</v-icon>
-                </div>
-                <div v-if="expanded" class="mt-2">
-                    <v-expand-transition>
-                        <stats-table :data="data"></stats-table>
-                    </v-expand-transition>
-                </div>
-            </div>
-            <div v-else class="text-center py-4">
-                <v-progress-linear indeterminate color="orange darken-2"></v-progress-linear>
-            </div>
-        </section-block>
+		<div>
+			<section-title>
+				{{ title }}
+				<template v-slot:action>
+					<v-btn-toggle 
+						v-model="chartType" 
+						rounded
+						borderless 
+						mandatory
+						color="orange darken-2"
+					>
+						<v-btn 
+							v-for="type in chartTypesArray"
+							small
+							:value="type"
+						><v-icon small>{{ CONST.chartIcon[type] }}</v-icon></v-btn> 
+					</v-btn-toggle>
+				</template>
+			</section-title>
+		
+			<section-block class="pt-5">
+				<div v-if="digest.accounts">
+					<stats-chart 
+						v-if="chartType"
+						:type="chartType" 
+						:data="data"
+					></stats-chart>
+					
+					<div class="d-flex align-center justify-space-between text-overline mt-2 grey--text" @click="toggle">
+						<div v-if="expanded">Hide details</div>
+						<div v-else>Show details</div>
+						<v-icon small>{{ toggleIcon }}</v-icon>
+					</div>
+					<div v-if="expanded" class="mt-2">
+						<v-expand-transition>
+							<stats-table :data="data"></stats-table>
+						</v-expand-transition>
+					</div>
+				</div>
+				<div v-else class="text-center py-4">
+					<v-progress-linear indeterminate color="orange darken-2"></v-progress-linear>
+				</div>
+			</section-block>
+		</div>
     `,
 	data() {
 		return {

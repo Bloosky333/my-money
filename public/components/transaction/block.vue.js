@@ -6,8 +6,9 @@ const TransactionBlock = Vue.component("TransactionBlock", {
             <section-title
                 expandable="true"
                 :expanded.sync="expanded"
+                no-margin-bottom="true"
             >{{ section.name }} ({{ section.transactions.length }})</section-title>
-            <v-row dense no-gutters class="mt-n2">
+            <v-row dense no-gutters>
                 <v-col class="py-0 pr-1" cols="4">
                     <section-block class="py-1">
                         <v-icon small left color="success">mdi-trending-up</v-icon>
@@ -26,7 +27,6 @@ const TransactionBlock = Vue.component("TransactionBlock", {
                         <small>{{ section.total | round }}€</small>
                     </section-block>
                 </v-col>
-                
             </v-row>
             
             <v-expand-transition>

@@ -7,6 +7,7 @@ const DigestModelMixin = {
 		saveDigest(digest, transactions) {
 			if (transactions) {
 				const data = this.computeDigest(transactions);
+				data.search = digest.search || [];
 				console.log("COMPUTED DIGEST", data);
 				return this.updateDigest(digest.id, data);
 			} else {

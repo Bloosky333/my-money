@@ -9,6 +9,12 @@ Vue.filter('round', function (value, precision=2) {
         return 0
     }
 });
+Vue.filter('highlight', function(words, query){
+    const iQuery = new RegExp(query, "ig");
+    return words.toString().replace(iQuery, function(matchedTxt,a,b){
+        return ('<span class="highlight">' + matchedTxt + '</span>');
+    });
+});
 
 function dateToMoment(value) {
     let date;

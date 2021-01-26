@@ -25,6 +25,8 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 					:hint="transaction.account"
 					persistent-hint
 				></v-autocomplete>
+			</section-block>
+			<section-block class="px-4">
 				<v-text-field
 					v-else
 					label="Account"
@@ -58,19 +60,6 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 					:readonly="transaction.imported"
 					prepend-icon="mdi-currency-eur"
 				></v-text-field>
-				
-				<v-text-field
-					label="Transaction ID"
-					v-model="transaction.transactionID"
-					:readonly="transaction.imported"
-					prepend-icon="mdi-identifier"
-				></v-text-field>
-				<v-text-field
-					label="Reference"
-					v-model="transaction.reference"
-					:readonly="transaction.imported"
-					prepend-icon="mdi-pound-box"
-				></v-text-field>
 				<v-textarea
 					label="Communications"
 					v-model="transaction.communications"
@@ -79,16 +68,34 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 					:rows="2"
 					prepend-icon="mdi-message-reply-text"
 				></v-textarea>
-				<v-textarea
-					label="Details"
-					v-model="transaction.details"
-					:readonly="transaction.imported"
-					auto-grow
-					:rows="2"
-					prepend-icon="mdi-text-box-outline"
-				></v-textarea>
 			</section-block>
 			
+			<section-title expandable="true" :expanded.sync="expanded">Details</section-title>
+			<v-expand-transition>
+				<section-block v-if="expanded" class="px-4">
+					<v-text-field
+						label="Transaction ID"
+						v-model="transaction.transactionID"
+						:readonly="transaction.imported"
+						prepend-icon="mdi-identifier"
+					></v-text-field>
+					<v-text-field
+						label="Reference"
+						v-model="transaction.reference"
+						:readonly="transaction.imported"
+						prepend-icon="mdi-pound-box"
+					></v-text-field>
+					
+					<v-textarea
+						label="Details"
+						v-model="transaction.details"
+						:readonly="transaction.imported"
+						auto-grow
+						:rows="2"
+						prepend-icon="mdi-text-box-outline"
+					></v-textarea>
+				</section-block>
+			</v-expand-transition>
 			
 			<div v-if="matchingFilter" class="mt-4">
 				<h2 class="font-weight-light mb-2">Matching filter</h2>
@@ -156,6 +163,7 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 			showConfirm: false,
 			showEditFilter: false,
 			filter: {},
+			expanded: false
 		}
 	},
 	watch: {
@@ -186,9 +194,9 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 		newFilter() {
 			this.showEditFilter = true;
 			this.filter = {
-				categoryID: this.transaction.categoryID,
-				accountID: this.transaction.accountID,
-				counterpartAccount: this.transaction.counterpartAccount,
+				categoryID: this.transaction.categoryID || false,
+				accountID: this.transaction.accountID || false,
+				counterpartAccount: this.transaction.counterpartAccount || "",
 				contains: [],
 			};
 		},

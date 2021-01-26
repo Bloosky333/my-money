@@ -10,10 +10,11 @@ const MainPage = Vue.component("MainPage", {
     		:categories="categoriesOrdered"
     		:accounts="accountsOrdered"
     		:years="digest.years"
+    		:digest="digest"
+    		@updateDigest="saveDigest(digest)"
     	></filters-bar>
     	
         <v-container class="page-with-header">
-            
             <!-- PAGES ========================== -->
             <stats-page
                 v-if="page==='stats'"
@@ -82,6 +83,7 @@ const MainPage = Vue.component("MainPage", {
         	
         	<!-- COPYRIGHT ========================== -->
             <div class="my-12 text-caption font-weight-thin text--grey text-center">
+            	My Money v1.0<br/>
                 Next IT © 2021
             </div>
         </v-container>
@@ -138,14 +140,13 @@ const MainPage = Vue.component("MainPage", {
 				if (userID) {
 					const filters = [["userID", "==", userID]];
 					await Promise.all([
-						// this.bindTransactions("transactions", filters),
 						this.bindAccounts("accounts", filters),
 						this.bindCategories("categories", filters),
 						this.bindFilters("filters", filters),
 						this.bindDigest(userID),
 					]);
 					if(!this.digest) {
-						await this.updateDigest(userID, {years: []})
+						await this.updateDigest(userID, {years: [], search: []})
 					}
 
 					this.search.years = _.clone(this.digest.years || []);
