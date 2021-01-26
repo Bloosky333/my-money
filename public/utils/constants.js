@@ -18,15 +18,38 @@ const CONST = {
 			headerLinesCount: 13,
 			dateFormat: "DD/MM/YYYY",
 			encoding: "iso-8859-2",
+			idField: (line) => {
+
+			},
 			match: {
 				"account": 0,
 				"counterpartAccount": 4,
 				"counterpartName": 5,
 				"date": 9,
 				"amount": 10,
+				"details": 8,
 				"communications": 14
 			},
+		},
+		{
+			name: "BNP",
+			delimiter: ";",
+			headerLinesCount: 13,
+			dateFormat: "DD-MM-YY",
+			encoding: "iso-8859-2",
+			idField: "reference",
+			match: {
+				"reference": 0,
+				"account": 7,
+				"counterpartAccount": 5,
+				"counterpartName": 9,
+				"date": 2,
+				"amount": 3,
+				"details": 6,
+				"communications": 8
+			},
 		}
+
 	],
 	chartMatch: {
 		"pie": 	"PieChart",
