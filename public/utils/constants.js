@@ -18,8 +18,12 @@ const CONST = {
 			headerLinesCount: 13,
 			dateFormat: "DD/MM/YYYY",
 			encoding: "iso-8859-2",
-			idField: (line) => {
-
+			idFormatter: (line) => {
+				console.log("ID FORMAT", line);
+				const re = /(REF ?. ?: ?\w+)/i;
+				const found = line.details.match(re);
+				console.log("found", found)
+				return found[0] || line.details;
 			},
 			match: {
 				"account": 0,
@@ -37,7 +41,7 @@ const CONST = {
 			headerLinesCount: 13,
 			dateFormat: "DD-MM-YY",
 			encoding: "iso-8859-2",
-			idField: "reference",
+			idFormatter: "reference",
 			match: {
 				"reference": 0,
 				"account": 7,

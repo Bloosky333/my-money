@@ -32,6 +32,7 @@ const ImportPage = Vue.component("ImportPage", {
 						outlined
 						:disabled="!lines.length"
 						:loading="parsing"
+						class="ml-2"
 					><v-icon left>mdi-check-bold</v-icon> Import</v-btn>
 				</div>
 			</section-block>
@@ -172,20 +173,29 @@ const ImportPage = Vue.component("ImportPage", {
 				this.lines = [];
 			}
 		},
+		getTransactionID(line) {
+			const formatter = this.bankData.idFormatter;
+			if(typeof formatter === "function") {
+				return formatter(line);
+			}else{
+				return line[formatter];
+			}
+		},
 		formatLine(line) {
+			line.transactionID = this.getTransactionID(line);
 			line.amount = parseFloat(line.amount.replace(',', '.'));
 			line.date = moment.utc(line.date, this.bankData.dateFormat).local().toDate();
 			line.imported = true;
 			return line;
 		},
 		formatLines(lines) {
-			// TODO: Regroup par account
 			const matches = this.bankData.match;
 			return lines.map(line => {
 				const data = {};
 				_.forEach(matches, (index, field) => {
 					data[field] = line[index];
 				});
+
 				return {
 					data: this.formatLine(data),
 					status: false,

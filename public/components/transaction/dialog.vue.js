@@ -24,7 +24,6 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 					prepend-icon="mdi-bank"
 					:hint="transaction.account"
 					persistent-hint
-					class="mb-8"
 				></v-autocomplete>
 				<v-text-field
 					v-else
@@ -60,6 +59,18 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 					prepend-icon="mdi-currency-eur"
 				></v-text-field>
 				
+				<v-text-field
+					label="Transaction ID"
+					v-model="transaction.transactionID"
+					:readonly="transaction.imported"
+					prepend-icon="mdi-identifier"
+				></v-text-field>
+				<v-text-field
+					label="Reference"
+					v-model="transaction.reference"
+					:readonly="transaction.imported"
+					prepend-icon="mdi-pound-box"
+				></v-text-field>
 				<v-textarea
 					label="Communications"
 					v-model="transaction.communications"
@@ -67,6 +78,14 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 					auto-grow
 					:rows="2"
 					prepend-icon="mdi-message-reply-text"
+				></v-textarea>
+				<v-textarea
+					label="Details"
+					v-model="transaction.details"
+					:readonly="transaction.imported"
+					auto-grow
+					:rows="2"
+					prepend-icon="mdi-text-box-outline"
 				></v-textarea>
 			</section-block>
 			

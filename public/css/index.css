@@ -68,3 +68,9 @@
     font-weight: 300;
     font-size: 1rem;
 }
+
+.transaction-details {
+    font-size: 0.8em;
+    line-height: 1.2em;
+    font-weight: 300;
+}
