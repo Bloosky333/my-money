@@ -23,7 +23,7 @@ const TransactionModelMixin = {
 
 			if(date instanceof moment) {
 				transaction.year = date.year();
-				transaction.month = date.month();
+				transaction.month = date.format("MM");
 			}
 
 			if (id) {

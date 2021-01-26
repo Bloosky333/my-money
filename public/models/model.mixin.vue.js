@@ -38,8 +38,8 @@ const ModelMixin = {
             // this.$root.showToast(_.capitalize(collectionName) +" created", "success");
             return res;
         },
-        async update(id, data, collectionName) {
-            const res = await this.getRef(id, collectionName).set(data, {merge: true});
+        async update(id, data, collectionName, merge=true) {
+            const res = await this.getRef(id, collectionName).set(data, {merge: merge});
             // this.$root.showToast(_.capitalize(collectionName) + " updated", "success");
             return res;
         },

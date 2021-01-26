@@ -1,15 +1,15 @@
 const DigestModelMixin = {
 	mixins: [ModelMixin],
 	data() {
-		return {
-		}
+		return {}
 	},
 	methods: {
 		saveDigest(digest, transactions) {
-			if(transactions) {
+			if (transactions) {
 				const data = this.computeDigest(transactions);
+				console.log("COMPUTED DIGEST", data);
 				return this.updateDigest(digest.id, data);
-			} else{
+			} else {
 				return this.updateDigest(digest.id, digest)
 			}
 		},
@@ -17,7 +17,7 @@ const DigestModelMixin = {
 		computeYears(transactions) {
 			const years = [];
 			transactions.forEach(t => {
-				if(t.year && !years.includes(t.year)) {
+				if (t.year && !years.includes(t.year)) {
 					years.push(t.year);
 				}
 			});
@@ -26,15 +26,15 @@ const DigestModelMixin = {
 		computeAccounts(transactions) {
 			const accounts = [];
 			transactions.forEach(t => {
-				if(t.accountID && !accounts.includes(t.accountID)) {
+				if (t.accountID && !accounts.includes(t.accountID)) {
 					accounts.push(t.accountID);
 				}
 			});
 			return accounts;
 		},
 		_getList(id, parent, defaultObj) {
-			id = id || "?";
-			if(!parent[id]) {
+			id = id === undefined ? "?" : id;
+			if (!parent[id]) {
 				parent[id] = {
 					...defaultObj,
 					income: 0,
@@ -49,7 +49,7 @@ const DigestModelMixin = {
 			let expense = 0;
 
 			transactions.forEach(t => {
-				if(t.amount > 0) {
+				if (t.amount > 0) {
 					income += parseFloat(t.amount);
 				} else {
 					expense += parseFloat(t.amount);
@@ -64,85 +64,63 @@ const DigestModelMixin = {
 		computeDigest(transactions) {
 			const digest = {
 				years: this.computeYears(transactions),
-				accounts: this.computeAccounts(transactions),
+				accounts: {},
 			};
 
 			const subDigest = [
-				{field: "byYear", order: "years,months,categories,accounts"},
-				{field: "byCategory", order: "categories,years,months,accounts"},
-				{field: "byAccountYear", order: "accounts,years,months,categories"},
-				{field: "byAccountCategory", order: "accounts,categories,years,months"},
-			]
+				{field: "years", order: "years,categories"},
+				{field: "categories", order: "categories,years"},
+			];
 
-			subDigest.forEach(s => {
-				digest[s.field] = {};
-				this.computeSubDigest(digest[s.field], transactions, s.order.split(','));
+			let year, category, account;
+			transactions.forEach(t => {
+				account = this._getList(t.accountID, digest.accounts, {
+					years: {},
+					categories: {},
+				});
+
+				// By Year
+				year = this._getList(t.year, account.years, {categories: {}});
+				category = this._getList(t.categoryID, year.categories, {transactions: []});
+				category.transactions.push(t);
+
+				// By Category
+				category = this._getList(t.categoryID, account.categories, {years: {}});
+				year = this._getList(t.year, category.years, {transactions: []});
+				year.transactions.push(t);
 			});
+
+			_.forEach(subDigest, (s, i) => {
+				this._computeTotals(digest.accounts, s.order, i);
+			});
+
 			return digest;
 		},
 
-		computeSubDigest(obj, transactions, order) {
-			transactions.forEach(t => {
-				this._injectInTree(obj, order, 0, t);
-			});
-			this._computeTotals(obj, order);
-		},
-		_getIdField(field) {
-			const matches = {
-				"accounts": "accountID",
-				"categories": "categoryID",
-				"years": "year",
-				"months": "month",
-			}
-			return matches[field];
-		},
-		_injectInTree(obj, order, index, t) {
-			const idField = this._getIdField(order[index]);
-			const childField = order[index+1];
-			const isLast = order.length === index + 1;
-
-			const defaultChild = {};
-			if(isLast) {
-				defaultChild.transactions = [];
-			} else{
-				defaultChild[childField] = {};
-			}
-
-			const item = this._getList(t[idField], obj, defaultChild);
-			if(isLast) {
-				item.transactions.push(t);
-			} else {
-				this._injectInTree(item[childField], order, index + 1, t);
-			}
-		},
-
-		_computeTotals(data, order) {
-			order.shift();
+		_computeTotals(data, order, notSumFirst) {
+			order = order.split(',');
 			_.forEach(data, item => {
-				this._computeLevelTotals(item, order, 0);
+				this._computeLevelTotals(item, order, 0, notSumFirst);
 			})
 		},
-		_computeLevelTotals(obj, order, index) {
+		_computeLevelTotals(parent, order, index, notSumFirst) {
 			const childField = order[index];
-			const child = obj[childField];
-			const isLast = order.length === index + 1;
-
-			_.forEach(child, item => {
-				if(isLast) {
-					_.assign(item, this._getTotal(item.transactions));
-					obj.income += item.income;
-					obj.expense += item.expense;
-					obj.total += item.total;
-					delete item.transactions;
+			const children = parent[childField];
+			_.forEach(children, child => {
+				if (child.transactions) {
+					_.assign(child, this._getTotal(child.transactions));
+					delete child.transactions;
 				} else {
-					this._computeLevelTotals(item, order, index + 1);
-					obj.income += item.income;
-					obj.expense += item.expense;
-					obj.total += item.total;
+					this._computeLevelTotals(child, order, index + 1);
+				}
+
+				if(index > 0 || !notSumFirst) {
+					parent.income += child.income;
+					parent.expense += child.expense;
+					parent.total += child.total;
 				}
 			});
 		},
-
 
 
 		bindDigest(id, varName) {
@@ -156,7 +134,7 @@ const DigestModelMixin = {
 			return this.create(data, "digests");
 		},
 		updateDigest(id, data) {
-			return this.update(id, data, "digests");
+			return this.update(id, data, "digests", false);
 		},
 		deleteDigest(id) {
 			return this.remove(id, "digests")

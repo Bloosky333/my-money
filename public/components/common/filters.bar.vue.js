@@ -74,10 +74,9 @@ const FiltersBar = Vue.component("FiltersBar", {
 		search: {
 			deep: true,
 			handler(search) {
-				search.allYears = search.years.length === this.years.length;
-				search.allAccounts = search.accounts.length === this.accounts.length;
-				search.allCategories = search.categories.length === this.categories.length;
-				console.log("WWATCH", search)
+				search.allYears = !search.years.length || search.years.length === this.years.length;
+				search.allAccounts = !search.accounts.length || search.accounts.length === this.accounts.length;
+				search.allCategories = !search.categories.length || search.categories.length === this.categories.length;
 			}
 		},
 	},

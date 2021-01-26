@@ -1,5 +1,4 @@
 const ParamsPage = Vue.component("ParamsPage", {
-	mixins: [UserModelMixin],
 	props: ["categories", "accounts", "filters"],
 	template: `
         <div>
@@ -74,6 +73,8 @@ const ParamsPage = Vue.component("ParamsPage", {
 			this.showDialog.filter = true;
 			this.selected.filter = filter;
 		},
-
+		logout() {
+			this.$emit("logout");
+		}
 	}
 });

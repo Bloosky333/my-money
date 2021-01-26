@@ -5,10 +5,10 @@ const FilterSelectDialog = Vue.component("FilterSelectDialog", {
 			<template v-slot:action>
 				<div>
 					<v-btn text color="orange darken-2" @click="clear">
-						<v-icon left>mdi-eraser</v-icon> Clear
+						<v-icon left>mdi-checkbox-blank-outline</v-icon> None
 					</v-btn>
 					<v-btn text color="orange darken-2" @click="reset">
-						<v-icon left>mdi-backup-restore</v-icon> Reset
+						<v-icon left>mdi-checkbox-marked</v-icon> All
 					</v-btn>
 				</div>
 			</template>
@@ -33,9 +33,6 @@ const FilterSelectDialog = Vue.component("FilterSelectDialog", {
 		show(val) {
 			this.$emit('update:show', val);
 		},
-		"search.years"(years) {
-			this.search.period = years.length === 1 ? "month" : "year";
-		}
 	},
 	computed: {
 		items() {
@@ -47,7 +44,7 @@ const FilterSelectDialog = Vue.component("FilterSelectDialog", {
 			this.search[this.type] = [];
 		},
 		reset() {
-			this.search[this.type] = _.clone(this[this.type]);
+			this.search[this.type] = this[this.type].map(x => x.id || x);
 		},
 	}
 });

@@ -1,5 +1,5 @@
 const MainPage = Vue.component("MainPage", {
-	mixins: [TransactionModelMixin, DigestModelMixin],
+	mixins: [TransactionModelMixin, DigestModelMixin, UserModelMixin],
 	template: `
     <div>
     	<filters-bar
@@ -50,6 +50,7 @@ const MainPage = Vue.component("MainPage", {
                 :accounts="accountsOrdered"
                 :filters="filters"
                 @edit="edit"
+                @logout="processLogout"
             ></params-page>
             
             
@@ -120,7 +121,6 @@ const MainPage = Vue.component("MainPage", {
 				filter: false,
 			},
 			search: {
-				period: "year",
 				years: [],
 				categories: [],
 				accounts: [],
@@ -191,5 +191,12 @@ const MainPage = Vue.component("MainPage", {
 		refreshDigest() {
 			this.saveDigest(this.digest, this.transactions);
 		},
+		processLogout() {
+			this.logout();
+			this.$unbind("accounts");
+			this.$unbind("categories");
+			this.$unbind("filters");
+			this.$unbind("digest");
+		}
 	}
 });

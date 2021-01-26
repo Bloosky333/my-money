@@ -23,17 +23,17 @@ const StatsPage = Vue.component("StatsPage", {
 				grouping="category"
 				:expense="true"
 			></stats-block>
-<!--			-->
-<!--			<stats-block -->
-<!--        		title="Income by category"-->
-<!--        		:digest="digest"-->
-<!--				:search="search"-->
-<!--				:accounts="accounts"-->
-<!--                :categories="categories"-->
-<!--				chart-types="pie,line,column"-->
-<!--				grouping="category"-->
-<!--				:expense="false"-->
-<!--			></stats-block>-->
+			
+			<stats-block 
+        		title="Income by category"
+        		:digest="digest"
+				:search="search"
+				:accounts="accounts"
+                :categories="categories"
+				chart-types="pie,line,column"
+				grouping="category"
+				:expense="false"
+			></stats-block>
         </div>
     `,
 });

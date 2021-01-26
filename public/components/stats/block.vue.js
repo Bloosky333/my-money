@@ -58,12 +58,8 @@ const StatsBlock = Vue.component("StatsBlock", {
 		},
 		data() {
 			const functionName = _.camelCase("get data by " + this.grouping);
-			console.log("GET DATA ", functionName)
 			return this[functionName]();
 		},
-		// reverseTransaction() {
-		//     return this.transactions.slice().reverse();
-		// }
 	},
 	methods: {
 		_getAccountName(id) {
@@ -79,208 +75,217 @@ const StatsBlock = Vue.component("StatsBlock", {
 			const formatted = field === "years" ? parseInt(id) : id;
 			return !this.search[field] || this.search[allName] || this.search[field].includes(formatted);
 		},
+		_round(val) {
+			return _.round(val, 2);
+		},
+
+		_flattenList(years) {
+			const uniques = [];
+			_.forEach(years, items => {
+				_.forEach(items, (item, id) => {
+					if(!uniques.includes(id)) {
+						uniques.push(id);
+					}
+				});
+			});
+			return uniques;
+		},
 
 		// PERIOD
 		getDataByPeriod() {
+			// Format
+			// Period xxx/IN xxx/OUT yyy/IN yyy/OUT Total
+			const years = this._getAccountsByPeriod();
+			const uniqueAccounts = this._flattenList(years);
+
 			const headers = ["Period"];
+			uniqueAccounts.forEach(accountID => {
+				const accountName = this._getAccountName(accountID);
+				headers.push(accountName + "/IN", accountName + "/OUT")
+			});
+			headers.push("Total");
 
-			let periods;
-			if (this.search.period === "year") {
-				periods = this.search.years.slice().sort();
-			} else {
-				periods = []
-				for (let i = 1; i <= 12; i++) {
-					periods.push(i);
-				}
-			}
+			const lines = [];
+			_.forEach(years, (accounts, year) => {
+				const line = [year];
+				let total = 0;
+				uniqueAccounts.forEach(accountID => {
+					const account = accounts[accountID];
+					if (account) {
+						line.push(account.income, account.expense);
+						total += account.total;
+					} else {
+						line.push(0, 0);
+					}
+				});
+				line.push(total);
+				lines.push(line);
+			});
 
-			const totals = {};
-			_.forEach(this.digest.byAccountYear, (obj, accountID) => {
+			return [headers, ...lines];
+		},
+
+		_getAccountsByPeriod() {
+			const years = {};
+			_.forEach(this.digest.accounts, (account, accountID) => {
 				if (this._include("accounts", accountID)) {
-					const accountName = this._getAccountName(accountID);
-					headers.push(accountName + "/IN", accountName + "/OUT")
-
-					const data = {};
-					const order = "years,months,categories".split(',');
-					const returnField = this.search.period + "s";
-					this._getTotal(data, obj, order, returnField, 0)
-
-					periods.forEach(period => {
-						if(!totals[period]) {
-							totals[period] = {
-								columns: [String(period)],
-								total: 0
-							}
-						}
-						const line = data[period];
-						if(line) {
-							totals[period].columns.push(line.income, line.expense)
-							totals[period].total += line.total;
-						} else{
-							totals[period].columns.push(0, 0);
+					_.forEach(account.years, (yearObj, year) => {
+						if (this._include("years", parseInt(year))) {
+							const yearResult = years[year] || {};
+							const accountResult = {
+								income: 0,
+								expense: 0,
+								total: 0,
+							};
+							_.forEach(yearObj.categories, (category, categoryID) => {
+								if (this._include("categories", parseInt(categoryID))) {
+									accountResult.income += category.income;
+									accountResult.expense += category.expense;
+									accountResult.total += category.total;
+								}
+							});
+							yearResult[accountID] = accountResult;
+							years[year] = yearResult;
 						}
 					});
 				}
 			});
 
-			const lines = [];
-			periods.forEach(period => {
-				totals[period].columns.push(totals[period].total);
-				lines.push(totals[period].columns);
-			});
-
-			headers.push("Total");
-			return [headers, ...lines];
+			return years;
 		},
+		_getCategoriesByPeriod() {
+			const years = {};
+			_.forEach(this.digest.accounts, (account, accountID) => {
+				if (this._include("accounts", accountID)) {
+					_.forEach(account.years, (yearObj, year) => {
+						if (this._include("years", parseInt(year))) {
+							const yearResult = years[year] || {};
+							_.forEach(yearObj.categories, (category, categoryID) => {
+								if (this._include("categories", parseInt(categoryID))) {
+									const categoryResult = yearResult[categoryID] || {
+										income: 0,
+										expense: 0,
+										total: 0,
+									};
+									categoryResult.income += category.income;
+									categoryResult.expense += category.expense;
+									categoryResult.total += category.total;
 
-		_getTotal(data, obj, order, returnField, index) {
-			const childField = order[index];
-			const child = obj[childField];
-			const isLast = order.length === index + 1;
-			let total = {
-				income: 0,
-				expense: 0,
-				total: 0,
-			}
-
-			const result = {};
-			_.forEach(child, (item, itemID) => {
-				if (this._include(childField, itemID)) {
-					if (isLast) {
-						total.income += item.income;
-						total.expense += item.expense;
-						total.total += item.total;
-					} else {
-						total = this._getTotal(data, item, order, returnField, index + 1);
-					}
-					if (childField === returnField) {
-						total.name = itemID;
-						data[total.name] = total;
-					}
-				}
-			})
-
-			return total;
-		},
-
-		_getTotalByPeriod() {
-
-		},
-
-		groupTransactionsByPeriod() {
-			const periods = [];
-
-			let period = {
-				name: ""
-			};
-			const dateFormat = this.period === "month" ? "MM" : "YYYY";
-			this.reverseTransaction.forEach(transaction => {
-				const date = dateToMoment(transaction.date);
-
-				if (date) {
-					const name = date.format(dateFormat);
-					if (name !== period.name) {
-						period = {
-							name: name,
-							transactions: [],
-						};
-						periods.push(period);
-					}
-					period.transactions.push(transaction);
+									yearResult[categoryID] = categoryResult;
+								}
+							});
+							years[year] = yearResult;
+						}
+					});
 				}
 			});
-			return periods;
+			return years;
 		},
 
+		getPeriodsByCategory() {
+			const categories = {};
+			_.forEach(this.digest.accounts, (account, accountID) => {
+				if (this._include("accounts", accountID)) {
+					_.forEach(account.categories, (category, categoryID) => {
+						if (this._include("categories", parseInt(categoryID))) {
+							const categoryResult = categories[categoryID] || {};
+							_.forEach(category.years, (yearObj, year) => {
+								if (this._include("years", parseInt(year))) {
+									const yearResult = categoryResult[year] || {
+										income: 0,
+										expense: 0,
+										total: 0,
+									};
+									yearResult.income += yearObj.income;
+									yearResult.expense += yearObj.expense;
+									yearResult.total += yearObj.total;
+
+									categoryResult[year] = yearResult;
+								}
+							});
+							categories[categoryID] = categoryResult;
+						}
+					});
+				}
+			});
+			return categories;
+		},
 
 		// CATEGORY
 		getDataByCategory() {
 			const data = [];
-			let byCategory = {};
-			let order;
-			let obj;
-			const returnField = this.search.period + "s";
+			let categoriesByPeriod, periodsByCategory;
 
 			switch (this.chartType) {
 				case "pie":
+					categoriesByPeriod = this._getCategoriesByPeriod();
 					data.push(["Category", "Total"]);
-					order = "categories,years,months,accounts".split(',');
-					obj = {"categories": this.digest.byCategory};
-					this._getTotal(byCategory, obj, order, "categories", 0)
-					_.forEach(byCategory, category => {
-						const name = this._getCategoryName(category.name);
-						if(this.expense) {
-							data.push([name, Math.abs(category.expense)]);
-						} else{
-							data.push([name, category.income]);
-						}
+					const categoryTotals = this._getTotals(categoriesByPeriod);
+					_.forEach(categoryTotals, (total, categoryID) => {
+						const name = this._getCategoryName(categoryID);
+						data.push([name, this._round(total)]);
 					});
+
 					break;
 				case "line":
-					const categoryNames = this.categories.map(c => c.name);
-					const categoryIds = this.categories.map(c => c.id);
+					categoriesByPeriod = this._getCategoriesByPeriod();
+					const uniqueCategories = this._flattenList(categoriesByPeriod);
+					const categoryNames = uniqueCategories.map(id => this._getCategoryName(id));
+
 					data.push(["Period", ...categoryNames]);
-
-					order = "months,categories,accounts".split(',');
-					_.forEach(this.digest.byYear, (obj, year) => {
-						if (this._include("years", year)) {
-							byCategory = {}
-							this._getTotal(byCategory, obj, order, "categories", 0);
-
-							const line = [String(year)]
-							categoryIds.forEach(categoryID => {
-								const category = byCategory[categoryID];
-								if(category) {
-									if(this.expense){
-										line.push(Math.abs(category.expense));
-									} else {
-										line.push(category.income);
-									}
-								} else {
-									line.push(0);
-								}
-							});
-							data.push(line);
-						}
+					_.forEach(categoriesByPeriod, (categories, year) => {
+						const line = this._getLine(year, uniqueCategories, categories);
+						data.push(line);
 					});
+
 					break;
 				case "column":
-					// periods = this.groupTransactionsByPeriod();
-					// const periodNames = periods.map(p => p.name);
-					// data.push(["Category", ...periodNames]);
+					periodsByCategory = this.getPeriodsByCategory();
+					const periodNames = this._flattenList(periodsByCategory);
+					data.push(["Category", ...periodNames]);
 
-
-					//
-					// this.categories.forEach(c => {
-					// 	const sumsByPeriod = periods.map(period => {
-					// 		return this.sumByCategory(c.id, period.transactions);
-					// 	});
-					// 	data.push([c.name, ...sumsByPeriod]);
-					// });
+					_.forEach(periodsByCategory, (years, categoryID) => {
+						const name = this._getCategoryName(categoryID);
+						const line = this._getLine(name, periodNames, years);
+						data.push(line);
+					});
 
 					break;
 			}
 
 			return data;
 		},
-		sumByCategory(categoryID, transactions) {
-			let total = 0;
-			transactions.forEach(t => {
-				if (
-					(this.expense && t.amount < 0) ||
-					(!this.expense && t.amount > 0)
-				) {
-					let amount = 0;
-					if (!categoryID) {
-						amount = t.categoryID ? 0 : t.amount;
-					} else {
-						amount = t.categoryID === categoryID ? t.amount : 0;
-					}
 
-					total += amount;
+		_getTotals(list) {
+			const totals = {};
+			_.forEach(list, items => {
+				_.forEach(items, (item, id) => {
+					let total = totals[id] || 0;
+					if (this.expense) {
+						total += Math.abs(item.expense);
+					} else {
+						total += item.income;
+					}
+					totals[id] = total;
+				});
+			});
+			return totals;
+		},
+		_getLine(name, columns, items) {
+			const line = [name];
+			columns.forEach(id => {
+				const item = items[id];
+				if (item) {
+					if (this.expense) {
+						line.push(this._round(Math.abs(item.expense)));
+					} else {
+						line.push(this._round(item.income));
+					}
+				} else {
+					line.push(0);
 				}
 			});
-			return Math.abs(total);
+			return line;
 		},
 
 		toggle() {

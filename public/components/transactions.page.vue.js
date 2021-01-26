@@ -23,11 +23,20 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 					@edit="edit"
 					:expanded="i === 0"
 				></transaction-block>
+				
+				<v-btn text block small @click="showConfirm=true" :loading="refreshing" class="mt-8">
+					<v-icon left small>mdi-delete-empty</v-icon> Clear all transactions
+				</v-btn>
 			</div>
 			
 			<div v-else class="text-center py-4">
                 <v-progress-linear indeterminate color="orange darken-2"></v-progress-linear>
             </div>
+            
+            <confirm-dialog 
+				:show.sync="showConfirm" 
+				@confirm="clearTransactions"
+			></confirm-dialog>
         </div>
     `,
 	data() {
@@ -35,6 +44,7 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 			changed: 0,
 			refreshing: false,
 			processing: false,
+			showConfirm: false,
 		}
 	},
 	computed: {
@@ -107,15 +117,24 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 					this.changes++;
 				}
 			}
-			this.transactions.forEach(transaction => {
-
-			});
 			if (this.changes > 0) {
 				this.$emit('refresh');
 			}
 			await this.delay(1000);
 			this.processing = false;
 		},
+		async clearTransactions() {
+			this.refreshing = true;
+			let transaction;
+			for(let i = 0; i<this.transactions.length; i++) {
+				transaction = this.transactions[i];
+				this.deleteTransaction(transaction.id);
+			}
+
+			this.$emit("refresh");
+			this.refreshing = false;
+		},
+
 		async refreshDigest() {
 			this.refreshing = true;
 			this.$emit("refresh");
