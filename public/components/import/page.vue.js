@@ -2,83 +2,85 @@ const ImportPage = Vue.component("ImportPage", {
 	mixins: [TransactionModelMixin],
 	props: ["transactions", "categories", "accounts", "filters"],
 	template: `
-        <div>
-        	<section-title>Choose your bank</section-title>
-			<section-block>
-				<v-btn-toggle v-model="bank" borderless color="orange darken-2">
-					<v-btn
-						v-for="b in banks"
-						:value="b"
-					>{{ b }}</v-btn>
-				</v-btn-toggle>
-			</section-block>
-			
-			<template v-if="bank">
-				<section-title>Select your file</section-title>
+        <v-row>
+        	<v-col cols="12" md="5" lg="4" class="py-0">
+				<section-title>Choose your bank</section-title>
 				<section-block>
-					<div class="d-flex align-center">
-						<v-file-input
-							solo
-							hide-details
-							single-line
-							@change="onFileSelect"
-							color="orange darken-2"
-							flat
-						></v-file-input>
+					<v-btn-toggle v-model="bank" borderless color="orange darken-2">
 						<v-btn
-							color="orange darken-2"
-							@click="startImport"
-							large
-							outlined
-							:disabled="!lines.length"
-							:loading="parsing"
-							class="ml-2"
-						><v-icon left>mdi-check-bold</v-icon> Import</v-btn>
-					</div>
+							v-for="b in banks"
+							:value="b"
+						>{{ b }}</v-btn>
+					</v-btn-toggle>
 				</section-block>
-			</template>
-			<div v-else class="error--text mt-2">Select a bank/source.</div>
-			
-			<template v-if="lines.length">
-				<div>
-					<v-progress-linear
-						color="orange darken-2"
-						:buffer-value="buffer"
-						:value="progressPercent"
-						stream
-						height="25"
-						dark
-					>
-						<strong>
-							{{ progressUnit }}/{{ lines.length }}
-							({{ Math.floor(progressPercent) }}%)
-						</strong>
-					</v-progress-linear>
-				</div>
 				
-				<section-title>Your data</section-title>
-				<v-tabs
-					v-model="tab"
-					icons-and-text
-					show-arrows
+				<template v-if="bank">
+					<section-title>Select your file</section-title>
+					<section-block>
+						<div class="d-flex align-center">
+							<v-file-input
+								solo
+								hide-details
+								single-line
+								@change="onFileSelect"
+								color="orange darken-2"
+								flat
+							></v-file-input>
+							<v-btn
+								color="orange darken-2"
+								@click="startImport"
+								large
+								outlined
+								:disabled="!lines.length || parsing"
+								:loading="parsing"
+								class="ml-2"
+							><v-icon left>mdi-check-bold</v-icon> Import</v-btn>
+						</div>
+					</section-block>
+				</template>
+				<div v-else class="error--text mt-2">Select a bank/source.</div>
+			
+				<v-progress-linear
+					v-if="lines.length"
+					color="orange darken-2"
+					:buffer-value="buffer"
+					:value="progressPercent"
+					stream
+					height="25"
 					dark
 				>
-					<v-tabs-slider></v-tabs-slider>
-					<v-tab v-for="t in tabs" :class="t.color + '--text'">
-						{{ t.name | capitalize }} ({{ linesPerStatus[t.name].length }})
-						<v-icon :color="t.color">{{ t.icon }}</v-icon>
-					</v-tab>
-					
-					<v-tab-item v-for="t in tabs">
-						<import-line
-							v-for="line in linesPerStatus[t.name]"
-							:transaction="line.data"
-							:error="line.error"
-						></import-line>
-					</v-tab-item>
-				</v-tabs>
-			</template>
-        </div>
+					<strong>
+						{{ progressUnit }}/{{ lines.length }}
+						({{ Math.floor(progressPercent) }}%)
+					</strong>
+				</v-progress-linear>
+			</v-col>
+			<v-col cols="12" md="7" lg="8" class="py-0">
+				<template v-if="lines.length">
+					<section-title>Your data</section-title>
+					<v-tabs
+						v-model="tab"
+						icons-and-text
+						show-arrows
+						dark
+					>
+						<v-tabs-slider></v-tabs-slider>
+						<v-tab v-for="t in tabs" :class="t.color + '--text'">
+							{{ t.name | capitalize }} ({{ linesPerStatus[t.name].length }})
+							<v-icon :color="t.color">{{ t.icon }}</v-icon>
+						</v-tab>
+						
+						<v-tab-item v-for="t in tabs">
+							<import-line
+								v-for="line in linesPerStatus[t.name]"
+								:transaction="line.data"
+								:error="line.error"
+							></import-line>
+						</v-tab-item>
+					</v-tabs>
+				</template>
+			</v-col>
+        </v-row>
     `,
 	data() {
 		return {
@@ -113,8 +115,6 @@ const ImportPage = Vue.component("ImportPage", {
 			],
 			tab: "pending"
 		}
-	},
-	created() {
 	},
 	computed: {
 		banks() {
@@ -161,10 +161,12 @@ const ImportPage = Vue.component("ImportPage", {
 					encoding: this.bankData.encoding,
 					header: false,
 					skipEmptyLines: true,
-					complete: (results) => {
+					complete: async (results) => {
 						const lines = results.data;
 						lines.splice(0, this.bankData.headerLinesCount);
 						this.lines = this.formatLines(lines);
+
+						await this.delay(1000);
 						this.parsing = false;
 					},
 					error: (error) => {
@@ -177,15 +179,15 @@ const ImportPage = Vue.component("ImportPage", {
 		},
 		getTransactionID(line) {
 			const formatter = this.bankData.idFormatter;
-			if(typeof formatter === "function") {
+			if (typeof formatter === "function") {
 				return formatter(line);
-			}else{
+			} else {
 				return line[formatter];
 			}
 		},
 		formatLine(line) {
 			line.transactionID = this.getTransactionID(line);
-			if(this.bankData.formatter) {
+			if (this.bankData.formatter) {
 				this.bankData.formatter(line);
 			}
 

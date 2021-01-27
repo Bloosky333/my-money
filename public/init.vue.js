@@ -49,9 +49,6 @@ firebase.auth().onAuthStateChanged(user => {
                 },
             },
             methods: {
-                showToast(message, type, timeout) {
-                    this.$refs.toast.show(message, type, timeout);
-                },
                 processLogout() {
                     this.loading = true;
                     this.$unbind("currentUser");

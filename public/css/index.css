@@ -4,6 +4,9 @@
     text-overflow: ellipsis;
     max-width: 100%;
 }
+.clickable {
+    cursor: pointer;
+}
 
 .v-btn.fab-center,
 .fab-center {
@@ -34,7 +37,8 @@
 
 .filter-drawer-content {
     max-height: 75vh;
-    overflow-y: scroll;
+    overflow-y: auto;
+    overflow-x: hidden;
     padding-bottom: 40px;
 }
 

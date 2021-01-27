@@ -1,10 +1,10 @@
 const SectionTitle = Vue.component("SectionTitle", {
-    props: ["btnLabel", "btnIcon", "switchModel", "switchLabel", "expandable", "expanded", "noMarginBottom"],
+    props: ["btnLabel", "btnIcon", "switchModel", "switchLabel", "expandable", "expanded", "marginBottom", "marginTop"],
     template: `
         <div 
-            class="section-title grey--text d-flex mt-5 align-center" 
+            class="section-title grey--text d-flex align-center" 
             @click="toggle"
-            :class="noMarginBottom ? '' : 'mb-2'"
+            :class="cls"
         >
             <slot></slot>
             <v-spacer></v-spacer>
@@ -43,6 +43,17 @@ const SectionTitle = Vue.component("SectionTitle", {
     computed: {
         toggleIcon() {
             return this.expanded ? 'mdi-chevron-up' : 'mdi-chevron-down';
+        },
+        cls() {
+            let cls = [];
+            let margin = this.marginTop === undefined ? "5" : this.marginTop;
+            cls.push("mt-" + margin);
+
+            margin = this.marginBottom === undefined ? "2" : this.marginBottom;
+            cls.push("mb-" + margin);
+
+            if(this.expandable)  cls.push("clickable");
+            return cls.join(' ');
         },
     },
     methods: {

@@ -29,7 +29,7 @@ const StatsBlock = Vue.component("StatsBlock", {
 						:data="data"
 					></stats-chart>
 					
-					<div class="d-flex align-center justify-space-between text-overline mt-2 grey--text" @click="toggle">
+					<div class="d-flex align-center justify-space-between text-overline mt-2 grey--text clickable" @click="toggle">
 						<div v-if="expanded">Hide details</div>
 						<div v-else>Show details</div>
 						<v-icon small>{{ toggleIcon }}</v-icon>
@@ -68,153 +68,52 @@ const StatsBlock = Vue.component("StatsBlock", {
 		},
 	},
 	methods: {
-		_getAccountName(id) {
-			const account = _.find(this.accounts, a => a.id === id);
-			return account ? account.name : "?";
-		},
-		_getCategoryName(id) {
-			const category = _.find(this.categories, c => c.id === id);
-			return category ? category.name : "?";
-		},
-		_include(field, id) {
-			const allName = _.camelCase("all " + field);
-			const formatted = field === "years" ? parseInt(id) : id;
-			return !this.search[field] || this.search[allName] || this.search[field].includes(formatted);
-		},
-		_round(val) {
-			return _.round(val, 2);
-		},
-
-		_flattenList(years) {
-			const uniques = [];
-			_.forEach(years, items => {
-				_.forEach(items, (item, id) => {
-					if(!uniques.includes(id)) {
-						uniques.push(id);
-					}
-				});
-			});
-			return uniques;
-		},
-
 		// PERIOD
 		getDataByPeriod() {
-			// Format
-			// Period xxx/IN xxx/OUT yyy/IN yyy/OUT Total
-			const years = this._getAccountsByPeriod();
-			const uniqueAccounts = this._flattenList(years);
+			switch (this.chartType) {
+				case "combo":
+					const accountsByPeriod = this.getAccountsByPeriod();
+					const uniqueAccounts = this._flattenList(accountsByPeriod);
 
-			const headers = ["Period"];
-			uniqueAccounts.forEach(accountID => {
-				const accountName = this._getAccountName(accountID);
-				headers.push(accountName + "/IN", accountName + "/OUT")
-			});
-			headers.push("Total");
-
-			const lines = [];
-			_.forEach(years, (accounts, year) => {
-				const line = [year];
-				let total = 0;
-				uniqueAccounts.forEach(accountID => {
-					const account = accounts[accountID];
-					if (account) {
-						line.push(account.income, account.expense);
-						total += account.total;
-					} else {
-						line.push(0, 0);
-					}
-				});
-				line.push(total);
-				lines.push(line);
-			});
-
-			return [headers, ...lines];
-		},
-
-		_getAccountsByPeriod() {
-			const years = {};
-			_.forEach(this.digest.accounts, (account, accountID) => {
-				if (this._include("accounts", accountID)) {
-					_.forEach(account.years, (yearObj, year) => {
-						if (this._include("years", parseInt(year))) {
-							const yearResult = years[year] || {};
-							const accountResult = {
-								income: 0,
-								expense: 0,
-								total: 0,
-							};
-							_.forEach(yearObj.categories, (category, categoryID) => {
-								if (this._include("categories", parseInt(categoryID))) {
-									accountResult.income += category.income;
-									accountResult.expense += category.expense;
-									accountResult.total += category.total;
-								}
-							});
-							yearResult[accountID] = accountResult;
-							years[year] = yearResult;
-						}
+					const headers = ["Period"];
+					uniqueAccounts.forEach(accountID => {
+						const accountName = this._getAccountName(accountID);
+						headers.push(accountName + "/IN", accountName + "/OUT")
 					});
-				}
-			});
+					headers.push("Total");
 
-			return years;
-		},
-		_getCategoriesByPeriod() {
-			const years = {};
-			_.forEach(this.digest.accounts, (account, accountID) => {
-				if (this._include("accounts", accountID)) {
-					_.forEach(account.years, (yearObj, year) => {
-						if (this._include("years", parseInt(year))) {
-							const yearResult = years[year] || {};
-							_.forEach(yearObj.categories, (category, categoryID) => {
-								if (this._include("categories", parseInt(categoryID))) {
-									const categoryResult = yearResult[categoryID] || {
-										income: 0,
-										expense: 0,
-										total: 0,
-									};
-									categoryResult.income += category.income;
-									categoryResult.expense += category.expense;
-									categoryResult.total += category.total;
-
-									yearResult[categoryID] = categoryResult;
-								}
-							});
-							years[year] = yearResult;
-						}
+					const lines = [];
+					_.forEach(accountsByPeriod, (accounts, year) => {
+						const line = [year];
+						let total = 0;
+						uniqueAccounts.forEach(accountID => {
+							const account = accounts[accountID];
+							if (account) {
+								line.push(account.income, account.expense);
+								total += account.total;
+							} else {
+								line.push(0, 0);
+							}
+						});
+						line.push(total);
+						lines.push(line);
 					});
-				}
-			});
-			return years;
-		},
 
-		getPeriodsByCategory() {
-			const categories = {};
-			_.forEach(this.digest.accounts, (account, accountID) => {
-				if (this._include("accounts", accountID)) {
-					_.forEach(account.categories, (category, categoryID) => {
-						if (this._include("categories", parseInt(categoryID))) {
-							const categoryResult = categories[categoryID] || {};
-							_.forEach(category.years, (yearObj, year) => {
-								if (this._include("years", parseInt(year))) {
-									const yearResult = categoryResult[year] || {
-										income: 0,
-										expense: 0,
-										total: 0,
-									};
-									yearResult.income += yearObj.income;
-									yearResult.expense += yearObj.expense;
-									yearResult.total += yearObj.total;
+					return [headers, ...lines];
+				case "column":
+					const periodsByAccount = this.getPeriodsByAccount()
+					const data = [];
+					const periodNames = this._flattenList(periodsByAccount);
+					data.push(["Accounts", ...periodNames]);
 
-									categoryResult[year] = yearResult;
-								}
-							});
-							categories[categoryID] = categoryResult;
-						}
+					_.forEach(periodsByAccount, (years, accountID) => {
+						const name = this._getAccountName(accountID);
+						const line = this._getLine(name, periodNames, years, "total");
+						data.push(line);
 					});
-				}
-			});
-			return categories;
+
+					return data;
+			}
 		},
 
 		// CATEGORY
@@ -224,7 +123,7 @@ const StatsBlock = Vue.component("StatsBlock", {
 
 			switch (this.chartType) {
 				case "pie":
-					categoriesByPeriod = this._getCategoriesByPeriod();
+					categoriesByPeriod = this.getCategoriesByPeriod();
 					data.push(["Category", "Total"]);
 					const categoryTotals = this._getTotals(categoriesByPeriod);
 					_.forEach(categoryTotals, (total, categoryID) => {
@@ -234,7 +133,7 @@ const StatsBlock = Vue.component("StatsBlock", {
 
 					break;
 				case "line":
-					categoriesByPeriod = this._getCategoriesByPeriod();
+					categoriesByPeriod = this.getCategoriesByPeriod();
 					const uniqueCategories = this._flattenList(categoriesByPeriod);
 					const categoryNames = uniqueCategories.map(id => this._getCategoryName(id));
 
@@ -262,6 +161,105 @@ const StatsBlock = Vue.component("StatsBlock", {
 			return data;
 		},
 
+		getPeriodsByAccount() {
+			return this._getPeriodsByX("account");
+		},
+		getPeriodsByCategory() {
+			return this._getPeriodsByX("category");
+		},
+
+		getAccountsByPeriod() {
+			return this._getXByPeriod("account");
+		},
+		getCategoriesByPeriod() {
+			return this._getXByPeriod("category");
+		},
+
+		_getXByPeriod(type) {
+			const results = {};
+			let result;
+			_.forEach(this.digest.accounts, (account, accountID) => {
+				if (this._include("accounts", accountID)) {
+					_.forEach(account.years, (yearObj, year) => {
+						if (this._include("years", year)) {
+							const yearResult = results[year] || {};
+							if (type === "account") {
+								result = {
+									income: 0,
+									expense: 0,
+									total: 0,
+								};
+							}
+							_.forEach(yearObj.categories, (category, categoryID) => {
+								if (this._include("categories", categoryID)) {
+									if (type === "category") {
+										result = yearResult[categoryID] || {
+											income: 0,
+											expense: 0,
+											total: 0,
+										};
+									}
+
+									result.income += category.income;
+									result.expense += category.expense;
+									result.total += category.total;
+
+									if (type === "category") {
+										yearResult[categoryID] = result;
+									}
+								}
+							});
+							if (type === "account") {
+								yearResult[accountID] = result;
+							}
+							results[year] = yearResult;
+						}
+					});
+				}
+			});
+			return results;
+		},
+
+		_getPeriodsByX(type) {
+			let result;
+			const results = {};
+			_.forEach(this.digest.accounts, (account, accountID) => {
+				if (this._include("accounts", accountID)) {
+					if (type === "account") {
+						result = results[accountID] || {};
+					}
+					_.forEach(account.categories, (category, categoryID) => {
+						if (this._include("categories", categoryID)) {
+							if (type === "category") {
+								result = results[categoryID] || {};
+							}
+							_.forEach(category.years, (yearObj, year) => {
+								if (this._include("years", year)) {
+									const yearResult = result[year] || {
+										income: 0,
+										expense: 0,
+										total: 0,
+									};
+									yearResult.income += yearObj.income;
+									yearResult.expense += yearObj.expense;
+									yearResult.total += yearObj.total;
+
+									result[year] = yearResult;
+								}
+							});
+							if (type === "category") {
+								results[categoryID] = result;
+							}
+						}
+					});
+					if (type === "account") {
+						results[accountID] = result;
+					}
+				}
+			});
+			return results;
+		},
+
 		_getTotals(list) {
 			const totals = {};
 			_.forEach(list, items => {
@@ -277,12 +275,14 @@ const StatsBlock = Vue.component("StatsBlock", {
 			});
 			return totals;
 		},
-		_getLine(name, columns, items) {
+		_getLine(name, columns, items, field) {
 			const line = [name];
 			columns.forEach(id => {
 				const item = items[id];
 				if (item) {
-					if (this.expense) {
+					if (field) {
+						line.push(this._round(item[field]));
+					} else if (this.expense) {
 						line.push(this._round(Math.abs(item.expense)));
 					} else {
 						line.push(this._round(item.income));
@@ -292,6 +292,35 @@ const StatsBlock = Vue.component("StatsBlock", {
 				}
 			});
 			return line;
+		},
+
+		_getAccountName(id) {
+			const account = _.find(this.accounts, a => a.id === id);
+			return account ? account.name : "?";
+		},
+		_getCategoryName(id) {
+			const category = _.find(this.categories, c => c.id === id);
+			return category ? category.name : "?";
+		},
+		_include(field, id) {
+			const allName = _.camelCase("all " + field);
+			const formatted = field === "years" ? parseInt(id) : id;
+			return !this.search[field] || this.search[allName] || this.search[field].includes(formatted);
+		},
+		_round(val) {
+			return _.round(val, 2);
+		},
+
+		_flattenList(years) {
+			const uniques = [];
+			_.forEach(years, items => {
+				_.forEach(items, (item, id) => {
+					if (!uniques.includes(id)) {
+						uniques.push(id);
+					}
+				});
+			});
+			return uniques;
 		},
 
 		toggle() {

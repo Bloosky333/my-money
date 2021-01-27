@@ -82,8 +82,10 @@ const MainPage = Vue.component("MainPage", {
         	></filter-dialog>
         	
         	<!-- COPYRIGHT ========================== -->
-            <div class="my-12 text-caption font-weight-thin text--grey text-center">
-            	My Money v1.0<br/>
+            <div class="mt-12 text-overline font-weight-bold text--grey text-center">
+            	My Money v1.0
+            </div>
+            <div class="mb-12 text-caption font-weight-thin text--grey text-center">
                 Next IT © 2021
             </div>
         </v-container>

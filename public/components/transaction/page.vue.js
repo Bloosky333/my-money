@@ -51,17 +51,20 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 				</v-menu>
 			</div>
 			
-			<template v-if="transactions.length && !search">
-				<transaction-block 
-					v-for="(section, i) in sections" 
-					:section="section"
-					:accounts="accounts"
-					:categories="categories"
-					@edit="edit"
-					:expanded="i === 0"
-				></transaction-block>
-			</template>
-			
+			<v-row v-if="transactions.length && !search">
+				<v-col 
+					cols="12" md="6" lg="4" 
+					v-for="section in sections" 
+					class="py-0"
+				>
+					<transaction-block 
+						:section="section"
+						:accounts="accounts"
+						:categories="categories"
+						@edit="edit"
+						:expanded="section.expanded"
+					></transaction-block>
+				</v-row>
 			<template v-if="search">
 				<section-title>{{ searchResults.length }} Results</section-title>
 				<section-block v-for="line in searchResults" class="py-1" @click.native="edit(line)">
@@ -99,6 +102,7 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 	computed: {
 		sections() {
 			const sections = [];
+
 			const uncategorized = {
 				name: "Uncategorized",
 				transactions: [],
@@ -111,21 +115,31 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 			let section = {
 				name: "",
 			};
+			let subSection = {
+				name: "",
+			};
 			this.transactions.forEach(transaction => {
 				if (transaction.categoryID) {
 					const date = dateToMoment(transaction.date);
 
 					if (date) {
-						const name = date.format("YYYY MMMM");
-
-						if (name !== section.name) {
+						if(section.name !== date.year()) {
 							section = {
+								name: date.year(),
+								subSections: [],
+							}
+							sections.push(section);
+						}
+
+						const name = date.format("MMMM");
+						if (subSection.name !== name) {
+							subSection = {
 								name: name,
 								transactions: [],
 							};
-							sections.push(section);
+							section.subSections.push(subSection);
 						}
-						section.transactions.push(transaction);
+						subSection.transactions.push(transaction);
 					} else {
 						undated.transactions.push(transaction);
 					}
@@ -134,11 +148,23 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 				}
 			});
 
-			sections.unshift(undated);
-			sections.unshift(uncategorized);
+			section = {
+				name: "Missing information",
+				subSections: [],
+				expanded: true,
+			}
+			if(undated.transactions.length || uncategorized.transactions.length) {
+				if(undated.transactions.length) {
+					section.subSections.push(undated);
+				}
+				if(uncategorized.transactions.length) {
+					section.subSections.push(uncategorized);
+				}
+				sections.unshift(section);
+			}
 
 			sections.forEach(this.sumSection);
-			return sections.filter(section => section.transactions.length > 0);
+			return sections;
 		},
 		searchResults() {
 			const query = this.search.toLowerCase();
@@ -149,12 +175,23 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 		sumSection(section) {
 			section.income = 0;
 			section.expense = 0;
-			section.transactions.forEach(t => {
-				if (t.amount > 0) {
-					section.income += t.amount;
-				} else {
-					section.expense += t.amount;
-				}
+			section.count = 0;
+			section.subSections.forEach(ss => {
+				ss.income = 0;
+				ss.expense = 0;
+				ss.transactions.forEach(t => {
+					if (t.amount > 0) {
+						ss.income += t.amount;
+					} else {
+						ss.expense += t.amount;
+					}
+				})
+				ss.total = ss.income + ss.expense;
+				ss.count = ss.transactions.length;
+
+				section.count += ss.count;
+				section.income += ss.income;
+				section.expense += ss.expense;
 			});
 			section.total = section.income + section.expense;
 		},

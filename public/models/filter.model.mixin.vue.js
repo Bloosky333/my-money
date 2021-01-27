@@ -24,7 +24,7 @@ const FilterModelMixin = {
 				(filter.counterpartAccount && filter.counterpartAccount !== transaction.counterpartAccount)
 			) {
 				return false;
-			} else if(filter.contains.length) {
+			} else if(filter.contains && filter.contains.length) {
 				const communications = _.lowerCase(_.deburr(transaction.communications));
 				return filter.contains.every(text => {
 					if(text) {

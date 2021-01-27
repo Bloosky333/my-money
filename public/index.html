@@ -20,7 +20,6 @@
         <v-main>
             <router-view></router-view>
         </v-main>
-        <global-toast ref="toast"></global-toast>
         <v-overlay :value="loading" :opacity="1">
             <v-progress-circular indeterminate size="64"></v-progress-circular>
         </v-overlay>
@@ -30,9 +29,12 @@
 
 <!--Libraries-->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment-with-locales.min.js" integrity="sha512-LGXaggshOkD/at6PFNcp2V2unf9LzFq6LE+sChH7ceMTDP0g2kn6Vxwgg7wkPP7AAtX+lmPqPdxB47A0Nz0cMQ==" crossorigin="anonymous"></script>
-<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js" integrity="sha512-UNM1njAgOFUa74Z0bADwAq8gbTcqZC8Ej4xPSzpnh0l6KMevwvkBvbldF9uR++qKeJ+MOZHRjV1HZjoRvjDfNQ==" crossorigin="anonymous"></script>-->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js" integrity="sha512-rKFvwjvE4liWPlFnvH4ZhRDfNZ9FOpdkD/BU5gAIA3VS3vOQrQ5BjKgbO3kxebKhHdHcNUHLqxQYSoxee9UwgA==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment-with-locales.min.js"
+        integrity="sha512-LGXaggshOkD/at6PFNcp2V2unf9LzFq6LE+sChH7ceMTDP0g2kn6Vxwgg7wkPP7AAtX+lmPqPdxB47A0Nz0cMQ=="
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"
+        integrity="sha512-rKFvwjvE4liWPlFnvH4ZhRDfNZ9FOpdkD/BU5gAIA3VS3vOQrQ5BjKgbO3kxebKhHdHcNUHLqxQYSoxee9UwgA=="
+        crossorigin="anonymous"></script>
 
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-google-charts@0.3.3/dist/vue-google-charts.browser.js"></script>
@@ -43,7 +45,9 @@
 <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-firestore.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/vuefire/2.2.5/vuefire.min.js" integrity="sha512-lt7+ywyhIMBckm/V58S4B23XDqd4/hgqDQYHyUQ+UXRyUQreFAHFzSJQQIYH3st7IcCv2WrN2GS58CVY4I1ZCQ==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vuefire/2.2.5/vuefire.min.js"
+        integrity="sha512-lt7+ywyhIMBckm/V58S4B23XDqd4/hgqDQYHyUQ+UXRyUQreFAHFzSJQQIYH3st7IcCv2WrN2GS58CVY4I1ZCQ=="
+        crossorigin="anonymous"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/vue-router@3.x/dist/vue-router.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vuetify@2.3.x/dist/vuetify.js"></script>
@@ -63,41 +67,37 @@
 <script src="/models/transaction.model.mixin.vue.js"></script>
 <script src="/models/digest.model.mixin.vue.js"></script>
 
-<!--Mixins -->
-<script src="/utils/actions.mixin.vue.js"></script>
-
 <!--Vue Components-->
-<!--<script src="/components/common/toast.comp.vue.js"></script>-->
 <script src="/components/common/section.block.vue.js"></script>
 <script src="/components/common/section.title.vue.js"></script>
 <script src="/components/common/dialog.block.vue.js"></script>
 <script src="/components/common/confirm.dialog.vue.js"></script>
 <script src="/components/common/filters.bar.vue.js"></script>
 
-<script src="/components/transaction/dialog.vue.js"></script>
-<script src="/components/transaction/block.vue.js"></script>
-<script src="/components/transaction/line.vue.js"></script>
-
-<script src="/components/import/line.vue.js"></script>
-
-<script src="/components/account/dialog.vue.js"></script>
-
-<script src="/components/category/dialog.vue.js"></script>
-
-<script src="/components/filter/form.vue.js"></script>
-<script src="/components/filter/dialog.vue.js"></script>
-<script src="/components/filter/line.vue.js"></script>
-
+<!--Stats Page-->
+<script src="/components/stats/page.vue.js"></script>
 <script src="/components/stats/block.vue.js"></script>
 <script src="/components/stats/chart.vue.js"></script>
 <script src="/components/stats/table.vue.js"></script>
 
+<!--Transaction Page-->
+<script src="/components/transaction/page.vue.js"></script>
+<script src="/components/transaction/dialog.vue.js"></script>
+<script src="/components/transaction/block.vue.js"></script>
+<script src="/components/transaction/line.vue.js"></script>
 
-<!--Sub page-->
-<script src="/components/stats.page.vue.js"></script>
-<script src="/components/transactions.page.vue.js"></script>
-<script src="/components/import.page.vue.js"></script>
+<!--Import Page-->
+<script src="/components/import/page.vue.js"></script>
+<script src="/components/import/line.vue.js"></script>
+
+<!--Params Page-->
 <script src="/components/params.page.vue.js"></script>
+<script src="/components/account/dialog.vue.js"></script>
+<script src="/components/category/dialog.vue.js"></script>
+<script src="/components/filter/form.vue.js"></script>
+<script src="/components/filter/dialog.vue.js"></script>
+<script src="/components/filter/line.vue.js"></script>
+
 
 <!--Pages -->
 <script src="/components/main.page.vue.js"></script>

@@ -5,7 +5,7 @@ const TransactionLine = Vue.component("TransactionLine", {
         <section-block>
             <div class="d-flex align-center justify-space-between">
                 <div v-if="transaction.categoryID" :class="category.color + '--text'">
-                    <v-icon left>{{ category.icon }}</v-icon>
+                    <v-icon left v-if="category.icon">{{ category.icon }}</v-icon>
                     {{ category.name }}
                 </div>
                 <div v-else class="red--text">
