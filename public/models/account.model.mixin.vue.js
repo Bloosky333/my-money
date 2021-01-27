@@ -7,6 +7,7 @@ const AccountModelMixin = {
 	methods: {
 		saveAccount(account) {
 			const id = account.id;
+			account.initialBalance = account.initialBalance ? parseFloat(account.initialBalance) : 0;
 			if(id) {
 				return this.updateAccount(id, account)
 			} else {

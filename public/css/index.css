@@ -42,6 +42,10 @@
     padding-bottom: 40px;
 }
 
+.standard-line-height {
+    line-height: 1rem !important;
+}
+
 /* TOAST ===================================== */
 .app-toast {
     border-bottom-right-radius: 4px;

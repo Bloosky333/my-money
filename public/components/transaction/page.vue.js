@@ -3,7 +3,7 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 	props: ["transactions", "accounts", "categories", "filters"],
 	template: `
         <div>
-			<div class="d-flex align-center">
+			<div class="d-flex align-center mt-6">
 				<v-text-field
 					v-model="search"
 					placeholder="Search communications ..."

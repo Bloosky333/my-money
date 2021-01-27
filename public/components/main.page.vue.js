@@ -22,6 +22,7 @@ const MainPage = Vue.component("MainPage", {
                 :search="search"
                 :accounts="accountsOrdered"
                 :categories="categoriesOrdered"
+                @edit="edit"
                 @refresh="refreshDigest"
             ></stats-page>
             
@@ -82,10 +83,10 @@ const MainPage = Vue.component("MainPage", {
         	></filter-dialog>
         	
         	<!-- COPYRIGHT ========================== -->
-            <div class="mt-12 text-overline font-weight-bold text--grey text-center">
-            	My Money v1.0
+            <div class="mt-12 text-overline font-weight-bold grey--text text-center">
+            	My Money v1.1
             </div>
-            <div class="mb-12 text-caption font-weight-thin text--grey text-center">
+            <div class="mb-12 text-caption font-weight-light grey--text text-center">
                 Next IT © 2021
             </div>
         </v-container>

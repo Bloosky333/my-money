@@ -68,43 +68,25 @@ const DigestModelMixin = {
 				accounts: {},
 			};
 
-			const subDigest = [
-				{field: "years", order: "years,categories"},
-				{field: "categories", order: "categories,years"},
-			];
-
-			let year, category, account;
 			transactions.forEach(t => {
-				account = this._getList(t.accountID, digest.accounts, {
-					years: {},
-					categories: {},
-				});
-
-				// By Year
-				year = this._getList(t.year, account.years, {categories: {}});
-				category = this._getList(t.categoryID, year.categories, {transactions: []});
+				const account = this._getList(t.accountID, digest.accounts, {years: {},});
+				const year = this._getList(t.year, account.years, {months: {}});
+				const month = this._getList(t.month, year.months, {categories: {}});
+				const category = this._getList(t.categoryID, month.categories, {transactions: []});
 				category.transactions.push(t);
-
-				// By Category
-				category = this._getList(t.categoryID, account.categories, {years: {}});
-				year = this._getList(t.year, category.years, {transactions: []});
-				year.transactions.push(t);
 			});
 
-			_.forEach(subDigest, (s, i) => {
-				this._computeTotals(digest.accounts, s.order, i);
-			});
-
+			this._computeTotals(digest.accounts, "years,months,categories");
 			return digest;
 		},
 
-		_computeTotals(data, order, notSumFirst) {
+		_computeTotals(data, order) {
 			order = order.split(',');
 			_.forEach(data, item => {
-				this._computeLevelTotals(item, order, 0, notSumFirst);
+				this._computeLevelTotals(item, order, 0);
 			})
 		},
-		_computeLevelTotals(parent, order, index, notSumFirst) {
+		_computeLevelTotals(parent, order, index) {
 			const childField = order[index];
 			const children = parent[childField];
 			_.forEach(children, child => {
@@ -115,11 +97,9 @@ const DigestModelMixin = {
 					this._computeLevelTotals(child, order, index + 1);
 				}
 
-				if(index > 0 || !notSumFirst) {
-					parent.income += child.income;
-					parent.expense += child.expense;
-					parent.total += child.total;
-				}
+				parent.income += child.income;
+				parent.expense += child.expense;
+				parent.total += child.total;
 			});
 		},
 

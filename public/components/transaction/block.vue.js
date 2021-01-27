@@ -6,7 +6,7 @@ const TransactionBlock = Vue.component("TransactionBlock", {
             <section-title
                 expandable="true"
                 :expanded.sync="expanded"
-                margin-bottom="0"
+                margin-bottom="1"
             >{{ section.name }} ({{ section.count }})</section-title>
             <transaction-block-summary :section="section"></transaction-block-summary> 
              
@@ -16,6 +16,7 @@ const TransactionBlock = Vue.component("TransactionBlock", {
                         expandable="true"
                         :expanded.sync="ssExpanded[i]"
                         margin-bottom="0"
+                        margin-top="3"
                     >{{ ss.name }} ({{ ss.transactions.length }})</section-title>
                     
                     <v-expand-transition>

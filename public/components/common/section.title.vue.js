@@ -46,7 +46,7 @@ const SectionTitle = Vue.component("SectionTitle", {
         },
         cls() {
             let cls = [];
-            let margin = this.marginTop === undefined ? "5" : this.marginTop;
+            let margin = this.marginTop === undefined ? "6" : this.marginTop;
             cls.push("mt-" + margin);
 
             margin = this.marginBottom === undefined ? "2" : this.marginBottom;

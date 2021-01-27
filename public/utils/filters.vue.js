@@ -15,6 +15,13 @@ Vue.filter('highlight', function(words, query){
         return ('<span class="highlight">' + matchedTxt + '</span>');
     });
 });
+Vue.filter('signedNumber', function(value){
+    if(value >= 0) {
+        return "+" + String(value);
+    } else {
+        return value;
+    }
+});
 
 function dateToMoment(value) {
     let date;

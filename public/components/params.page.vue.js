@@ -67,18 +67,6 @@ const ParamsPage = Vue.component("ParamsPage", {
 		edit(type, item) {
 			this.$emit("edit", type, item);
 		},
-		editAccount(account = {}) {
-			this.showDialog.account = true;
-			this.selected.account = account;
-		},
-		editCategory(category = {}) {
-			this.showDialog.category = true;
-			this.selected.category = category;
-		},
-		editFilter(filter = {}) {
-			this.showDialog.filter = true;
-			this.selected.filter = filter;
-		},
 		logout() {
 			this.$emit("logout");
 		}
