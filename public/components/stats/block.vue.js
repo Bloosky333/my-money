@@ -82,13 +82,13 @@ const StatsBlock = Vue.component("StatsBlock", {
 						uniqueAccounts.forEach(accountID => {
 							const account = accounts[accountID];
 							if (account) {
-								line.push(account.income, account.expense);
+								line.push(this._round(account.income), this._round(account.expense));
 								total += account.total;
 							} else {
 								line.push(0, 0);
 							}
 						});
-						line.push(total);
+						line.push(this._round(total));
 						lines.push(line);
 					});
 

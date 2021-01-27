@@ -129,7 +129,7 @@ const StatsMixin = Vue.component("StatsMixin", {
 					} else {
 						total += item.income;
 					}
-					totals[id] = total;
+					totals[id] = this._round(total);
 				});
 			});
 			return totals;

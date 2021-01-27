@@ -40,7 +40,7 @@ const CONST = {
 			dateFormat: "DD-MM-YY",
 			encoding: "iso-8859-2",
 			idFormatter(line) {
-				return "BNP-" + line.reference;
+				return "BNP-" + line.date + "-" + line.reference;
 			},
 			match: {
 				"reference": 0,
@@ -62,7 +62,9 @@ const CONST = {
 			idFormatter(line) {
 				const re = /\(Transaction (\d+)\)/i;
 				const found = line.communications.match(re);
-				return found ? 'SODEXO-' + found[1] : 'SODEXO-' + _.deburr((line.date + line.amount));
+				let id = "SODEXO-" + line.date + "-";
+				id += found ? found[1] : _.kebabCase(_.deburr(line.amount));
+				return id;
 			},
 			formatter(line) {
 				line.account = "SODEXO";

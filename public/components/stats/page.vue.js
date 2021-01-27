@@ -15,7 +15,7 @@ const StatsPage = Vue.component("StatsPage", {
 				@edit="edit"
 			></balance-block>
 			
-			<v-row>
+			<v-row v-if="digest.accounts">
 				<v-col cols="12" md="6" lg="4" v-for="chart in charts" class="py-0">
 					<stats-block 
 						:params="chart"
