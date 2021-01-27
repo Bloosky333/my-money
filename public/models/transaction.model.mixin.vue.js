@@ -38,6 +38,10 @@ const TransactionModelMixin = {
 				const account = this.findAccount(transaction.account);
 				if(account) {
 					transaction.accountID = account.id;
+					if(account.isCommonAccount) {
+						transaction.initialAmount = transaction.amount;
+						transaction.amount = transaction.amount / 2;
+					}
 					changed = true;
 				}
 			}

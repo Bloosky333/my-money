@@ -29,10 +29,6 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 									:hint="transaction.account"
 									persistent-hint
 								></v-autocomplete>
-							</section-block>
-						</v-col>
-						<v-col cols="12" lg="6" class="py-0">
-							<section-block class="px-4">
 								<v-text-field
 									v-else
 									label="Account"
@@ -40,19 +36,8 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 									:readonly="transaction.imported"
 									prepend-icon="mdi-bank"
 								></v-text-field>
-								
-								<v-text-field
-									label="Counterpart Account"
-									v-model="transaction.counterpartAccount"
-									:readonly="transaction.imported"
-									prepend-icon="mdi-bank-transfer-out"
-								></v-text-field>
-								<v-text-field
-									label="Counterpart Name"
-									v-model="transaction.counterpartName"
-									:readonly="transaction.imported"
-									prepend-icon="mdi-account-arrow-right"
-								></v-text-field>
+							</section-block>
+							<section-block class="px-4">
 								<v-text-field
 									label="Date"
 									:value="formattedDate"
@@ -65,6 +50,24 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 									v-model="transaction.amount"
 									:readonly="transaction.imported"
 									prepend-icon="mdi-currency-eur"
+									:hint="'Initial amount: ' + transaction.initialAmount + '€'"
+									:persistent-hint="transaction.initialAmount"
+								></v-text-field>
+							</section-block>
+						</v-col>
+						<v-col cols="12" lg="6" class="py-0">
+							<section-block class="px-4">
+								<v-text-field
+									label="Counterpart Account"
+									v-model="transaction.counterpartAccount"
+									:readonly="transaction.imported"
+									prepend-icon="mdi-bank-transfer-out"
+								></v-text-field>
+								<v-text-field
+									label="Counterpart Name"
+									v-model="transaction.counterpartName"
+									:readonly="transaction.imported"
+									prepend-icon="mdi-account-arrow-right"
 								></v-text-field>
 								<v-textarea
 									label="Communications"

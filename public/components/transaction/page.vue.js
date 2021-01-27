@@ -64,9 +64,12 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 						@edit="edit"
 						:expanded="section.expanded"
 					></transaction-block>
-				</v-row>
+				</v-col>
+			</v-row>
 			<template v-if="search">
-				<section-title>{{ searchResults.length }} Results</section-title>
+				<section-title>Results ({{ searchResults.length }})</section-title>
+				<transaction-block-summary :section="searchTotals"></transaction-block-summary> 
+				
 				<section-block v-for="line in searchResults" class="py-1" @click.native="edit(line)">
 					<v-row dense>
 						<v-col cols="8">
@@ -152,7 +155,7 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 				name: "Missing information",
 				subSections: [],
 				expanded: true,
-			}
+			};
 			if(undated.transactions.length || uncategorized.transactions.length) {
 				if(undated.transactions.length) {
 					section.subSections.push(undated);
@@ -170,6 +173,22 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 			const query = this.search.toLowerCase();
 			return this.transactions.filter(t => t.communications && t.communications.toLowerCase().includes(query));
 		},
+		searchTotals() {
+			const totals = {
+				income: 0,
+				expense: 0,
+				total: 0,
+			};
+			this.searchResults.forEach(t => {
+				if (t.amount > 0) {
+					totals.income += t.amount;
+				} else {
+					totals.expense += t.amount;
+				}
+			});
+			totals.total = totals.income - totals.expense;
+			return totals;
+		},
 	},
 	methods: {
 		sumSection(section) {
@@ -185,7 +204,7 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 					} else {
 						ss.expense += t.amount;
 					}
-				})
+				});
 				ss.total = ss.income + ss.expense;
 				ss.count = ss.transactions.length;
 
@@ -215,10 +234,9 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 		},
 		async clearTransactions() {
 			this.processing = true;
-			let transaction;
-			for(let i = 0; i<this.transactions.length; i++) {
-				transaction = this.transactions[i];
-				this.deleteTransaction(transaction.id);
+			const ids = this.transactions.map(t => t.id);
+			for(let i = 0; i<ids.length; i++) {
+				await this.deleteTransaction(ids[i]);
 			}
 
 			this.$emit("refresh");

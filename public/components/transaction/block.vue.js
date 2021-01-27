@@ -18,10 +18,10 @@ const TransactionBlock = Vue.component("TransactionBlock", {
                         margin-bottom="0"
                         margin-top="3"
                     >{{ ss.name }} ({{ ss.transactions.length }})</section-title>
+                    <transaction-block-summary :section="ss"></transaction-block-summary> 
                     
                     <v-expand-transition>
                         <div v-if="ssExpanded[i]">
-                            <transaction-block-summary :section="ss"></transaction-block-summary> 
                             <transaction-line
                                 v-for="transaction in ss.transactions"
                                 :transaction="transaction"

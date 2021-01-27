@@ -1,4 +1,5 @@
 const ParamsPage = Vue.component("ParamsPage", {
+	mixins: [StatsMixin],
 	props: ["categories", "accounts", "filters"],
 	template: `
         <v-row>
@@ -8,17 +9,11 @@ const ParamsPage = Vue.component("ParamsPage", {
 					btn-icon="mdi-plus"
 					@action="edit('account')"
 				>Accounts</section-title>
-				<section-block
+				<account-line
 					v-for="account in accounts"
-				>
-					<div class="d-flex align-center justify-space-between" @click="edit('account', account)">
-						<div>
-							<v-icon left class="mt-n1">mdi-bank</v-icon>
-							{{ account.name }}
-						</div>
-						<div>{{ account.number }}</div>
-					</div>
-				</section-block>
+					:account="account"
+					@click.native="edit('account', account)"
+				></account-line>
         	</v-col>
         	
         	<v-col cols="12" md="6" lg="4" class="py-0">
@@ -45,13 +40,13 @@ const ParamsPage = Vue.component("ParamsPage", {
 					btn-icon="mdi-plus"
 					@action="edit('filter')"
 				>Filter</section-title>
-				<filter-line
-					v-for="filter in filters"
-					:filter="filter"
+				<filter-block
+					v-for="section in filterSections"
+					:section="section"
 					:accounts="accounts"
 					:categories="categories"
-					@click.native="edit('filter', filter)"
-				></filter-line>
+					@edit="edit"
+				></filter-block>
         	</v-col>
         	
 			<v-btn 
@@ -63,6 +58,26 @@ const ParamsPage = Vue.component("ParamsPage", {
 			><v-icon left>mdi-logout</v-icon> Logout</v-btn>
         </v-row>
     `,
+	computed: {
+		filterSections() {
+			const categories = {};
+			this.filters.forEach(filter => {
+				if(!categories[filter.categoryID]) {
+					categories[filter.categoryID] = {
+						name: this._getCategoryName(filter.categoryID),
+						filters: []
+					};
+				}
+				categories[filter.categoryID].filters.push(filter);
+			});
+
+			const orderedCategories = [];
+			_.forEach(categories, category => {
+				orderedCategories.push(category);
+			});
+			return _.orderBy(orderedCategories, "name");
+		}
+	},
 	methods: {
 		edit(type, item) {
 			this.$emit("edit", type, item);

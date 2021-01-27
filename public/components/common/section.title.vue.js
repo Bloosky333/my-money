@@ -18,7 +18,7 @@ const SectionTitle = Vue.component("SectionTitle", {
                 </v-btn>
                 <v-btn
                     v-if="btnLabel"
-                    @click.stop="runAction"
+                    @click="runAction"
                     x-small
                     outlined
                     rounded
@@ -32,7 +32,7 @@ const SectionTitle = Vue.component("SectionTitle", {
                     v-model="switchModel"
                     class="mt-n1"
                     color="orange darken-2"
-                    @change.stop="updateSwitch"
+                    @change="updateSwitch"
                     hide-details
                     dense
                     inset

@@ -17,7 +17,7 @@ const MainPage = Vue.component("MainPage", {
         <v-container class="page-with-header">
             <!-- PAGES ========================== -->
             <stats-page
-                v-if="page==='stats'"
+                v-show="page==='stats'"
 				:digest="digest"
                 :search="search"
                 :accounts="accountsOrdered"
@@ -27,7 +27,7 @@ const MainPage = Vue.component("MainPage", {
             ></stats-page>
             
             <transactions-page
-                v-if="page==='transactions'"
+                v-show="page==='transactions'"
                 :accounts="accountsOrdered"
                 :transactions="filteredTransactions"
                 :categories="categoriesOrdered"
@@ -38,7 +38,7 @@ const MainPage = Vue.component("MainPage", {
             ></transactions-page>
             
             <import-page
-                v-if="page==='import'"
+                v-show="page==='import'"
                 :transactions="transactionsOrdered"
                 :categories="categoriesOrdered"
                 :accounts="accountsOrdered"
@@ -48,7 +48,7 @@ const MainPage = Vue.component("MainPage", {
             ></import-page>
             
             <params-page
-                v-if="page==='params'"
+                v-show="page==='params'"
                 :categories="categoriesOrdered"
                 :accounts="accountsOrdered"
                 :filters="filters"

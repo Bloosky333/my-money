@@ -57,7 +57,7 @@ const ImportPage = Vue.component("ImportPage", {
 			</v-col>
 			<v-col cols="12" md="7" lg="8" class="py-0">
 				<template v-if="lines.length">
-					<section-title>Your data</section-title>
+					<section-title :switch-model.sync="overwrite" switch-label="Update existing">Your data</section-title>
 					<v-tabs
 						v-model="tab"
 						icons-and-text
@@ -89,6 +89,7 @@ const ImportPage = Vue.component("ImportPage", {
 	data() {
 		return {
 			lines: [],
+			overwrite: false,
 			parsing: false,
 			bank: false,
 			buffer: 1,
@@ -175,6 +176,8 @@ const ImportPage = Vue.component("ImportPage", {
 		showMore() {
 			this.lineShown += 10;
 		},
+
+		// PARSE ===============
 		onFileSelect(file) {
 			if (file) {
 				this.parsing = true;
@@ -188,7 +191,6 @@ const ImportPage = Vue.component("ImportPage", {
 						const lines = results.data;
 						lines.splice(0, this.bankData.headerLinesCount);
 						this.lines = this.formatLines(lines);
-
 						await this.delay(1000);
 						this.parsing = false;
 					},
@@ -234,22 +236,46 @@ const ImportPage = Vue.component("ImportPage", {
 				};
 			});
 		},
-		transactionExists(line) {
-			return !!_.find(this.transactions, t => t.communications === line.communications)
+
+		// IMPORT =========================================
+		_transactionExists(line) {
+			return _.find(this.transactions, t => t.transactionID === line.transactionID)
+		},
+		_saveLine(line, data) {
+			const promise = this.saveTransaction(data || line.data);
+			line.status = 'success';
+			return promise;
+		},
+		_ignoreLine(line) {
+			line.status = 'ignored';
+			return this.delay(100);
+		},
+		_rejectLine(line, error) {
+			line.status = 'error';
+			line.error = error;
+			return this.delay(100);
 		},
 		async importLine(line) {
-			if (this.transactionExists(line.data)) {
-				await this.delay(100);
-				line.status = 'ignored';
-			} else {
-				try {
+			try {
+				const existing = this._transactionExists(line.data);
+				if (existing) {
+					if (this.overwrite) {
+						_.assign(existing, line.data);
+						await this._saveLine(line, existing);
+					} else {
+						this._ignoreLine(line);
+					}
+				} else {
 					this.autoFillTransaction(line.data);
-					await this.saveTransaction(line.data);
-					line.status = 'success';
-				} catch (error) {
-					line.status = 'error';
-					line.error = error;
+					if (line.data.accountID) {
+						await this._saveLine(line);
+					} else {
+						await this._rejectLine(line, "No matching account found");
+					}
+
 				}
+			} catch (error) {
+				await this._rejectLine(line, error);
 			}
 		},
 		async startImport() {

@@ -29,7 +29,6 @@ const Navigation = Vue.component("Navigation", {
 	},
 	watch: {
 		page(page) {
-			this.$vuetify.goTo(0);
 			this.$emit("update:page", page);
 		}
 	}

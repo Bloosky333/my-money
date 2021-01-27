@@ -19,6 +19,19 @@ const AccountDialog = Vue.component("AccountDialog", {
 					v-model="account.initialBalance"
 					suffix="€"
 				></v-text-field>
+				
+				<v-switch
+					label="Common account"
+					v-model="account.isCommonAccount"
+					color="orange darken-2"
+					hint="All transaction amounts will be divided by 2"
+					persistent-hint
+				></v-switch>
+				
+				<v-text-field
+					label="Icon"
+					v-model="account.icon"
+				></v-text-field>
 			</section-block>
 			
 			<v-btn 

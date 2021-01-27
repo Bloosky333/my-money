@@ -68,7 +68,7 @@ const CONST = {
 			},
 			formatter(line) {
 				line.account = "SODEXO";
-				line.amount = line.amount.replace(" €", "").replaceAll(" ", "");
+				line.amount = line.amount.replace(" €", "").replace(",", ".").replaceAll(" ", "");
 			},
 			match: {
 				"date": 0,

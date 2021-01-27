@@ -1,21 +1,20 @@
 const AccountModelMixin = {
 	mixins: [ModelMixin],
 	data() {
-		return {
-		}
+		return {}
 	},
 	methods: {
 		saveAccount(account) {
 			const id = account.id;
 			account.initialBalance = account.initialBalance ? parseFloat(account.initialBalance) : 0;
-			if(id) {
+			if (id) {
 				return this.updateAccount(id, account)
 			} else {
 				return this.createAccount(account)
 			}
 		},
 		getAccountByID(id) {
-			if(id) {
+			if (id) {
 				const found = _.find(this.accounts, account => {
 					return account.id === id;
 				});
@@ -25,9 +24,10 @@ const AccountModelMixin = {
 			}
 		},
 		findAccount(number) {
-			if(number) {
+			if (number) {
+				number = number.toLowerCase().replaceAll(" ", "");
 				const found = _.find(this.accounts, account => {
-					return account.number === number;
+					return account.number.toLowerCase().replaceAll(" ", "") === number;
 				});
 				return found || false;
 			} else {

@@ -30,7 +30,7 @@ const BalanceBlock = Vue.component("BalanceBlock", {
 					balance: account.total + (accountObj.initialBalance || 0),
 					model: accountObj
 				});
-			})
+			});
 			return _.sortBy(balances, b => b.name);
 		},
 	},
