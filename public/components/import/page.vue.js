@@ -72,12 +72,16 @@ const ImportPage = Vue.component("ImportPage", {
 						
 						<v-tab-item v-for="t in tabs">
 							<import-line
-								v-for="line in linesPerStatus[t.name]"
+								v-for="line in truncatedLinesPerStatus[t.name]"
 								:transaction="line.data"
 								:error="line.error"
 							></import-line>
 						</v-tab-item>
 					</v-tabs>
+					
+					<section-block>
+						<v-btn text block @click="showMore">Show more</v-btn>
+					</section-block>
 				</template>
 			</v-col>
         </v-row>
@@ -90,6 +94,7 @@ const ImportPage = Vue.component("ImportPage", {
 			buffer: 1,
 			progressPercent: 0,
 			progressUnit: 0,
+			lineShown: 10,
 			tabs: [
 				{
 					name: "pending",
@@ -133,6 +138,20 @@ const ImportPage = Vue.component("ImportPage", {
 			});
 			return headers;
 		},
+		truncatedLinesPerStatus() {
+			const perStatus = {
+				pending: [],
+				success: [],
+				error: [],
+				ignored: []
+			};
+
+			_.forEach(this.linesPerStatus, (lines, status) => {
+				perStatus[status] = lines.slice(0, this.lineShown);
+			});
+
+			return perStatus;
+		},
 		linesPerStatus() {
 			const perStatus = {
 				pending: [],
@@ -153,6 +172,9 @@ const ImportPage = Vue.component("ImportPage", {
 		},
 	},
 	methods: {
+		showMore() {
+			this.lineShown += 10;
+		},
 		onFileSelect(file) {
 			if (file) {
 				this.parsing = true;
@@ -162,6 +184,7 @@ const ImportPage = Vue.component("ImportPage", {
 					header: false,
 					skipEmptyLines: true,
 					complete: async (results) => {
+						this.lineShown = 10;
 						const lines = results.data;
 						lines.splice(0, this.bankData.headerLinesCount);
 						this.lines = this.formatLines(lines);

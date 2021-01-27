@@ -89,7 +89,7 @@ const KpiItem = Vue.component("KpiItem", {
 	template: `
 		<section-block class="text-center">
 			<div class="text-overline font-weight-light grey--text">{{ title }}</div>
-			<div class="text-h4">{{ selectedYear | round }}€</div>
+			<div class="text-h5">{{ selectedYear | round }}€</div>
 			<div class="text-caption" :class="getColor(progression)">{{ progression | signedNumber }}%</div>
 		</section-block>
     `,

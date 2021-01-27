@@ -19,11 +19,11 @@ const CONST = {
 			dateFormat: "DD/MM/YYYY",
 			encoding: "iso-8859-2",
 			idFormatter: (line) => {
-				const re = /REF ?. ?: ?(\w+)/i;
-				const found = line.details.match(re);
-				return found ? "BELFIUS-" + found[1] : line.details;
+				const reference = String(line.reference).padStart(5, "0");
+				return "BEFIUS-" + line.date + "-" + reference;
 			},
 			match: {
+				"reference": 3,
 				"account": 0,
 				"counterpartAccount": 4,
 				"counterpartName": 5,
