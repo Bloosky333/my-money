@@ -1,7 +1,7 @@
 const FiltersBar = Vue.component("FiltersBar", {
 	props: ["show", "search", "categories", "accounts", "transactions", "years", "digest"],
 	template: `
-		<section-block class="mb-0 py-2" color="#252525">
+		<section-block class="mb-0 py-1" color="#252525">
 			<v-expand-transition>
 				<v-container v-if="expanded && show" class="filter-drawer-content">
 					<v-row>
@@ -105,10 +105,10 @@ const FiltersBar = Vue.component("FiltersBar", {
 			</v-expand-transition>
 			
 			<v-btn
-				fab
 				depressed
+				small
 				class="fab-center fab-filter"
-				:color="show && !expanded ? 'orange darken-2' : 'grey darken-4'"
+				:color="show && !expanded ? 'orange darken-2' : '#252525'"
 				@click="toggle"
 			><v-icon :small="!show || !expanded">{{ toggleIcon }}</v-icon></v-btn>
 		</section-block>

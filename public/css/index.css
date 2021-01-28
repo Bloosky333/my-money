@@ -19,9 +19,9 @@
 .v-btn.fab-filter,
 .fab-filter {
     position: absolute;
-    height: 30px;
-    width: 30px;
-    bottom: -15px;
+    height: 20px !important;
+    width: 30%;
+    bottom: -12px;
 }
 
 .mr-05 {

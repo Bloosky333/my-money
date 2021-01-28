@@ -119,38 +119,51 @@ const StatsMixin = Vue.component("StatsMixin", {
 			return results;
 		},
 
-		_getTotals(list) {
-			const totals = {};
-			_.forEach(list, items => {
-				_.forEach(items, (item, id) => {
-					let total = totals[id] || 0;
-					if (this.params.expense) {
-						total += Math.abs(item.expense);
-					} else {
-						total += item.income;
-					}
-					totals[id] = this._round(total);
-				});
-			});
-			return totals;
+		_roundDataLine(data) {
+			return data.map(item => this._round(item))
 		},
-		_getLine(name, columns, items, field) {
-			const line = [name];
-			columns.forEach(id => {
-				const item = items[id];
-				if (item) {
-					if (field) {
-						line.push(this._round(item[field]));
-					} else if (this.params.expense) {
-						line.push(this._round(Math.abs(item.expense)));
-					} else {
-						line.push(this._round(item.income));
-					}
+
+		_getTotalLine(series) {
+			let total = [];
+			if(series[0] && series[0].data) {
+				total = series[0].data.map(x => 0);
+				series.forEach(item => {
+					item.data.forEach((val, i) => {
+						total[i] += val;
+					})
+				})
+			}
+
+			return {
+				type: 'spline',
+				name: 'All',
+				data: this._roundDataLine(total),
+				marker: {
+					lineWidth: 2,
+					lineColor: Highcharts.getOptions().colors[3],
+					fillColor: 'white'
+				}
+			}
+		},
+		_getDataLine(name, uniqueIds, items, field, stack, absolute) {
+			const data = [];
+			uniqueIds.forEach((id, i) => {
+				const found = items[id];
+				if (found) {
+					const value = absolute ? Math.abs(found[field]) : found[field];
+					data.push(value);
 				} else {
-					line.push(0);
+					data.push(0);
 				}
 			});
-			return line;
+
+			const type = this.chartType === "line" ? "line" : "column";
+			return {
+				type: type,
+				name: name,
+				data: this._roundDataLine(data),
+				stack: stack || false
+			}
 		},
 
 		_getAccountName(id) {

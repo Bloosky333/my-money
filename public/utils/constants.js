@@ -77,18 +77,6 @@ const CONST = {
 			},
 		}
 	],
-	// chartMatch: {
-	// 	"pie": 	"PieChart",
-	// 	"column": "ColumnChart",
-	// 	"combo": "ComboChart",
-	// 	"line": "LineChart",
-	// },
-	chartMatch: {
-		"pie": "PieChart",
-		"column": "column",
-		"combo": "ComboChart",
-		"line": "LineChart",
-	},
 	chartIcon: {
 		"pie": "mdi-chart-pie",
 		"column": "mdi-chart-bar",
@@ -96,109 +84,55 @@ const CONST = {
 		"line": "mdi-chart-line",
 	},
 	chartOptions: {
-		common: {
-			credits: {enabled: false},
+		credits: {enabled: false},
+		title: false,
+		chart: {
+			backgroundColor: null,
+			style: {
+				fontFamily: "Roboto"
+			},
+		},
+		xAxis: {
+			visible: true,
+			categories: [] // headers
+		},
+		yAxis: {
 			title: false,
-			chart: {
-				backgroundColor: null,
-				style:{
-					fontFamily: "Roboto"
-				},
-			},
-			xAxis: {
-				categories: [] // headers
-			},
-			yAxis: {
-				title: false,
-				stackLabels: {
-					enabled: true,
-				}
-			},
-			plotOptions: {
-				column: {
-					stacking: false,
-					dataLabels: {
-						enabled: true
+			stackLabels: {
+				enabled: true,
+				formatter: function () {
+					let sum = 0;
+					const series = this.axis.series;
+					for (let i in series) {
+						if (series[i].visible &&
+							series[i].options.stacking === 'normal' &&
+							series[i].options.stack === this.stack
+						) {
+							sum += series[i].yData[this.x];
+						}
+					}
+					if (this.total > 0) {
+						return Highcharts.numberFormat(sum, 1);
+					} else {
+						return '';
 					}
 				}
-			},
-			series: []
+			}
 		},
-		pie: {},
-		column: {
-			chart: {
-				type: 'column'
+		plotOptions: {
+			column: {
+				dataLabels: {
+					enabled: true
+				}
 			},
+			pie: {
+				innerSize: "50%",
+				dataLabels: {
+					enabled: true,
+					format: '<b>{point.name}</b>: {point.y: .2f}€ ({point.percentage:.0f}%)'
+				}
+			}
 		},
-		combo: {
-			chart: {
-				type: 'column'
-			},
-		},
-		line: {},
-
-	}
-	// chartOptions: {
-	// 	common: {
-	// 		height: 250,
-	// 		backgroundColor: {fill: 'transparent'},
-	// 		chartArea: {
-	// 			left: "15%",
-	// 			top: 5,
-	// 			width: '80%',
-	// 			height: '75%'
-	// 		},
-	// 		hAxis: {
-	// 			textStyle: {
-	// 				color: "white"
-	// 			}
-	// 		},
-	// 		vAxis: {
-	// 			format: "short",
-	// 			textStyle: {
-	// 				color: "white"
-	// 			}
-	// 		},
-	// 		legend: {
-	// 			position: 'bottom',
-	// 			alignment: "center",
-	// 			textStyle: {
-	// 				fontName: "Roboto",
-	// 				color: "white"
-	// 			}
-	// 		},
-	// 	},
-	// 	pie: {
-	// 		is3D: true,
-	// 		pieHole: 0.2,
-	// 		pieSliceTextStyle: {
-	// 			fontName: "Roboto",
-	// 			fontSize: 16,
-	// 		},
-	// 		chartArea: {
-	// 			left: 0,
-	// 			top: 0,
-	// 			width: '100%',
-	// 			height: '100%'
-	// 		},
-	// 		legend: {
-	// 			alignment: "center",
-	// 			textStyle: {
-	// 				fontName: "Roboto",
-	// 				color: "white"
-	// 			}
-	// 		},
-	// 	},
-	// 	column: {
-	//
-	// 	},
-	// 	combo: {
-	// 		isStacked: true,
-	// 		seriesType: 'bars',
-	// 	},
-	// 	line: {
-	//
-	// 	},
-	//
-	// }
+		series: []
+	},
 };

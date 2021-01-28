@@ -1,6 +1,5 @@
 const StatsTable = Vue.component("StatsTable", {
-	mixins: [],
-	props: ["data"],
+	props: ["data", "type"],
 	template: `
 		<div>
 			<v-text-field
@@ -36,24 +35,49 @@ const StatsTable = Vue.component("StatsTable", {
 				text: this.data.headerName,
 				value: "name",
 			}];
+			let items = [];
 
-			this.data.series.forEach(item => {
+			if(this.type === "pie") {
 				headers.push({
-					text: item.name,
-					value: item.name,
-					align: 'right'
+					text: "Amount",
+					value: "amount",
+					align: "right"
+				}, {
+					text: "Percent",
+					value: "percent",
+					align: "right"
 				});
-			});
 
-			const items = this.data.headers.map((header, i) => {
-				const line = {
-					name: header
-				};
-				this.data.series.forEach(item => {
-					line[item.name] = item.data[i];
+				let total = 0;
+				this.data.series[0].data.forEach(item => {
+					items.push({
+						name: item[0],
+						amount: item[1],
+					});
+					total += item[1];
 				});
-				return line;
-			});
+				items.forEach(item => {
+					item.percent = _.round(item.amount / total * 100) + "%";
+				});
+			} else {
+				this.data.series.forEach(item => {
+					headers.push({
+						text: item.name,
+						value: item.name,
+						align: 'right'
+					});
+				});
+
+				items = this.data.headers.map((header, i) => {
+					const line = {
+						name: header
+					};
+					this.data.series.forEach(item => {
+						line[item.name] = item.data[i];
+					});
+					return line;
+				});
+			}
 
 			return {
 				headers,
