@@ -110,9 +110,13 @@ const CONST = {
 			},
 			yAxis: {
 				title: false,
+				stackLabels: {
+					enabled: true,
+				}
 			},
 			plotOptions: {
 				column: {
+					stacking: false,
 					dataLabels: {
 						enabled: true
 					}
@@ -125,25 +129,10 @@ const CONST = {
 			chart: {
 				type: 'column'
 			},
-			plotOptions: {
-				column: {
-					stacking: false,
-				}
-			},
 		},
 		combo: {
 			chart: {
 				type: 'column'
-			},
-			yAxis: {
-				stackLabels: {
-					enabled: true,
-				}
-			},
-			plotOptions: {
-				column: {
-					stacking: 'normal',
-				}
 			},
 		},
 		line: {},

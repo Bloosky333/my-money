@@ -27,6 +27,7 @@ const StatsBlock = Vue.component("StatsBlock", {
 					v-if="chartType"
 					:type="chartType" 
 					:data="data"
+					:stack="params.stack"
 				></stats-chart>
 				
 				<div class="d-flex align-center justify-space-between text-overline mt-2 grey--text clickable" @click="toggle">
@@ -62,10 +63,11 @@ const StatsBlock = Vue.component("StatsBlock", {
 	},
 	methods: {
 		getCashflowData() {
-			let headers = [], series = [], headerName;
+			let headers = [], series = [], headerName, stack;
 
 			switch (this.chartType) {
 				case "combo":
+					stack = true;
 					headerName = "Period";
 					const periodsByAccount = this.getPeriodsByAccount();
 					const uniquePeriods = this._flattenList(periodsByAccount);
@@ -79,6 +81,7 @@ const StatsBlock = Vue.component("StatsBlock", {
 
 					break;
 				case "column":
+					stack = false;
 					const accountsByPeriod = this.getAccountsByPeriod();
 					const uniqueAccounts = this._flattenList(accountsByPeriod);
 
@@ -86,12 +89,12 @@ const StatsBlock = Vue.component("StatsBlock", {
 					headers = uniqueAccounts.map(accountID => this._getAccountName(accountID))
 
 					_.forEach(accountsByPeriod, (accounts, year) => {
-						series.push(this._getDataLine(year, uniquePeriods, accounts, "total"));
+						series.push(this._getDataLine(year, uniqueAccounts, accounts, "total"));
 					});
 					break;
 			}
 
-			return {headers, series, headerName};
+			return {headers, series, headerName, stack};
 		},
 
 
@@ -103,8 +106,8 @@ const StatsBlock = Vue.component("StatsBlock", {
 			let total = [];
 			if(series[0] && series[0].data) {
 				total = series[0].data.map(x => 0);
-				series.forEach(serie => {
-					serie.data.forEach((val, i) => {
+				series.forEach(item => {
+					item.data.forEach((val, i) => {
 						total[i] += val;
 					})
 				})
@@ -121,18 +124,13 @@ const StatsBlock = Vue.component("StatsBlock", {
 				}
 			}
 		},
-		_getDataLine(name, uniqueIds, items, field, totalData, absolute) {
+		_getDataLine(name, uniqueIds, items, field, stack, absolute) {
 			const data = [];
 			uniqueIds.forEach((id, i) => {
-				if(totalData && !totalData[i]) totalData[i] = 0;
-
 				const found = items[id];
 				if (found) {
 					const value = absolute ? Math.abs(found[field]) : found[field];
 					data.push(value);
-					if(totalData) {
-						totalData[i] += value;
-					}
 				} else {
 					data.push(0);
 				}
@@ -142,18 +140,21 @@ const StatsBlock = Vue.component("StatsBlock", {
 				type: 'column',
 				name: name,
 				data: this._roundDataLine(data),
+				stack: stack || false
 			}
 		},
 
 		// PERIOD
 		getIncomeExpenseData() {
-			let headers = [], series = [], headerName;
+			let headers = [], series = [], headerName, stack;
 
 			switch (this.chartType) {
 				case "combo":
-					headerName = "Period";
+					stack = true;
 					const periodsByAccount = this.getPeriodsByAccount();
 					const uniquePeriods = this._flattenList(periodsByAccount);
+
+					headerName = "Period";
 					headers = uniquePeriods;
 
 					_.forEach(periodsByAccount, (years, accountID) => {
@@ -165,6 +166,7 @@ const StatsBlock = Vue.component("StatsBlock", {
 
 					break;
 				case "column":
+					stack = false;
 					const accountsByPeriod = this.getAccountsByPeriod();
 					const uniqueAccounts = this._flattenList(accountsByPeriod);
 
@@ -172,25 +174,13 @@ const StatsBlock = Vue.component("StatsBlock", {
 					headers = uniqueAccounts.map(accountID => this._getAccountName(accountID))
 
 					_.forEach(accountsByPeriod, (accounts, year) => {
-						const data = [];
-						uniqueAccounts.forEach(accountID => {
-							const account = accounts[accountID];
-							if (account) {
-								data.push(this._round(account.total));
-							} else {
-								data.push(0);
-							}
-						});
-
-						series.push({
-							name: year,
-							data: data,
-						});
+						series.push(this._getDataLine(year + '/IN', uniqueAccounts, accounts, "income", year));
+						series.push(this._getDataLine(year + '/OUT', uniqueAccounts, accounts, "expense", year));
 					});
 					break;
 			}
 
-			return {headers, series, headerName};
+			return {headers, series, headerName, stack};
 		},
 
 		// CATEGORY

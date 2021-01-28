@@ -31,12 +31,12 @@ const StatsPage = Vue.component("StatsPage", {
 	data() {
 		return {
 			charts: [
-				// {
-				// 	title: "Income/Expense",
-				// 	chartTypes: "combo,column",
-				// 	stat: "cashflow",
-				// 	expense: null,
-				// },
+				{
+					title: "Income/Expense",
+					chartTypes: "combo,column",
+					stat: "cashflow",
+					expense: null,
+				},
 				{
 					title: "Income/Expense",
 					chartTypes: "combo,column",
