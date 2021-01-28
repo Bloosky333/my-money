@@ -22,17 +22,7 @@ const StatsTable = Vue.component("StatsTable", {
 				dense
 				:mobile-breakpoint="100"
 				:footer-props="{itemsPerPageText: ''}"
-			>
-				<template v-slot:item.Income="{ item }">
-					{{ item.Income | round }}€
-				</template>
-				<template v-slot:item.Expense="{ item }">
-					{{ item.Expense | round }}€
-				</template>
-				<template v-slot:item.Total="{ item }">
-					{{ item.Total | round }}€
-				</template>
-			</v-data-table>
+			></v-data-table>
         </div>
     `,
 	data() {
@@ -42,23 +32,27 @@ const StatsTable = Vue.component("StatsTable", {
 	},
 	computed: {
 		table() {
-			let headers = [], items = [];
-			this.data.forEach((line, i) => {
-				if(i === 0) {
-					line.forEach((value, j) => {
-						headers.push({
-							text: value,
-							value: value,
-							align: j > 0 ? 'right' : "left"
-						})
-					});
-				} else {
-					const item = {};
-					line.forEach((value, j) => {
-						item[headers[j].value] = value;
-					});
-					items.push(item);
-				}
+			const headers = [{
+				text: this.data.headerName,
+				value: "name",
+			}];
+
+			this.data.series.forEach(item => {
+				headers.push({
+					text: item.name,
+					value: item.name,
+					align: 'right'
+				});
+			});
+
+			const items = this.data.headers.map((header, i) => {
+				const line = {
+					name: header
+				};
+				this.data.series.forEach(item => {
+					line[item.name] = item.data[i];
+				});
+				return line;
 			});
 
 			return {

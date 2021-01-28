@@ -32,6 +32,7 @@ const LoginPage = Vue.component("LoginPage", {
                                 counter
                                 required
                                 @click:append="show_password = !show_password"
+                                @keyup.enter="submit"
                                 light
                                 solo
                             ></v-text-field>
@@ -41,7 +42,7 @@ const LoginPage = Vue.component("LoginPage", {
                                 color="primary"
                                 class="mb-2 mt-4"
                                 :disabled="!valid"
-                                @click="login(email, password)"
+                                @click="submit"
                                 large
                             >
                                 Login
@@ -132,6 +133,11 @@ const LoginPage = Vue.component("LoginPage", {
                 this.showForgotMessage = true;
             } else {
                 this.showForgotError = true;
+            }
+        },
+        submit() {
+            if(this.valid) {
+                this.login(this.email, this.password);
             }
         }
     }

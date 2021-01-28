@@ -77,79 +77,139 @@ const CONST = {
 			},
 		}
 	],
+	// chartMatch: {
+	// 	"pie": 	"PieChart",
+	// 	"column": "ColumnChart",
+	// 	"combo": "ComboChart",
+	// 	"line": "LineChart",
+	// },
 	chartMatch: {
-		"pie": 	"PieChart",
-		"column": "ColumnChart",
+		"pie": "PieChart",
+		"column": "column",
 		"combo": "ComboChart",
 		"line": "LineChart",
 	},
 	chartIcon: {
-		"pie": 	"mdi-chart-pie",
+		"pie": "mdi-chart-pie",
 		"column": "mdi-chart-bar",
 		"combo": "mdi-chart-areaspline",
 		"line": "mdi-chart-line",
 	},
 	chartOptions: {
 		common: {
-			height: 250,
-			backgroundColor: {fill: 'transparent'},
-			chartArea: {
-				left: "15%",
-				top: 5,
-				width: '80%',
-				height: '75%'
+			credits: {enabled: false},
+			title: false,
+			chart: {
+				backgroundColor: null,
+				style:{
+					fontFamily: "Roboto"
+				},
 			},
-			hAxis: {
-				textStyle: {
-					color: "white"
+			xAxis: {
+				categories: [] // headers
+			},
+			yAxis: {
+				title: false,
+			},
+			plotOptions: {
+				column: {
+					dataLabels: {
+						enabled: true
+					}
 				}
 			},
-			vAxis: {
-				format: "short",
-				textStyle: {
-					color: "white"
-				}
-			},
-			legend: {
-				position: 'bottom',
-				alignment: "center",
-				textStyle: {
-					fontName: "Roboto",
-					color: "white"
-				}
-			},
+			series: []
 		},
-		pie: {
-			is3D: true,
-			pieHole: 0.2,
-			pieSliceTextStyle: {
-				fontName: "Roboto",
-				fontSize: 16,
-			},
-			chartArea: {
-				left: 0,
-				top: 0,
-				width: '100%',
-				height: '100%'
-			},
-			legend: {
-				alignment: "center",
-				textStyle: {
-					fontName: "Roboto",
-					color: "white"
-				}
-			},
-		},
+		pie: {},
 		column: {
-
+			chart: {
+				type: 'column'
+			},
+			plotOptions: {
+				column: {
+					stacking: false,
+				}
+			},
 		},
 		combo: {
-			isStacked: true,
-			seriesType: 'bars',
+			chart: {
+				type: 'column'
+			},
+			yAxis: {
+				stackLabels: {
+					enabled: true,
+				}
+			},
+			plotOptions: {
+				column: {
+					stacking: 'normal',
+				}
+			},
 		},
-		line: {
-
-		},
+		line: {},
 
 	}
+	// chartOptions: {
+	// 	common: {
+	// 		height: 250,
+	// 		backgroundColor: {fill: 'transparent'},
+	// 		chartArea: {
+	// 			left: "15%",
+	// 			top: 5,
+	// 			width: '80%',
+	// 			height: '75%'
+	// 		},
+	// 		hAxis: {
+	// 			textStyle: {
+	// 				color: "white"
+	// 			}
+	// 		},
+	// 		vAxis: {
+	// 			format: "short",
+	// 			textStyle: {
+	// 				color: "white"
+	// 			}
+	// 		},
+	// 		legend: {
+	// 			position: 'bottom',
+	// 			alignment: "center",
+	// 			textStyle: {
+	// 				fontName: "Roboto",
+	// 				color: "white"
+	// 			}
+	// 		},
+	// 	},
+	// 	pie: {
+	// 		is3D: true,
+	// 		pieHole: 0.2,
+	// 		pieSliceTextStyle: {
+	// 			fontName: "Roboto",
+	// 			fontSize: 16,
+	// 		},
+	// 		chartArea: {
+	// 			left: 0,
+	// 			top: 0,
+	// 			width: '100%',
+	// 			height: '100%'
+	// 		},
+	// 		legend: {
+	// 			alignment: "center",
+	// 			textStyle: {
+	// 				fontName: "Roboto",
+	// 				color: "white"
+	// 			}
+	// 		},
+	// 	},
+	// 	column: {
+	//
+	// 	},
+	// 	combo: {
+	// 		isStacked: true,
+	// 		seriesType: 'bars',
+	// 	},
+	// 	line: {
+	//
+	// 	},
+	//
+	// }
 };

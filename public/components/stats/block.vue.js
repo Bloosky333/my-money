@@ -56,57 +56,141 @@ const StatsBlock = Vue.component("StatsBlock", {
 			return this.expanded ? 'mdi-chevron-up' : 'mdi-chevron-down';
 		},
 		data() {
-			const functionName = _.camelCase("get data by " + this.params.stat);
+			const functionName = _.camelCase("get " + this.params.stat + " data");
 			return this[functionName]();
 		},
 	},
 	methods: {
-		// PERIOD
-		getDataByPeriod() {
+		getCashflowData() {
+			let headers = [], series = [], headerName;
+
 			switch (this.chartType) {
 				case "combo":
-					const accountsByPeriod = this.getAccountsByPeriod();
-					const uniqueAccounts = this._flattenList(accountsByPeriod);
-
-					const headers = ["Period"];
-					uniqueAccounts.forEach(accountID => {
-						const accountName = this._getAccountName(accountID);
-						headers.push(accountName + "/IN", accountName + "/OUT")
-					});
-					headers.push("Total");
-
-					const lines = [];
-					_.forEach(accountsByPeriod, (accounts, year) => {
-						const line = [year];
-						let total = 0;
-						uniqueAccounts.forEach(accountID => {
-							const account = accounts[accountID];
-							if (account) {
-								line.push(this._round(account.income), this._round(account.expense));
-								total += account.total;
-							} else {
-								line.push(0, 0);
-							}
-						});
-						line.push(this._round(total));
-						lines.push(line);
-					});
-
-					return [headers, ...lines];
-				case "column":
-					const periodsByAccount = this.getPeriodsByAccount()
-					const data = [];
-					const periodNames = this._flattenList(periodsByAccount);
-					data.push(["Accounts", ...periodNames]);
+					headerName = "Period";
+					const periodsByAccount = this.getPeriodsByAccount();
+					const uniquePeriods = this._flattenList(periodsByAccount);
+					headers = uniquePeriods;
 
 					_.forEach(periodsByAccount, (years, accountID) => {
 						const name = this._getAccountName(accountID);
-						const line = this._getLine(name, periodNames, years, "total");
-						data.push(line);
+						series.push(this._getDataLine(name, uniquePeriods, years, "total"));
 					});
+					series.push(this._getTotalLine(series));
 
-					return data;
+					break;
+				case "column":
+					const accountsByPeriod = this.getAccountsByPeriod();
+					const uniqueAccounts = this._flattenList(accountsByPeriod);
+
+					headerName = "Account";
+					headers = uniqueAccounts.map(accountID => this._getAccountName(accountID))
+
+					_.forEach(accountsByPeriod, (accounts, year) => {
+						series.push(this._getDataLine(year, uniquePeriods, accounts, "total"));
+					});
+					break;
 			}
+
+			return {headers, series, headerName};
+		},
+
+
+		_roundDataLine(data) {
+			return data.map(item => this._round(item))
+		},
+
+		_getTotalLine(series) {
+			let total = [];
+			if(series[0] && series[0].data) {
+				total = series[0].data.map(x => 0);
+				series.forEach(serie => {
+					serie.data.forEach((val, i) => {
+						total[i] += val;
+					})
+				})
+			}
+
+			return {
+				type: 'spline',
+				name: 'All',
+				data: this._roundDataLine(total),
+				marker: {
+					lineWidth: 2,
+					lineColor: Highcharts.getOptions().colors[3],
+					fillColor: 'white'
+				}
+			}
+		},
+		_getDataLine(name, uniqueIds, items, field, totalData, absolute) {
+			const data = [];
+			uniqueIds.forEach((id, i) => {
+				if(totalData && !totalData[i]) totalData[i] = 0;
+
+				const found = items[id];
+				if (found) {
+					const value = absolute ? Math.abs(found[field]) : found[field];
+					data.push(value);
+					if(totalData) {
+						totalData[i] += value;
+					}
+				} else {
+					data.push(0);
+				}
+			});
+
+			return {
+				type: 'column',
+				name: name,
+				data: this._roundDataLine(data),
+			}
+		},
+
+		// PERIOD
+		getIncomeExpenseData() {
+			let headers = [], series = [], headerName;
+
+			switch (this.chartType) {
+				case "combo":
+					headerName = "Period";
+					const periodsByAccount = this.getPeriodsByAccount();
+					const uniquePeriods = this._flattenList(periodsByAccount);
+					headers = uniquePeriods;
+
+					_.forEach(periodsByAccount, (years, accountID) => {
+						const name = this._getAccountName(accountID);
+						series.push(this._getDataLine(name + '/IN', uniquePeriods, years, "income"));
+						series.push(this._getDataLine(name + '/OUT', uniquePeriods, years, "expense"));
+					});
+					series.push(this._getTotalLine(series));
+
+					break;
+				case "column":
+					const accountsByPeriod = this.getAccountsByPeriod();
+					const uniqueAccounts = this._flattenList(accountsByPeriod);
+
+					headerName = "Account";
+					headers = uniqueAccounts.map(accountID => this._getAccountName(accountID))
+
+					_.forEach(accountsByPeriod, (accounts, year) => {
+						const data = [];
+						uniqueAccounts.forEach(accountID => {
+							const account = accounts[accountID];
+							if (account) {
+								data.push(this._round(account.total));
+							} else {
+								data.push(0);
+							}
+						});
+
+						series.push({
+							name: year,
+							data: data,
+						});
+					});
+					break;
+			}
+
+			return {headers, series, headerName};
 		},
 
 		// CATEGORY

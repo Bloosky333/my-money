@@ -179,7 +179,7 @@ const StatsMixin = Vue.component("StatsMixin", {
 					}
 				});
 			});
-			return uniques;
+			return uniques.sort();
 		},
 	}
 });

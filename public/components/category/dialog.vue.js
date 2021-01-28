@@ -12,12 +12,27 @@ const CategoryDialog = Vue.component("CategoryDialog", {
 				<v-text-field
 					label="Icon"
 					v-model="category.icon"
+					hide-details
 				></v-text-field>
-				
+				<div><small class="text-caption grey--text">
+					Use MDI icons. 
+					Check <a href="https://materialdesignicons.com/" target="_blank"> materialdesignicons.com</a> 
+					or use 
+					<a href="https://chrome.google.com/webstore/detail/materialdesignicons-picke/edjaedpifkihpjkcgknfokmibkoafhme" target="_blank">
+						Chrome extension
+					</a>
+				</small></div>
+			
 				<v-text-field
 					label="Color"
 					v-model="category.color"
+					hide-details
 				></v-text-field>
+				<div><small class="text-caption grey--text">
+					Use simple color names. ex: red, blue, green<br/>
+					You can add darken-[1-4] or lighten-[1-5]. ex: red lighten-2<br/>
+					<a href="https://vuetifyjs.com/en/styles/colors/#material-colors" target="_blank">Full list here</a>
+				</small>
 			</section-block>
 			
 			<v-btn 
