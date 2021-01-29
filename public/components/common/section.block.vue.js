@@ -5,10 +5,13 @@ const SectionBlock = Vue.component("SectionBlock", {
         },
         marginBottom: {
             default: 1
+        },
+        height: {
+            default: undefined
         }
     },
     template: `
-        <v-card flat :color="color" class="pa-3" :class="cls">
+        <v-card flat :color="color" class="pa-3" :class="cls" :height="height">
             <slot></slot>
         </v-card>
     `,

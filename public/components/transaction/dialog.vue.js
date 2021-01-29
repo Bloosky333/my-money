@@ -50,8 +50,8 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 									v-model="transaction.amount"
 									:readonly="transaction.imported"
 									prepend-icon="mdi-currency-eur"
-									:hint="'Initial amount: ' + transaction.initialAmount + '€'"
-									:persistent-hint="transaction.initialAmount"
+									:hint="transaction.initialAmount ? 'Initial amount: ' + transaction.initialAmount + '€' : ''"
+									:persistent-hint="!!transaction.initialAmount"
 								></v-text-field>
 							</section-block>
 						</v-col>

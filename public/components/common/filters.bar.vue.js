@@ -3,7 +3,7 @@ const FiltersBar = Vue.component("FiltersBar", {
 	template: `
 		<section-block class="mb-0 py-1" color="#252525">
 			<v-expand-transition>
-				<v-container v-if="expanded && show" class="filter-drawer-content">
+				<v-container v-show="expanded && show" class="filter-drawer-content">
 					<v-row>
 						<v-col cols="12" md="6" lg="4" v-for="section in sections" class="py-0">
 							<section-title margin-bottom="0">
@@ -35,7 +35,6 @@ const FiltersBar = Vue.component("FiltersBar", {
 							</section-block>
 						</v-col>
 					</v-row>
-					
 					
 					<section-title margin-bottom="0">
 						Save/Load Filters
@@ -104,13 +103,16 @@ const FiltersBar = Vue.component("FiltersBar", {
 				</v-container>
 			</v-expand-transition>
 			
-			<v-btn
-				depressed
-				small
-				class="fab-center fab-filter"
-				:color="show && !expanded ? 'orange darken-2' : '#252525'"
-				@click="toggle"
-			><v-icon :small="!show || !expanded">{{ toggleIcon }}</v-icon></v-btn>
+			<div class="filter-expand-btn">
+				<div class="bar" :style="barStyle"></div>
+				<v-btn
+					depressed
+					fab
+					class="fab-center fab-filter"
+					:color="color"
+					@click="toggle"
+				><v-icon :small="!show || !expanded">{{ toggleIcon }}</v-icon></v-btn>
+			</div>
 		</section-block>
         
     `,
@@ -154,6 +156,14 @@ const FiltersBar = Vue.component("FiltersBar", {
 				{name: "categories", list: this.categories},
 			]
 		},
+		color() {
+			return this.show ? "#f57c00" : "#252525";
+		},
+		barStyle() {
+			return {
+				backgroundColor: this.color
+			}
+		}
 	},
 	methods: {
 		async startBtnAnimation(type, i) {
@@ -162,12 +172,10 @@ const FiltersBar = Vue.component("FiltersBar", {
 				await this.delay(2000);
 				this.success.add = false;
 			} else {
-				console.log(type,);
 				this.$set(this.processing[type], i, true);
-
-				console.log(type,this.processing[type]);
 				await this.delay(1000);
 				this.$set(this.processing[type], i, false);
+
 				this.$set(this.success[type], i, true);
 				await this.delay(2000);
 				this.$set(this.success[type], i, false);

@@ -73,19 +73,19 @@ const TransactionBlockSummary = Vue.component("TransactionBlockSummary", {
             <v-col class="py-0 pr-1" cols="4">
                 <section-block class="py-1">
                     <v-icon small left color="success">mdi-trending-up</v-icon>
-                    <small>{{ section.income | round }}€ </small>
+                    <small>{{ section.income | currency }} </small>
                 </section-block>
             </v-col>
             <v-col class="py-0 pr-1" cols="4">
                 <section-block class="py-1">
                     <v-icon small left color="error">mdi-trending-down</v-icon>
-                    <small>{{ Math.abs(section.expense) | round }}€</small>
+                    <small>{{ Math.abs(section.expense) | currency }}</small>
                 </section-block>
             </v-col>
             <v-col class="py-0" cols="4">
                 <section-block class="py-1">
                     <v-icon small left :color="section.total > 0 ? 'success' : 'error'">mdi-sigma</v-icon>
-                    <small>{{ section.total | round }}€</small>
+                    <small>{{ section.total | currency }}</small>
                 </section-block>
             </v-col>
         </v-row>

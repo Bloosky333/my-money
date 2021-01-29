@@ -83,12 +83,10 @@ const MainPage = Vue.component("MainPage", {
         	></filter-dialog>
         	
         	<!-- COPYRIGHT ========================== -->
-            <div class="mt-12 text-overline font-weight-bold grey--text text-center">
-            	My Money v1.1
-            </div>
-            <div class="mb-12 text-caption font-weight-light grey--text text-center">
-                Next IT © 2021
-            </div>
+        	<div class="my-12 grey--text text-center nextit-credit">
+        		<div class="text-uppercase font-weight-bold">My Money v1.2</div>
+            	<div class="font-weight-light"><small>Next IT © 2021</small></div>
+        	</div>
         </v-container>
         
         
@@ -160,11 +158,9 @@ const MainPage = Vue.component("MainPage", {
 				}
 			}
 		},
-		page(val) {
-			if((val === "import" || val === "transactions") && !this.transactionBound) {
-				const filters = [["userID", "==", this.$root.userID]];
-				this.bindTransactions("transactions", filters);
-				this.transactionBound = true;
+		page(page) {
+			if(page === "import" || page === "transactions") {
+				this.bindTransactionsOnce();
 			}
 		}
 	},
@@ -189,12 +185,22 @@ const MainPage = Vue.component("MainPage", {
 		},
 	},
 	methods: {
+		bindTransactionsOnce() {
+			if(!this.transactionBound) {
+				this.transactionBound = true;
+				const filters = [["userID", "==", this.$root.userID]];
+				return this.bindTransactions("transactions", filters);
+			}
+		},
 		edit(type, item = {}) {
 			this.showDialog[type] = true;
 			this.selected[type] = item;
 		},
 		refreshDigest() {
-			this.saveDigest(this.digest, this.transactions);
+			this.$nextTick(async ()=> {
+				await this.bindTransactionsOnce();
+				this.saveDigest(this.digest, this.transactions);
+			});
 		},
 		processLogout() {
 			this.$root.processLogout();

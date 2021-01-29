@@ -17,7 +17,7 @@ const TransactionLine = Vue.component("TransactionLine", {
             <v-row>
                 <v-col cols="8" class="pb-0"><small class="font-weight-light">{{ transaction.communications }}</small></v-col>
                 <v-col cols="4" class="text-right pb-0">
-                    <h3 :class="transaction.amount > 0 ? 'green--text' : 'red--text'">{{ transaction.amount }}€</h3>
+                    <h3 :class="transaction.amount > 0 ? 'green--text' : 'red--text'">{{ transaction.amount | currency }}</h3>
                     <div>{{ transaction.date | dateToStr(true) }}</div>
                 </v-col>
             </v-row>

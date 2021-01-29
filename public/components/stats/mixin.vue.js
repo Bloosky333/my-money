@@ -1,20 +1,58 @@
 const StatsMixin = Vue.component("StatsMixin", {
 	methods: {
 		getPeriodsByAccount() {
-			return this._getPeriodsByX("account");
+			return this._getPeriodsByXData("account");
 		},
 		getPeriodsByCategory() {
-			return this._getPeriodsByX("category");
+			return this._getPeriodsByXData("category");
 		},
 
 		getAccountsByPeriod() {
-			return this._getXByPeriod("account");
+			return this._getXByPeriodData("account");
 		},
 		getCategoriesByPeriod() {
-			return this._getXByPeriod("category");
+			return this._getXByPeriodData("category");
 		},
 
-		_getXByPeriod(type) {
+		_getPeriodsByX(params) {
+			let data;
+			if (params.resource === "account") {
+				data = this.getPeriodsByAccount();
+			} else {
+				data = this.getPeriodsByCategory();
+			}
+
+			const IDs = this._flattenList(data);
+			const headerName = _.capitalize(params.resource);
+			const headers = IDs;
+
+			const series = this._getSeries(data, IDs, params);
+
+			return {headerName, headers, series}
+		},
+		_getXByPeriod(params) {
+			params.idIsName = true;
+
+			let data;
+			if (params.resource === "account") {
+				data = this.getAccountsByPeriod();
+			} else {
+				data = this.getCategoriesByPeriod();
+			}
+
+			const IDs = this._flattenList(data);
+			const headerName = _.capitalize(params.resource);
+
+			const getNameFct = this._getNameFunction(params.resource);
+			const headers = IDs.map(id => getNameFct(id));
+
+			const series = this._getSeries(data, IDs, params);
+
+
+			return {headerName, headers, series}
+		},
+
+		_getXByPeriodData(type) {
 			const results = {};
 			let result;
 			_.forEach(this.digest.accounts, (account, accountID) => {
@@ -77,7 +115,7 @@ const StatsMixin = Vue.component("StatsMixin", {
 			return results;
 		},
 
-		_getPeriodsByX(type) {
+		_getPeriodsByXData(type) {
 			let result;
 			const results = {};
 			_.forEach(this.digest.accounts, (account, accountID) => {
@@ -145,6 +183,36 @@ const StatsMixin = Vue.component("StatsMixin", {
 				}
 			}
 		},
+
+		_getNameFunction(resource) {
+			const fctName = "_" + _.camelCase("get " + resource + " name");
+			return this[fctName];
+		},
+		_getSeries(data, IDs, params) {
+			const getNameFct = params.idIsName ? false : this._getNameFunction(params.resource);
+
+			const series = [];
+			_.forEach(data, (items, id) => {
+				const name = getNameFct ? getNameFct(id) : id;
+				const addSuffix = params.income && params.expense;
+				const stack = params.group ? id : false;
+
+				let fullName;
+				if(params.income) {
+					fullName = addSuffix ? name + "/IN" : name;
+					series.push(this._getDataLine(fullName, IDs, items, "income", stack, params.absolute));
+				}
+				if(params.expense){
+					fullName = addSuffix ? name + "/OUT" : name;
+					series.push(this._getDataLine(fullName, IDs, items, "expense", stack, params.absolute));
+				}
+				if(params.total) {
+					series.push(this._getDataLine(name, IDs, items, "total", stack, params.absolute));
+				}
+			});
+			return series;
+		},
+
 		_getDataLine(name, uniqueIds, items, field, stack, absolute) {
 			const data = [];
 			uniqueIds.forEach((id, i) => {

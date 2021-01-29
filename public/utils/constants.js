@@ -87,10 +87,21 @@ const CONST = {
 		credits: {enabled: false},
 		title: false,
 		chart: {
-			backgroundColor: null,
+			backgroundColor: "#212121",
 			style: {
 				fontFamily: "Roboto"
 			},
+			scrollablePlotArea: {
+				minWidth: undefined,
+				minHeight: undefined,
+			},
+		},
+		legend: {
+			borderRadius: 4,
+			maxHeight: 100,
+			navigation: {
+				activeColor: "#f57c00",
+			}
 		},
 		xAxis: {
 			visible: true,

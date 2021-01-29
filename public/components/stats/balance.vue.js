@@ -5,10 +5,10 @@ const BalanceBlock = Vue.component("BalanceBlock", {
 		<div>
 			<section-title>Account's balance</section-title>
 			<v-row dense>
-				<v-col cols="4" v-for="account in accountList" class="py-0" @click="edit(account.model)">
-					<section-block class="pa-2 text-center" marginBottom="0">
+				<v-col cols="4" v-for="account in accountList" class="py-0 mb-1" @click="edit(account.model)" h>
+					<section-block class="pa-2 text-center" marginBottom="0" height="100%">
 						<div class="text-overline font-weight-light grey--text standard-line-height"><small>{{ account.name }}</small></div>
-						<div class="text-button standard-line-height">{{ account.balance | round }}€</div>
+						<div class="text-button standard-line-height">{{ account.balance | currency }}</div>
 					</section-block>
 				</v-col>
 			</v-row>

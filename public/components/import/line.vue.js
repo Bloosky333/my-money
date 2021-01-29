@@ -8,7 +8,7 @@ const ImportLine = Vue.component("ImportLine", {
                     {{ transaction.transactionID }}
                 </div>
                 <div :class="transaction.amount > 0 ? 'green--text' : 'red--text'" class="font-weight-bold">
-                    {{ transaction.amount }}€
+                    {{ transaction.amount | currency }}
                 </div>
             </div>
             <div class="d-flex justify-space-between">

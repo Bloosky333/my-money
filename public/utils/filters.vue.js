@@ -9,6 +9,17 @@ Vue.filter('round', function (value, precision=2) {
         return 0
     }
 });
+
+function toCurrency(value) {
+    if(value) {
+        return Number(value).toFixed(2).toLocaleString() + "€"
+    } else {
+        return "0€"
+    }
+}
+Vue.filter('currency', function (value) {
+    return toCurrency(value);
+});
 Vue.filter('highlight', function(words, query){
     const iQuery = new RegExp(query, "ig");
     return words.toString().replace(iQuery, function(matchedTxt,a,b){
@@ -22,6 +33,7 @@ Vue.filter('signedNumber', function(value){
         return value;
     }
 });
+
 
 function dateToMoment(value) {
     let date;

@@ -1,6 +1,5 @@
 Vue.use(VueRouter);
 Vue.use(Vuefire.firestorePlugin);
-// Vue.use(VueGoogleCharts);
 
 const routes = VueFlatRoutes();
 const router = new VueRouter({routes});

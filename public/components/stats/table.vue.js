@@ -52,7 +52,7 @@ const StatsTable = Vue.component("StatsTable", {
 				this.data.series[0].data.forEach(item => {
 					items.push({
 						name: item[0],
-						amount: item[1],
+						amount: toCurrency(item[1]),
 					});
 					total += item[1];
 				});
@@ -73,7 +73,7 @@ const StatsTable = Vue.component("StatsTable", {
 						name: header
 					};
 					this.data.series.forEach(item => {
-						line[item.name] = item.data[i];
+						line[item.name] = toCurrency(item.data[i]);
 					});
 					return line;
 				});

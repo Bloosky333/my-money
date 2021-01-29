@@ -4,11 +4,7 @@ const StatsChart = Vue.component("StatsChart", {
 	},
 	props: ["type", "data"],
 	template: `
-		<div style="width: 100%; overflow-x: auto;">
-			<div :style="style">
-				<highcharts :options="chartOptions" ref="chart"></highcharts>
-			</div>
-		</div>
+		<highcharts :options="chartOptions" ref="chart"></highcharts>
     `,
 	computed: {
 		chartOptions() {
@@ -18,17 +14,25 @@ const StatsChart = Vue.component("StatsChart", {
 			options.xAxis.categories = this.data.headers;
 			options.series = this.data.series;
 			options.plotOptions.column.stacking = this.data.stack ? "normal" : false;
-			if(this.type === "pie") {
+			if (this.type === "pie") {
 				options.xAxis.visible = false;
+				options.chart.scrollablePlotArea.minWidth = 1;
+			} else {
+				options.chart.scrollablePlotArea.minWidth = this.width;
 			}
 			return options;
 		},
-		style() {
-			const style = {};
-			if(this.type !== "pie") {
-				style.minWidth = (50 * this.data.headers.length) + 'px';
+		width() {
+			const dataCount = this.data.series[0].data.length;
+			const seriesCount = this.data.series.length;
+
+			let total = 0;
+			if(this.data.stack || this.data.group) {
+				total = dataCount;
+			} else {
+				total = dataCount * seriesCount;
 			}
-			return style;
+			return 50 * total;
 		}
 	},
 });
