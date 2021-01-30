@@ -32,7 +32,8 @@ const StatsChart = Vue.component("StatsChart", {
 			} else {
 				total = dataCount * seriesCount;
 			}
-			return 50 * total;
+
+			return 75 * total;
 		}
 	},
 });

@@ -111,6 +111,7 @@ const FiltersBar = Vue.component("FiltersBar", {
 					class="fab-center fab-filter"
 					:color="color"
 					@click="toggle"
+					 v-touch:swipe.down="expand" v-touch:swipe.up="retract"
 				><v-icon :small="!show || !expanded">{{ toggleIcon }}</v-icon></v-btn>
 			</div>
 		</section-block>
@@ -220,6 +221,13 @@ const FiltersBar = Vue.component("FiltersBar", {
 		toggle() {
 			this.expanded = !this.expanded;
 		},
+		expand() {
+			this.expanded = true;
+		},
+		retract() {
+			this.expanded = false;
+		},
+
 		delay: ms => new Promise(res => setTimeout(res, ms)),
 	}
 });

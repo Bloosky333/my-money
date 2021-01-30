@@ -31,5 +31,5 @@ const Navigation = Vue.component("Navigation", {
 		page(page) {
 			this.$emit("update:page", page);
 		}
-	}
+	},
 });

@@ -1,5 +1,6 @@
 Vue.use(VueRouter);
 Vue.use(Vuefire.firestorePlugin);
+Vue.use(vueTouchEvents);
 
 const routes = VueFlatRoutes();
 const router = new VueRouter({routes});

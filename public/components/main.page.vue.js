@@ -1,9 +1,8 @@
 const MainPage = Vue.component("MainPage", {
 	mixins: [TransactionModelMixin, DigestModelMixin, UserModelMixin],
 	template: `
-    <div>
+    <div v-if="digest">
     	<filters-bar
-    		v-if="digest"
     		:show="page === 'stats' || page === 'transactions'"
     		:search.sync="search"
     		:transactions="transactions"
@@ -12,50 +11,58 @@ const MainPage = Vue.component("MainPage", {
     		:years="digest.years"
     		:digest="digest"
     		@updateDigest="saveDigest(digest)"
+    		ref="filterBar"
     	></filters-bar>
     	
-        <v-container class="page-with-header">
+        <v-container class="page-with-header" v-touch:swipe.up="retractFilterBar">
             <!-- PAGES ========================== -->
-            <stats-page
-                v-show="page==='stats'"
-				:digest="digest"
-                :search="search"
-                :accounts="accountsOrdered"
-                :categories="categoriesOrdered"
-                @edit="edit"
-                @refresh="refreshDigest"
-            ></stats-page>
+            <v-slide-x-transition>
+				<stats-page
+					v-show="page==='stats'"
+					:digest="digest"
+					:search="search"
+					:accounts="accountsOrdered"
+					:categories="categoriesOrdered"
+					@edit="edit"
+					@refresh="refreshDigest"
+				></stats-page>
+            </v-slide-x-transition>
             
-            <transactions-page
-                v-show="page==='transactions'"
-                :accounts="accountsOrdered"
-                :transactions="filteredTransactions"
-                :categories="categoriesOrdered"
-                :filters="filters"
-                :search="search"
-                @edit="edit"
-                @refresh="refreshDigest"
-            ></transactions-page>
+            <v-slide-x-transition>
+				<transactions-page
+					v-show="page==='transactions'"
+					:accounts="accountsOrdered"
+					:transactions="filteredTransactions"
+					:categories="categoriesOrdered"
+					:filters="filters"
+					:search="search"
+					@edit="edit"
+					@refresh="refreshDigest"
+				></transactions-page>
+            </v-slide-x-transition>
             
-            <import-page
-                v-show="page==='import'"
-                :transactions="transactionsOrdered"
-                :categories="categoriesOrdered"
-                :accounts="accountsOrdered"
-                :filters="filters"
-                @edit="edit"
-                @refresh="refreshDigest"
-            ></import-page>
+            <v-slide-x-transition>
+				<import-page
+					v-show="page==='import'"
+					:transactions="transactionsOrdered"
+					:categories="categoriesOrdered"
+					:accounts="accountsOrdered"
+					:filters="filters"
+					@edit="edit"
+					@refresh="refreshDigest"
+				></import-page>
+            </v-slide-x-transition>
             
-            <params-page
-                v-show="page==='params'"
-                :categories="categoriesOrdered"
-                :accounts="accountsOrdered"
-                :filters="filters"
-                @edit="edit"
-                @logout="processLogout"
-            ></params-page>
-            
+            <v-slide-x-transition>
+				<params-page
+					v-show="page==='params'"
+					:categories="categoriesOrdered"
+					:accounts="accountsOrdered"
+					:filters="filters"
+					@edit="edit"
+					@logout="processLogout"
+				></params-page>
+            </v-slide-x-transition>
             
             <!-- DIALOGS ========================== -->
             <transaction-dialog
@@ -208,6 +215,9 @@ const MainPage = Vue.component("MainPage", {
 			this.$unbind("categories");
 			this.$unbind("filters");
 			this.$unbind("digest");
-		}
+		},
+		retractFilterBar() {
+			this.$refs.filterBar.retract();
+		},
 	}
 });
