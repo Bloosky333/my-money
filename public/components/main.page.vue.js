@@ -14,7 +14,7 @@ const MainPage = Vue.component("MainPage", {
     		ref="filterBar"
     	></filters-bar>
     	
-        <v-container class="page-with-header" v-touch:swipe.up="retractFilterBar">
+        <v-container class="page-with-header">
             <!-- PAGES ========================== -->
             <v-slide-x-transition>
 				<stats-page
@@ -215,9 +215,6 @@ const MainPage = Vue.component("MainPage", {
 			this.$unbind("categories");
 			this.$unbind("filters");
 			this.$unbind("digest");
-		},
-		retractFilterBar() {
-			this.$refs.filterBar.retract();
 		},
 	}
 });
