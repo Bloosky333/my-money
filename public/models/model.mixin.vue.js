@@ -1,5 +1,12 @@
 const ModelMixin = {
     methods: {
+        // TOOLS ================================================================
+        getAmountColorClass(amount) {
+            return amount > 0 ? "success--text" : "error--text";
+        },
+        delay: ms => new Promise(res => setTimeout(res, ms)),
+
+        // VUEFIRE BINDS =========================================================
         getCollection(collectionName) {
             return DB.collection(collectionName);
         },

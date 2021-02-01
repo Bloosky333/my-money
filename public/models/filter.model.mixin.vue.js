@@ -25,9 +25,6 @@ const FilterModelMixin = {
 			})
 		},
 		filterMatch(filter, transaction) {
-			console.log(filter.accountID, transaction.accountID)
-			console.log(filter.counterpartAccount, transaction.counterpartAccount)
-			console.log(filter.amount, transaction.amount)
 			if(
 				(filter.accountID && filter.accountID !== transaction.accountID) ||
 				(filter.counterpartAccount && filter.counterpartAccount !== transaction.counterpartAccount) ||

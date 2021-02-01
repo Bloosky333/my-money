@@ -10,6 +10,7 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 					solo
 					hide-details
 					single-line
+					clearable
 					prepend-icon="mdi-magnify"
 				></v-text-field>
 				<v-menu
@@ -69,7 +70,10 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 			<transaction-search
 				 v-if="search"
 				:search="search"
+				:accounts="accounts"
+				:categories="categories"
 				:transactions="transactions"
+				@edit="edit"
 			></transaction-search>
 			
 			<div v-if="!transactions.length" class="text-center py-4">

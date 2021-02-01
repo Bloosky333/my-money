@@ -1,22 +1,16 @@
 const TransactionSearch = Vue.component("TransactionSearch", {
-	mixins: [TransactionModelMixin],
-	props: ["transactions", "search", "categories", "filters"],
+	props: ["transactions", "search", "categories", "accounts"],
 	template: `
 		<div>
 			<section-title>Results ({{ searchResults.length }})</section-title>
 			<transaction-block-summary :section="searchTotals"></transaction-block-summary> 
 			
-			<section-block v-for="line in searchResults" class="py-1" @click.native="edit(line)">
-				<v-row dense>
-					<v-col cols="8">
-						<small class="font-weight-light" v-html="$options.filters.highlight(line.communications, search)"></small>
-					</v-col>
-					<v-col cols="4" class="text-right">
-						<div :class="line.amount > 0 ? 'success--text' : 'error--text'">{{ line.amount | currency}}</div>
-						<div>{{ line.date | dateToStr(true) }}</div>
-					</v-col>
-				</v-row>
-			</section-block>
+			<transaction-line
+				v-for="transaction in searchResults"
+				:transaction="transaction"
+				v-bind="$props"
+				@click.native="edit(transaction)"
+			></transaction-line>
 		</div>
     `,
 	data() {
@@ -26,7 +20,10 @@ const TransactionSearch = Vue.component("TransactionSearch", {
 	computed: {
 		searchResults() {
 			const query = this.search.toLowerCase();
-			return this.transactions.filter(t => t.communications && t.communications.toLowerCase().includes(query));
+			return this.transactions.filter(t => {
+				const text = t.details || t.communications;
+				return text && text.toLowerCase().includes(query)
+			});
 		},
 		searchTotals() {
 			const totals = {

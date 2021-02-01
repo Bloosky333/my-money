@@ -63,9 +63,16 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 									v-model="transaction.amount"
 									:readonly="transaction.imported"
 									prepend-icon="mdi-currency-eur"
-									:hint="transaction.initialAmount ? 'Initial amount: ' + transaction.initialAmount + '€' : ''"
-									:persistent-hint="!!transaction.initialAmount"
+									hide-details
 								></v-text-field>
+								<div class="my-2 pl-8">
+									<div><small v-if="transaction.initialAmount" class="text-caption grey--text">
+										Initial amount: {{ transaction.initialAmount | currency }}
+									</small></div>
+									<small v-if="transaction.beforeSplit" class="text-caption grey--text">
+										Before split : {{ transaction.beforeSplit | currency }}
+									</small>
+								</div>
 							</section-block>
 						</v-col>
 						<v-col cols="12" lg="6" class="py-0">
@@ -122,7 +129,62 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 							</section-block>
 						</v-col>
 						<v-col cols="12" lg="6" class="py-0">
-							<section-block v-if="matchingFilter" class="px-4">
+							<section-block v-if="transaction.id" class="px-4">
+								<section-title expandable="true" :expanded.sync="showSplit" margin-top="2">
+									<v-icon left>mdi-call-split</v-icon> Split transaction
+									
+									<template v-slot:action v-if="showSplit">
+										<v-btn
+											text
+											small
+											@click.stop="showSplit=false"
+										>
+											<v-icon left small>mdi-close</v-icon> Cancel
+										</v-btn>
+									</template>
+								</section-title>
+								<v-expand-transition>
+									<div v-if="showSplit">
+										<v-divider></v-divider>
+										<v-row>
+											<v-col cols="6">
+												<v-autocomplete
+													label="Category 1"
+													v-model="transaction.categoryID"
+													:items="categories"
+													item-text="name"
+													item-value="id"
+													prepend-icon="mdi-tag"
+												></v-autocomplete>
+												
+												<v-text-field
+													label="Amount 1"
+													:value="transaction.amount - split.amount"
+													prepend-icon="mdi-currency-eur"
+													disabled
+												></v-text-field>
+											</v-col>
+											<v-col cols="6">
+												<v-autocomplete
+													label="Category 2"
+													v-model="split.categoryID"
+													:items="categories"
+													item-text="name"
+													item-value="id"
+													prepend-icon="mdi-tag"
+												></v-autocomplete>
+												<v-text-field
+													label="Amount 2"
+													v-model="split.amount"
+													prepend-icon="mdi-currency-eur"
+												></v-text-field>
+											</v-col>
+										</v-row>
+									</div>
+								</v-expand-transition>
+							</section-block>
+							
+							<section-block v-if="transaction.id && matchingFilter" class="px-4">
 								<section-title margin-top="2">
 									<v-icon left>mdi-filter</v-icon> Matching filter
 								</section-title>
@@ -193,6 +255,8 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 		return {
 			showConfirm: false,
 			showEditFilter: false,
+			showSplit: false,
+			split: {},
 			filter: {},
 		}
 	},
@@ -203,6 +267,11 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 		showEditFilter(val) {
 			if(val) {
 				this.newFilter();
+			}
+		},
+		showSplit(val) {
+			if(val) {
+				this.newSplit();
 			}
 		}
 	},
@@ -235,13 +304,29 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 				contains: [],
 			};
 		},
+		newSplit() {
+			this.split = _.clone(this.transaction);
+			delete this.split.id;
+			this.split.amount /= 2;
+		},
 		async saveAndClose() {
+			if(this.showSplit) {
+				this.split.beforeSplit = this.transaction.amount;
+				this.transaction.beforeSplit = this.transaction.amount;
+				this.transaction.amount -= this.split.amount;
+				await this.saveTransaction(this.split);
+			}
+
 			await this.saveTransaction(this.transaction);
 			if(this.showEditFilter) {
-				this.createFilter(this.filter);
+				this.saveFilter(this.filter);
 			}
+
+
 			this.show = false;
 			this.showEditFilter = false;
+			this.showSplit = false;
+			this.split = {};
 			this.$emit('refresh');
 		},
 		deleteAndClose() {
@@ -249,6 +334,7 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 			this.show = false;
 		},
 		edit(type, filter) {
+			this.showEditFilter = false;
 			this.$emit("edit", type, filter);
 		}
 	}
