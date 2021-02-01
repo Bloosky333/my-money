@@ -71,22 +71,26 @@ const MainPage = Vue.component("MainPage", {
         		:accounts="accountsOrdered"
         		:categories="categoriesOrdered"
         		:filters="filters"
+        		@edit="edit"
         		@refresh="refreshDigest"
         	></transaction-dialog>
             
         	<account-dialog
         		:show.sync="showDialog.account"
         		:account="selected.account"
+        		@edit="edit"
         	></account-dialog>
         	<category-dialog
         		:show.sync="showDialog.category"
         		:category="selected.category"
+        		@edit="edit"
         	></category-dialog>
         	<filter-dialog
         		:show.sync="showDialog.filter"
         		:filter="selected.filter"
         		:accounts="accountsOrdered"
         		:categories="categoriesOrdered"
+        		@edit="edit"
         	></filter-dialog>
         	
         	<!-- COPYRIGHT ========================== -->

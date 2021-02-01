@@ -71,7 +71,7 @@ const CategoryDialog = Vue.component("CategoryDialog", {
 			this.show = false;
 		},
 		deleteAndClose() {
-			this.deleteFilter(this.category.id);
+			this.deleteCategory(this.category.id);
 			this.show = false;
 		}
 	}

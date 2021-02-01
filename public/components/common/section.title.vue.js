@@ -10,13 +10,6 @@ const SectionTitle = Vue.component("SectionTitle", {
             <v-spacer></v-spacer>
             <slot name="action">
                 <v-btn
-                    v-if="expandable"
-                    small
-                    icon
-                >
-                    <v-icon small>{{ toggleIcon }}</v-icon>
-                </v-btn>
-                <v-btn
                     v-if="btnLabel"
                     @click="runAction"
                     x-small
@@ -37,6 +30,14 @@ const SectionTitle = Vue.component("SectionTitle", {
                     dense
                     inset
                 ></v-switch>
+                 <v-btn
+                    v-if="expandable"
+                    small
+                    icon
+                    class="ml-2"
+                >
+                    <v-icon>{{ toggleIcon }}</v-icon>
+                </v-btn>
             </slot>
         </div>
     `,

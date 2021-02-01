@@ -21,6 +21,11 @@ const FilterLine = Vue.component("FilterLine", {
                     class="mr-05 mt-05 font-weight-light"
                 >{{ filter.counterpartAccount }}</v-chip>
                 <v-chip
+                    v-if="filter.amount"
+                    small
+                    class="mr-05 mt-05 font-weight-light"
+                >{{ filter.amount | currency }}</v-chip>
+                <v-chip
                     v-for="text in filter.contains"
                     small
                     class="mr-05 mt-05 font-weight-light"

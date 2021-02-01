@@ -7,6 +7,12 @@ const FilterModelMixin = {
 	methods: {
 		saveFilter(filter) {
 			const id = filter.id;
+			if(filter.contains) {
+				filter.contains = filter.contains.filter(c => !!c);
+			}
+			if(filter.amount) {
+				filter.amount = parseFloat(filter.amount);
+			}
 			if(id) {
 				return this.updateFilter(id, filter)
 			} else {
@@ -19,17 +25,21 @@ const FilterModelMixin = {
 			})
 		},
 		filterMatch(filter, transaction) {
+			console.log(filter.accountID, transaction.accountID)
+			console.log(filter.counterpartAccount, transaction.counterpartAccount)
+			console.log(filter.amount, transaction.amount)
 			if(
 				(filter.accountID && filter.accountID !== transaction.accountID) ||
-				(filter.counterpartAccount && filter.counterpartAccount !== transaction.counterpartAccount)
+				(filter.counterpartAccount && filter.counterpartAccount !== transaction.counterpartAccount) ||
+				(filter.amount && filter.amount !== transaction.amount)
 			) {
 				return false;
 			} else if(filter.contains && filter.contains.length) {
-				const communications = _.lowerCase(_.deburr(transaction.communications));
+				const details = _.lowerCase(_.deburr(transaction.details));
 				return filter.contains.every(text => {
 					if(text) {
 						const search = _.lowerCase(_.deburr(text));
-						return communications.includes(search);
+						return details.includes(search);
 					} else {
 						return true;
 					}

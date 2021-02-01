@@ -24,13 +24,18 @@ const FilterForm = Vue.component("FilterForm", {
 					label="Counterpart account"
 					v-model="filter.counterpartAccount"
 				></v-text-field>
+				
+				<v-text-field
+					label="Amount"
+					v-model="filter.amount"
+				></v-text-field>
 			</section-block>
 			
 			<section-title
 				btn-label="Add"
 				btn-icon="mdi-plus"
 				@action="addContains"
-			>Communications contains</section-title>
+			>Details contains</section-title>
 			<section-block v-for="(text, i) in filter.contains" class="py-0">
 				<div class="d-flex align-center">
 					<span>and</span>

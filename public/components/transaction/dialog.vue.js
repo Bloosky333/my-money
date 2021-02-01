@@ -8,27 +8,40 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 					<v-row>	
 						<v-col cols="12" lg="6" class="py-0">
 							<section-block class="px-4">
-								<v-autocomplete
-									label="Category"
-									v-model="transaction.categoryID"
-									:items="categories"
-									item-text="name"
-									item-value="id"
-									prepend-icon="mdi-tag"
-								></v-autocomplete>
+								<div class="d-flex align-center">
+									<v-autocomplete
+										label="Category"
+										v-model="transaction.categoryID"
+										:items="categories"
+										item-text="name"
+										item-value="id"
+										prepend-icon="mdi-tag"
+									></v-autocomplete>
+									<v-btn
+										icon
+										@click="edit('category', {})"
+										class="ml-3"
+									><v-icon>mdi-plus</v-icon></v-btn>
+								</div>
 								
-								<v-autocomplete
-									v-if="transaction.accountID || !transaction.account"
-									label="Account"
-									v-model="transaction.accountID"
-									:items="accounts"
-									item-text="name"
-									item-value="id"
-									:readonly="transaction.imported"
-									prepend-icon="mdi-bank"
-									:hint="transaction.account"
-									persistent-hint
-								></v-autocomplete>
+								<div v-if="transaction.accountID || !transaction.account" class="d-flex align-center">
+									<v-autocomplete
+										label="Account"
+										v-model="transaction.accountID"
+										:items="accounts"
+										item-text="name"
+										item-value="id"
+										:readonly="transaction.imported"
+										prepend-icon="mdi-bank"
+										:hint="transaction.account"
+										persistent-hint
+									></v-autocomplete>
+									<v-btn
+										icon
+										@click="edit('account', {})"
+										class="ml-3"
+									><v-icon>mdi-plus</v-icon></v-btn>
+								</div>
 								<v-text-field
 									v-else
 									label="Account"
@@ -85,54 +98,57 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 					<v-row>	
 						<v-col cols="12" lg="6" class="py-0">
 							<section-block class="px-4">
-								<section-title expandable="true" :expanded.sync="expanded" margin-top="2">
-									<v-icon left small>mdi-dots-horizontal-circle</v-icon> Details
-								</section-title>
-								<v-expand-transition>
-									<div v-if="expanded">
-										<v-divider></v-divider>
-										<v-text-field
-											label="Transaction ID"
-											v-model="transaction.transactionID"
-											:readonly="transaction.imported"
-											prepend-icon="mdi-identifier"
-											class="mt-4"
-										></v-text-field>
-										<v-text-field
-											label="Reference"
-											v-model="transaction.reference"
-											:readonly="transaction.imported"
-											prepend-icon="mdi-pound-box"
-										></v-text-field>
-										
-										<v-textarea
-											label="Details"
-											v-model="transaction.details"
-											:readonly="transaction.imported"
-											auto-grow
-											:rows="2"
-											prepend-icon="mdi-text-box-outline"
-										></v-textarea>
-									</div>
-								</v-expand-transition>
+								<v-text-field
+									label="Transaction ID"
+									v-model="transaction.transactionID"
+									:readonly="transaction.imported"
+									prepend-icon="mdi-identifier"
+								></v-text-field>
+								<v-text-field
+									label="Reference"
+									v-model="transaction.reference"
+									:readonly="transaction.imported"
+									prepend-icon="mdi-pound-box"
+								></v-text-field>
+								
+								<v-textarea
+									label="Details"
+									v-model="transaction.details"
+									:readonly="transaction.imported"
+									auto-grow
+									:rows="2"
+									prepend-icon="mdi-text-box-outline"
+								></v-textarea>
 							</section-block>
 						</v-col>
 						<v-col cols="12" lg="6" class="py-0">
 							<section-block v-if="matchingFilter" class="px-4">
 								<section-title margin-top="2">
-									<v-icon left small>mdi-filter</v-icon> Matching filter
+									<v-icon left>mdi-filter</v-icon> Matching filter
 								</section-title>
 								<v-divider></v-divider>
 								<filter-line
 									:filter="matchingFilter"
 									:accounts="accounts"
 									:categories="categories"
+									class="clickable"
+									@click.native="edit('filter', matchingFilter)"
 								></filter-line>
 							</section-block>
 							
 							<section-block v-else class="px-4">
 								<section-title expandable="true" :expanded.sync="showEditFilter" margin-top="2">
-									<v-icon left small>mdi-filter-plus</v-icon> Create a filter
+									<v-icon left>mdi-filter-plus</v-icon> Create a filter
+									
+									<template v-slot:action v-if="showEditFilter">
+										<v-btn
+											text
+											small
+											@click.stop="showEditFilter=false"
+										>
+											<v-icon left small>mdi-close</v-icon> Cancel
+										</v-btn>
+									</template>
 								</section-title>
 								<v-expand-transition>
 									<div v-if="showEditFilter" class="pb-4">
@@ -178,7 +194,6 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 			showConfirm: false,
 			showEditFilter: false,
 			filter: {},
-			expanded: false
 		}
 	},
 	watch: {
@@ -232,6 +247,9 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 		deleteAndClose() {
 			this.deleteTransaction(this.transaction.id);
 			this.show = false;
+		},
+		edit(type, filter) {
+			this.$emit("edit", type, filter);
 		}
 	}
 });
