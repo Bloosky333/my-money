@@ -1,5 +1,5 @@
 const StatsBlock = Vue.component("StatsBlock", {
-	mixins: [StatsMixin],
+	mixins: [StatsMixin, CategoryModelMixin],
 	props: ["params", "digest", "search", "categories", "accounts"],
 	template: `
 		<div>
@@ -59,6 +59,21 @@ const StatsBlock = Vue.component("StatsBlock", {
 			const functionName = _.camelCase("get " + this.params.stat + " data");
 			return this[functionName]();
 		},
+		restrictCategories() {
+			if(this.params.stat === "category") {
+				if(this.search.allCategories) {
+					const categories = this.categories.filter(c => c.isExpense === this.params.expense);
+					return categories.map(c => c.id);
+				} else {
+					return this.search.categories.filter(id => {
+						const c = this.getCategoryByID(id);
+						return c.isExpense === this.params.expense;
+					});
+				}
+			} else {
+				return false;
+			}
+		}
 	},
 	methods: {
 		// Cash-flow

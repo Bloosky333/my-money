@@ -62,9 +62,6 @@ const AccountDialog = Vue.component("AccountDialog", {
 			this.$emit('update:show', val);
 		}
 	},
-	computed: {
-
-	},
 	methods: {
 		saveAndClose() {
 			this.saveAccount(this.account);

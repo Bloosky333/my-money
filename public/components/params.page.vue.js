@@ -23,16 +23,16 @@ const ParamsPage = Vue.component("ParamsPage", {
 						btn-icon="mdi-plus"
 						@action="edit('category')"
 					>Categories</section-title>
-					<section-block
-						v-for="category in categories"
-					>
-						<div class="d-flex align-center justify-space-between" @click="edit('category', category)">
-							<div>
-								<v-icon left :color="category.color" class="mt-n1">{{ category.icon }}</v-icon>
-								{{ category.name }}
-							</div>
-						</div>
-					</section-block>
+					<category-line
+						v-for="category in incomeCategories"
+						:category="category"
+						@click.native="edit('category', category)"
+					></category-line>
+					<category-line
+						v-for="category in expenseCategories"
+						:category="category"
+						@click.native="edit('category', category)"
+					></category-line>
 				</v-col>
 				
 				<v-col cols="12" md="6" lg="4" class="py-0">
@@ -78,7 +78,13 @@ const ParamsPage = Vue.component("ParamsPage", {
 				orderedCategories.push(category);
 			});
 			return _.orderBy(orderedCategories, "name");
-		}
+		},
+		incomeCategories() {
+			return this.categories.filter(c => !c.isExpense);
+		},
+		expenseCategories() {
+			return this.categories.filter(c => c.isExpense);
+		},
 	},
 	methods: {
 		edit(type, item) {

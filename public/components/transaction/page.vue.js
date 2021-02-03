@@ -116,18 +116,20 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 			this.transactions.forEach(transaction => {
 				if (transaction.categoryID) {
 					const date = dateToMoment(transaction.date);
+					let sectionChanged = false;
 
 					if (date) {
 						if(section.name !== date.year()) {
 							section = {
 								name: date.year(),
 								subSections: [],
-							}
+							};
 							sections.push(section);
+							sectionChanged = true;
 						}
 
 						const name = date.format("MMMM");
-						if (subSection.name !== name) {
+						if (sectionChanged || subSection.name !== name) {
 							subSection = {
 								name: name,
 								transactions: [],
@@ -159,6 +161,7 @@ const TransactionsPage = Vue.component("TransactionsPage", {
 			}
 
 			sections.forEach(this.sumSection);
+			console.log(sections);
 			return sections;
 		},
 	},

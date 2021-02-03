@@ -1,5 +1,5 @@
 const DigestModelMixin = {
-	mixins: [ModelMixin],
+	mixins: [CategoryModelMixin],
 	data() {
 		return {}
 	},
@@ -23,44 +23,6 @@ const DigestModelMixin = {
 			});
 			return years;
 		},
-		computeAccounts(transactions) {
-			const accounts = [];
-			transactions.forEach(t => {
-				if (t.accountID && !accounts.includes(t.accountID)) {
-					accounts.push(t.accountID);
-				}
-			});
-			return accounts;
-		},
-		_getList(id, parent, defaultObj) {
-			id = id === undefined ? "?" : id;
-			if (!parent[id]) {
-				parent[id] = {
-					...defaultObj,
-					income: 0,
-					expense: 0,
-					total: 0,
-				};
-			}
-			return parent[id];
-		},
-		_getTotal(transactions) {
-			let income = 0;
-			let expense = 0;
-
-			transactions.forEach(t => {
-				if (t.amount > 0) {
-					income += parseFloat(t.amount);
-				} else {
-					expense += parseFloat(t.amount);
-				}
-			});
-			return {
-				income: income,
-				expense: expense,
-				total: income + expense
-			};
-		},
 		computeDigest(transactions) {
 			const digest = {
 				years: this.computeYears(transactions),
@@ -79,6 +41,36 @@ const DigestModelMixin = {
 			return digest;
 		},
 
+		_getList(id, parent, defaultObj) {
+			id = id === undefined ? "?" : id;
+			if (!parent[id]) {
+				parent[id] = {
+					...defaultObj,
+					income: 0,
+					expense: 0,
+					total: 0,
+				};
+			}
+			return parent[id];
+		},
+		_getTotal(transactions) {
+			let income = 0;
+			let expense = 0;
+
+			transactions.forEach(t => {
+				const category = this.getCategoryByID(t.categoryID);
+				if(category.isExpense) {
+					expense += parseFloat(t.amount);
+				} else {
+					income += parseFloat(t.amount);
+				}
+			});
+			return {
+				income: income,
+				expense: expense,
+				total: income + expense
+			};
+		},
 		_computeTotals(data, order) {
 			order = order.split(',');
 			_.forEach(data, item => {

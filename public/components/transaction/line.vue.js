@@ -4,13 +4,7 @@ const TransactionLine = Vue.component("TransactionLine", {
     template: `
         <section-block>
             <div class="d-flex align-center justify-space-between">
-                <div v-if="transaction.categoryID" :class="category.color + '--text'">
-                    <v-icon left v-if="category.icon">{{ category.icon }}</v-icon>
-                    {{ category.name }}
-                </div>
-                <div v-else class="red--text">
-                    No category
-                </div>
+                <category-title :category="category"></category-title>
                 <div v-if="!search">{{ account.name }}</div>
                 <div v-if="search" class="grey--text"><small>{{ transaction.date | dateToStr(true) }}</small></div>
                 <div v-if="search" :class="getAmountColorClass(transaction.amount)">
@@ -29,7 +23,11 @@ const TransactionLine = Vue.component("TransactionLine", {
     `,
     computed: {
         category() {
-            return this.getCategoryByID(this.transaction.categoryID);
+        	if(this.transaction.categoryID) {
+				return this.getCategoryByID(this.transaction.categoryID);
+			} else {
+        		return false;
+			}
         },
         account() {
             return this.getAccountByID(this.transaction.accountID);

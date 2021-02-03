@@ -48,7 +48,6 @@ const StatsMixin = Vue.component("StatsMixin", {
 
 			const series = this._getSeries(data, IDs, params);
 
-
 			return {headerName, headers, series}
 		},
 
@@ -59,7 +58,6 @@ const StatsMixin = Vue.component("StatsMixin", {
 				if (this._include("accounts", accountID)) {
 					_.forEach(account.years, (yearObj, year) => {
 						if (this._include("years", year)) {
-							// const yearResult = results[year] || {};
 							if (type === "account") {
 								result = {
 									income: 0,
@@ -163,7 +161,7 @@ const StatsMixin = Vue.component("StatsMixin", {
 
 		_getTotalLine(series) {
 			let total = [];
-			if(series[0] && series[0].data) {
+			if (series[0] && series[0].data) {
 				total = series[0].data.map(x => 0);
 				series.forEach(item => {
 					item.data.forEach((val, i) => {
@@ -197,41 +195,50 @@ const StatsMixin = Vue.component("StatsMixin", {
 				const addSuffix = params.income && params.expense;
 				const stack = params.group ? id : false;
 
-				let fullName;
-				if(params.income) {
-					fullName = addSuffix ? name + "/IN" : name;
-					series.push(this._getDataLine(fullName, IDs, items, "income", stack, params.absolute));
+				// let fullName;
+				const lineParams = {
+					uniqueIds: IDs,
+					items: items,
+					stack: stack,
+					absolute: params.absolute,
+				};
+				if (params.income) {
+					lineParams.name = addSuffix ? name + "/IN" : name;
+					lineParams.field = "income";
+					this._pushDataLine(series, lineParams);
 				}
-				if(params.expense){
-					fullName = addSuffix ? name + "/OUT" : name;
-					series.push(this._getDataLine(fullName, IDs, items, "expense", stack, params.absolute));
+				if (params.expense) {
+					lineParams.name = addSuffix ? name + "/OUT" : name;
+					lineParams.field = "expense";
+					this._pushDataLine(series, lineParams);
 				}
-				if(params.total) {
-					series.push(this._getDataLine(name, IDs, items, "total", stack, params.absolute));
+				if (params.total) {
+					lineParams.name = name;
+					lineParams.field = "total";
+					this._pushDataLine(series, lineParams);
 				}
 			});
 			return series;
 		},
 
-		_getDataLine(name, uniqueIds, items, field, stack, absolute) {
+		_pushDataLine(series, params) {
 			const data = [];
-			uniqueIds.forEach((id, i) => {
-				const found = items[id];
+			params.uniqueIds.forEach(id => {
+				const found = params.items[id];
 				if (found) {
-					const value = absolute ? Math.abs(found[field]) : found[field];
+					const value = params.absolute ? Math.abs(found[params.field]) : found[params.field];
 					data.push(value);
 				} else {
 					data.push(0);
 				}
 			});
-
 			const type = this.chartType === "line" ? "line" : "column";
-			return {
+			series.push({
 				type: type,
-				name: name,
+				name: params.name,
 				data: this._roundDataLine(data),
-				stack: stack || false
-			}
+				stack: params.stack || false
+			})
 		},
 
 		_getAccountName(id) {
@@ -243,9 +250,15 @@ const StatsMixin = Vue.component("StatsMixin", {
 			return category ? category.name : "?";
 		},
 		_include(field, id) {
-			const allName = _.camelCase("all " + field);
+			const restrictName = _.camelCase("restrict " + field);
 			const formatted = field === "years" ? parseInt(id) : id;
-			return !this.search[field] || this.search[allName] || this.search[field].includes(formatted);
+
+			if(this[restrictName]) {
+				return this[restrictName].includes(formatted);
+			} else {
+				const allName = _.camelCase("all " + field);
+				return !this.search[field] || this.search[allName] || this.search[field].includes(formatted);
+			}
 		},
 		_round(val) {
 			return _.round(val, 2);

@@ -10,8 +10,7 @@ const FilterLine = Vue.component("FilterLine", {
                     <v-icon>mdi-transfer-right</v-icon>
                 </v-col>
                 <v-col class="text-right pb-0">
-                    <v-icon left small :color="category.color" class="mt-n1">{{ category.icon }}</v-icon> 
-                    {{ category.name }}
+                    <category-title :category="category"></category-title>
                 </v-col>
             </v-row>
             <div>

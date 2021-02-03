@@ -23,7 +23,7 @@ const StatsChart = Vue.component("StatsChart", {
 			return options;
 		},
 		width() {
-			const dataCount = this.data.series[0].data.length;
+			const dataCount = this.data.series ? this.data.series[0].data.length : 1;
 			const seriesCount = this.data.series.length;
 
 			let total = 0;

@@ -15,8 +15,14 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 										:items="categories"
 										item-text="name"
 										item-value="id"
-										prepend-icon="mdi-tag"
-									></v-autocomplete>
+										:prepend-icon="categoryIcon"
+										:success="category && !category.isExpense"
+										:error="category && category.isExpense"
+									>
+										<template v-slot:item="{ item }">
+											<category-title :category="item"></category-title>
+										</template>
+									</v-autocomplete>
 									<v-btn
 										icon
 										@click="edit('category', {})"
@@ -276,6 +282,20 @@ const TransactionDialog = Vue.component("TransactionDialog", {
 		}
 	},
 	computed: {
+		category() {
+			if(this.transaction.categoryID) {
+				return this.getCategoryByID(this.transaction.categoryID);
+			} else {
+				return false;
+			}
+		},
+		categoryIcon() {
+			if(!this.category) {
+				return "mdi-tag";
+			} else {
+				return this.category.isExpense ? "mdi-cash-minus" : "mdi-cash-plus";
+			}
+		},
 		formattedDate() {
 			if (this.transaction.date) {
 				return dateToMoment(this.transaction.date).format(CONST.userDateFormat);

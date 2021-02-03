@@ -9,6 +9,19 @@ const CategoryDialog = Vue.component("CategoryDialog", {
 					v-model="category.name"
 				></v-text-field>
 				
+				<v-btn-toggle
+					v-model="category.isExpense"
+					borderless
+					color="orange darken-2"
+				>
+					<v-btn :value="false">
+						<v-icon left>mdi-plus</v-icon> Income
+					</v-btn>
+					<v-btn :value="true">
+						<v-icon left>mdi-minus</v-icon> Expense
+					</v-btn>
+				</v-btn-toggle>
+				
 				<v-text-field
 					label="Icon"
 					v-model="category.icon"
@@ -23,15 +36,25 @@ const CategoryDialog = Vue.component("CategoryDialog", {
 					</a>
 				</small></div>
 			
+<!--				Waiting vuetify new version -->
+<!--				<v-color-picker-->
+<!--					label="Chart color"-->
+<!--					v-model="category.color"-->
+<!--					flat-->
+<!--					hide-canvas-->
+<!--					hide-input-->
+<!--					hide-mode-switch-->
+<!--					hide-sliders-->
+<!--					mode="hexa"-->
+<!--					show-swatches-->
+<!--				></v-color-picker>-->
 				<v-text-field
-					label="Color"
+					label="Chart color"
 					v-model="category.color"
 					hide-details
 				></v-text-field>
 				<div><small class="text-caption grey--text">
-					Use simple color names. ex: red, blue, green<br/>
-					You can add darken-[1-4] or lighten-[1-5]. ex: red lighten-2<br/>
-					<a href="https://vuetifyjs.com/en/styles/colors/#material-colors" target="_blank">Full list here</a>
+					Use simple HEX code. ex: #123456</a>
 				</small>
 			</section-block>
 			
@@ -61,9 +84,6 @@ const CategoryDialog = Vue.component("CategoryDialog", {
 		show(val) {
 			this.$emit('update:show', val);
 		}
-	},
-	computed: {
-
 	},
 	methods: {
 		saveAndClose() {
